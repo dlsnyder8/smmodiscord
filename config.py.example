@@ -1,0 +1,12 @@
+TOKEN = ""
+DEV_TOKEN = ""
+DATABASE_URL = ""
+
+API_KEY = ""
+
+API_KEYS = ["",
+            "",
+            "",
+            "",
+            "",
+            ""]
