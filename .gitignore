@@ -1,0 +1,10 @@
+env/
+.env
+.vscode/settings.json
+__pycache__/*
+util/__pycache__/*
+output.txt
+cogs/__pycache__/*
+config.py
+
+discord.log
