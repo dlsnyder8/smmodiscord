@@ -695,12 +695,12 @@ class Friendly(commands.Cog):
         # Tasker
         wb_kills = profile["boss_kills"]
         if wb_kills >= 100:
-            await ctx.author.add_roles(ctx.guild.get_role(fly_roles[23]))
+            await ctx.author.add_roles(ctx.guild.get_role(fly_roles[25]))
             embed.description="You have been given the Slayer+ role"
             await ctx.send(embed=embed)
             return
         elif wb_kills >= 50:
-            await ctx.author.add_roles(ctx.guild.get_role(fly_roles[22]))
+            await ctx.author.add_roles(ctx.guild.get_role(fly_roles[24]))
             embed.description="You have been given the Slayer role"
             await ctx.send(embed=embed)
             return
