@@ -11,20 +11,55 @@ import aiocron
 import asyncio
 from datetime import datetime
 
+# TODO: Flush out commands, inputs, outputs
+# TODO: Setup cron jobs
+# TODO: write more database commands for new tables
+# TODO: setup logging
+# TODO: add cog to bot.py
 
 
 class Tracking(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(aliases = ['t'],hidden=True)
+    @commands.group(aliases = ['t'])
     async def tracking(self,ctx):
         if ctx.invoked_subcommand is None:
             pass
+    
+
+    # Pull up stats since last reset/last full day
+    async def stats(self,ctx):
+        pass
+
+
+    # Lookup stats for past period of time
+    # Yesterday, Week, Month
+    async def lookup(self,ctx,timeperiod):
+        pass
+
+
+    # Show top 10 leaderboard for specific category
+    # Usage: &lb [steps|pvp|pve|quests|etc]
+    async def leaderboard(self,ctx,type):
+        pass
 
 
 
 
+    # Code for events based on specific category tracking
+    # TODO: Create SQL table to keep track of events
+    # TODO: Write start/stop functions to stop event
+    # TODO: Add join event command
+    # TODO: Add stats command, but for event
+    # THOUGHT: possible to put this in a separate cog since it would have it's own logic
+    # TODO: Add checks for Big Friends/Mediators
+
+
+
+
+
+### Put CRON jobs below
 
 
 def setup(bot):
