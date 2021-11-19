@@ -22,8 +22,8 @@ async def test(self,ctx, desc: str):
 
 
 
-async def genlog(self, title : str, desc : str):
-    channel = self.bot.get_channel(790666439673643028)
+async def log(bot, title : str, desc : str):
+    channel = bot.get_channel(790666439673643028)
     embed = discord.Embed(
         title=title, 
         description=desc, 
