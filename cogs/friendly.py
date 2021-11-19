@@ -8,7 +8,7 @@ import database as db
 import api
 from discord.ext.commands.cooldowns import BucketType
 import logging
-from util.log import flylog, genlog
+from util.log import flylog
 import sys
 import traceback
 from datetime import datetime, timezone
