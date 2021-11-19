@@ -1,1 +1,2 @@
 # pleb_bot
+welcome
