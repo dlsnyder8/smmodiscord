@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 aiocron==1.7
-aiohttp==3.6.3
-=======
 aiohttp==3.7.4
->>>>>>> f7e63cd15681adfef5c757bac95c296e26a46c6d
 astroid==2.4.2
 async-timeout==3.0.1
 attrs==20.3.0
