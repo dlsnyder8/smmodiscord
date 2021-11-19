@@ -16,11 +16,10 @@ from dateutil import parser
 from dpymenus import Page, ButtonMenu
 
 
-
 logger = logging.getLogger('discord')
 
 # fly guilds
-fly = (408,455,541,482)
+fly = (408, 455, 541, 482)
 
 """ Fly role order:
     0-2: Thicc
@@ -36,8 +35,6 @@ fly = (408,455,541,482)
     26-28: Trader
     29-31: Celebrity
     32: Veteran
-    
-
 """
 fly_roles = [
     # Thicc (Levels)
@@ -59,114 +56,108 @@ fly_roles = [
     # Tasker
     752706107985625139, 752706496315261068, 763043799869030400,
     # Slayer
-    752702198303031376, 752702447662923777, 
+    752702198303031376, 752702447662923777,
     # Trader
-    710277160857763860,829692366092238858, 720048172399067200,
+    710277160857763860, 829692366092238858, 720048172399067200,
     # Celebrity
     710307235124871189, 720062633281192008, 752701722719289398,
     # Veteran
     752705054351556658
 
 ]
-    
+
 acquaintance = 710307524632641597
 traveler = 710318244401119304
 
 dyl = 332314562575597579
 
+
 class Friendly(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
-    
-
-
     @checks.in_fly()
-    @commands.group(aliases = ['fly','f'],hidden=True)
-    async def friendly(self,ctx):
+    @commands.group(aliases=['fly', 'f'], hidden=True)
+    async def friendly(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
-    
-
 
     @checks.in_fly()
-    @friendly.command(aliases = ['fc','friendcheck'])
+    @friendly.command(aliases=['fc', 'friendcheck'])
     @checks.in_fly_guild()
-    async def friend_check(self,ctx):
+    async def friend_check(self, ctx):
         member = ctx.author
 
         weighted_fly_roles = {
-        # Thicc (Levels)
-        727719624434778124:1,727722577908334662:2,727722769785028672:3,
-        # Stepper
-        710290715787264041:1, 720049949865279559:2, 727947354929365003:3, 829700204357877812:4,
-        # Gladiator (NPC)
-        724649998985461841:1, 724650153218277457:2, 752699779888316417:3,
-        # Monster (PVP)
-        710293875289489458:1, 720052795679703138:2, 752703370510336080:3,
-        # Quester
-        752700240213311580:1, 752700554672865290:2, 752700633920045139:3,
-        # Forager
-        767163012132896808:1, 829700288976781312:2, 829700338893979718:3,
-        # Tasker
-        752706107985625139:1, 752706496315261068:2, 763043799869030400:3,
-        # Slayer
-        752702198303031376:1,752702447662923777:2,
-        # Decorated
-        731018776648089670:1,731019364068753449:2,
-        # Trader
-        710277160857763860:1,829692366092238858:2,720048172399067200:3,
-        # Celebrity
-        710307235124871189:1,720062633281192008:2,752701722719289398:3,
-        # Veteran
-        752705054351556658:1,
-        # Suggester
-        720047404996624487:1,
-        # Storyteller
-        774361923218309130:1,
-        # Looter
-        720049700782342215:1,
-        # Collector
-        710290631855177739:1,720050166396354671:2,752699424735494175:3, 
-        # Tycoon
-        723955238385746030:1,723955584038076486:2,
-        # Thief
-        734573085637869651:1,734573239249928222:2,
-        # Sniper
-        713281314882846730:1,720053096855896084:2,
-        # Artist
-        733433793871872051:1,748786772833730580:2,
-        # Diamond
-        717579223174348900:1,720061797838618660:2,
-        # Hero
-        710317545340797068:1,720049289187033188:2,
-        # Meme'd
-        710325364756447306:1,720053250669281301:2,
-        # Hunter
-        720052696757043294:1,774354836614545419:2,
-        # Enforcer
-        719173436856991804:1,720052932971593800:2,
-        # Contributor
-        868508713525334066:1,720683761959960627:2,720684106551132263:3,
-        # Booster
-        716498456453316672:1,
-        # BF/CF/BFF
-        756119028543651951:1,894229709192314920:2,723506672944807946:3
+            # Thicc (Levels)
+            727719624434778124: 1, 727722577908334662: 2, 727722769785028672: 3,
+            # Stepper
+            710290715787264041: 1, 720049949865279559: 2, 727947354929365003: 3, 829700204357877812: 4,
+            # Gladiator (NPC)
+            724649998985461841: 1, 724650153218277457: 2, 752699779888316417: 3,
+            # Monster (PVP)
+            710293875289489458: 1, 720052795679703138: 2, 752703370510336080: 3,
+            # Quester
+            752700240213311580: 1, 752700554672865290: 2, 752700633920045139: 3,
+            # Forager
+            767163012132896808: 1, 829700288976781312: 2, 829700338893979718: 3,
+            # Tasker
+            752706107985625139: 1, 752706496315261068: 2, 763043799869030400: 3,
+            # Slayer
+            752702198303031376: 1, 752702447662923777: 2,
+            # Decorated
+            731018776648089670: 1, 731019364068753449: 2,
+            # Trader
+            710277160857763860: 1, 829692366092238858: 2, 720048172399067200: 3,
+            # Celebrity
+            710307235124871189: 1, 720062633281192008: 2, 752701722719289398: 3,
+            # Veteran
+            752705054351556658: 1,
+            # Suggester
+            720047404996624487: 1,
+            # Storyteller
+            774361923218309130: 1,
+            # Looter
+            720049700782342215: 1,
+            # Collector
+            710290631855177739: 1, 720050166396354671: 2, 752699424735494175: 3,
+            # Tycoon
+            723955238385746030: 1, 723955584038076486: 2,
+            # Thief
+            734573085637869651: 1, 734573239249928222: 2,
+            # Sniper
+            713281314882846730: 1, 720053096855896084: 2,
+            # Artist
+            733433793871872051: 1, 748786772833730580: 2,
+            # Diamond
+            717579223174348900: 1, 720061797838618660: 2,
+            # Hero
+            710317545340797068: 1, 720049289187033188: 2,
+            # Meme'd
+            710325364756447306: 1, 720053250669281301: 2,
+            # Hunter
+            720052696757043294: 1, 774354836614545419: 2,
+            # Enforcer
+            719173436856991804: 1, 720052932971593800: 2,
+            # Contributor
+            868508713525334066: 1, 720683761959960627: 2, 720684106551132263: 3,
+            # Booster
+            716498456453316672: 1,
+            # BF/CF/BFF
+            756119028543651951: 1, 894229709192314920: 2, 723506672944807946: 3
         }
 
         event_roles = {
-            731438976572850239:1, 729562423912038462:1,784451589922226176:1, 749945230907670560:1
+            731438976572850239: 1, 729562423912038462: 1, 784451589922226176: 1, 749945230907670560: 1
         }
 
-        invite_roles = {710325364756447306:1,720053250669281301:2,748786772833730580:2,720048172399067200:3,
-                        774354836614545419:2,720052932971593800:2,720683761959960627:2,720684106551132263:3}
-        
+        invite_roles = {710325364756447306: 1, 720053250669281301: 2, 748786772833730580: 2, 720048172399067200: 3,
+                        774354836614545419: 2, 720052932971593800: 2, 720683761959960627: 2, 720684106551132263: 3}
+
         async with ctx.typing():
 
             roles = member.roles
 
-            
             roleids = [r.id for r in roles]
             print(roleids)
             output = set(roleids).intersection(weighted_fly_roles)
@@ -187,54 +178,45 @@ class Friendly(commands.Cog):
 
             embed = Embed(title="Friendship Eligibility")
 
-            
             if total < 15:
-                embed.description=f"Try getting some more roles! You only have {total} roles."
-                
+                embed.description = f"Try getting some more roles! You only have {total} roles."
+
             elif total < 30:
                 if not chatter:
-                    embed.description=f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Close Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
+                    embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Close Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 else:
-                    embed.description=f"You are eligible for Close Friend with {total} roles :)"
-                
+                    embed.description = f"You are eligible for Close Friend with {total} roles :)"
+
             elif total < 45:
                 if not chatter:
-                    embed.description=f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Best Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
+                    embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Best Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 else:
-                    embed.description=f"You are eligible for Best Friend!! Nice job getting {total} roles."
+                    embed.description = f"You are eligible for Best Friend!! Nice job getting {total} roles."
             else:
                 if invite and chatter:
-                    embed.description=f"A master role gatherer has joined the ranks of BFF. Congrats on {total} roles!"
+                    embed.description = f"A master role gatherer has joined the ranks of BFF. Congrats on {total} roles!"
                 elif not invite and not chatter:
-                    embed. description=f"You have enough roles to be eligible for BFF with {total} roles, however you need to get an invite only role still and you need to reach level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
+                    embed. description = f"You have enough roles to be eligible for BFF with {total} roles, however you need to get an invite only role still and you need to reach level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 elif not chatter:
-                    embed.description=f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
+                    embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 elif not invite:
-                    embed. description=f"You have enough roles to be eligible for BFF with {total} roles, however you need to get an invite only role still."
-                
+                    embed. description = f"You have enough roles to be eligible for BFF with {total} roles, however you need to get an invite only role still."
 
             await ctx.send(embed=embed)
 
             return
-            
-
-            
-
 
     @checks.is_owner()
     @friendly.command(aliases=["dylroles"])
-    async def give_dyl_roles(self,ctx):
+    async def give_dyl_roles(self, ctx):
         pass
 
-
-
-
     @checks.in_fly()
-    @friendly.command(aliases=['sg','gold'])
+    @friendly.command(aliases=['sg', 'gold'])
     @checks.in_fly_guild()
-    @commands.cooldown(1,30,BucketType.guild)
-    async def sendgold(self,ctx, members: commands.Greedy[discord.Member]):
-        out =""
+    @commands.cooldown(1, 30, BucketType.guild)
+    async def sendgold(self, ctx, members: commands.Greedy[discord.Member]):
+        out = ""
         async with ctx.typing():
             for member in members:
                 smmoid = db.get_smmoid(str(member.id))
@@ -248,8 +230,6 @@ class Friendly(commands.Cog):
 
             await ctx.send(out)
 
-
-
     @checks.is_fly_admin()
     @friendly.command()
     async def remove(self, ctx, member: discord.Member):
@@ -259,14 +239,12 @@ class Friendly(commands.Cog):
         except Exception as e:
             await ctx.send(e)
 
-
     @checks.is_verified()
     @commands.command()
     @guild_only()
-    @commands.cooldown(1,60, BucketType.user)
-    async def join(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def join(self, ctx):
         if ctx.author._roles.has(fly_roles[19]):
-            
 
             if not db.in_fly(ctx.author.id):
                 smmoid = db.get_smmoid(str(ctx.author.id))
@@ -279,14 +257,11 @@ class Friendly(commands.Cog):
                 await ctx.send("Added to database :P")
                 await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly check_roles` to check for all available Friendly roles\nOr you can run `{ctx.prefix}fly roles` for specific roles")
                 return
-                
 
             await ctx.send("You've already been granted the Friendly role :)")
             return
 
-
         smmoid = db.get_smmoid(str(ctx.author.id))
-
 
         # get guild from profile (get_all())
         profile = api.get_all(smmoid)
@@ -295,15 +270,13 @@ class Friendly(commands.Cog):
         except KeyError as e:
             await ctx.send("You are not in a guild")
             return
-        
 
-        
         # if user is in a fly guild....
         if guildid in fly or ctx.author.id == dyl:
-            
+
             if not db.in_fly(ctx.author.id):
                 db.fly_add(ctx.author.id, smmoid, guildid)
-            
+
             roles_given = ""
             try:
                 ingamename = profile["name"]
@@ -322,22 +295,19 @@ class Friendly(commands.Cog):
                 await ctx.author.add_roles(nsf_role)
                 roles_given += f" ,<@&{fly_roles[20]}>"
 
-            await flylog(self.bot,f"{ingamename} has joined Fly",f"**Roles given to** {ctx.author.mention}\n{roles_given}",ctx.author.id)
+            await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {ctx.author.mention}\n{roles_given}", ctx.author.id)
 
             channel = self.bot.get_channel(728355657283141735)
             if ctx.author.id != dyl:
                 await channel.send(f"Welcome {ctx.author.mention} to the Friendliest guild in SimpleMMO!")
-            
 
         else:
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
-
     @friendly.command(aliases=['roles'])
     @checks.in_fly()
-    async def send_role_embed(self,ctx):
-
+    async def send_role_embed(self, ctx):
 
         string = ""
         string += f"`{ctx.prefix}fly thicc` - Level\n"
@@ -352,7 +322,6 @@ class Friendly(commands.Cog):
         string += f"`{ctx.prefix}fly celebrity` - Reputation\n"
         string += f"`{ctx.prefix}fly veteran` - Over 1 Year Old"
 
-
         embed = discord.Embed(
             title="Friendly Roles",
             description=string
@@ -360,39 +329,36 @@ class Friendly(commands.Cog):
 
         await ctx.send(embed=embed)
         return
-        
 
-    
     @friendly.command(aliases=['thicc'])
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def thicc_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def thicc_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[0:2]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-
-        embed = discord.Embed(title = "Role Given")
+        embed = discord.Embed(title="Role Given")
         # Thicc (Levels)
         level = profile["level"]
         if level >= 1000 and level < 5000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[0]))
-            embed.description="You have been given the Thicc role"
+            embed.description = "You have been given the Thicc role"
             await ctx.send(embed=embed)
             return
         elif level >= 5000 and level < 10000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[1]))
-            embed.description="You have been given the Thicc+ role"
+            embed.description = "You have been given the Thicc+ role"
             await ctx.send(embed=embed)
             return
         elif level >= 10000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[2]))
-            embed.description="You have been given the Thicc++ role"
+            embed.description = "You have been given the Thicc++ role"
             await ctx.send(embed=embed)
             return
 
@@ -407,47 +373,45 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def stepper_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def stepper_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[3:6]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-
-        embed = discord.Embed(title = "Role Given")
+        embed = discord.Embed(title="Role Given")
 
         # Stepper
         steps = profile["steps"]
         if steps >= 7500 and steps < 50000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[3]))
-            embed.description="You have been given the Stepper role"
-            
+            embed.description = "You have been given the Stepper role"
+
             await ctx.send(embed=embed)
             return
         elif steps >= 50000 and steps < 100000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[4]))
-            embed.description="You have been given the Stepper+ role"
+            embed.description = "You have been given the Stepper+ role"
             await ctx.send(embed=embed)
             return
         elif steps >= 100000 and steps < 1000000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[5]))
-            embed.description="You have been given the Stepper++ role"
+            embed.description = "You have been given the Stepper++ role"
             await ctx.send(embed=embed)
             return
         elif steps >= 1000000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[6]))
-            embed.description="You have been given the Stepper+++ role"
+            embed.description = "You have been given the Stepper+++ role"
             await ctx.send(embed=embed)
             return
 
-        
         await ctx.send(embed=discord.Embed(
             title="Step more",
             description="You need more than 7500 steps for this role"
         ))
-        
+
         return
 
     @friendly.command(aliases=['gladiator'])
@@ -455,33 +419,31 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def gladiator_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def gladiator_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[7:9]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-        
-        embed = discord.Embed(title = "Role Given")
-
+        embed = discord.Embed(title="Role Given")
 
         # Gladiator (NPC)
         npc_kills = profile["npc_kills"]
         if npc_kills >= 1000 and npc_kills < 10000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[7]))
-            embed.description="You have been given the Gladiator role"
+            embed.description = "You have been given the Gladiator role"
             await ctx.send(embed=embed)
             return
         elif npc_kills >= 10000 and npc_kills < 20000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[8]))
-            embed.description="You have been given the Gladiator+ role"
+            embed.description = "You have been given the Gladiator+ role"
             await ctx.send(embed=embed)
             return
         elif npc_kills >= 20000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[9]))
-            embed.description="You have been given the Gladiator++ role"
+            embed.description = "You have been given the Gladiator++ role"
             await ctx.send(embed=embed)
             return
 
@@ -492,48 +454,44 @@ class Friendly(commands.Cog):
 
         return
 
-
     @friendly.command(aliases=['monster'])
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def monster_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def monster_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[10:12]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-        embed = discord.Embed(title = "Role Given")
-
+        embed = discord.Embed(title="Role Given")
 
         # Monster (PVP)
         pvp_kills = profile["user_kills"]
         if pvp_kills >= 100 and pvp_kills < 2500:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[10]))
-            embed.description="You have been given the Monster role"
+            embed.description = "You have been given the Monster role"
             await ctx.send(embed=embed)
             return
         elif pvp_kills >= 2500 and pvp_kills < 10000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[11]))
-            embed.description="You have been given the Monster+ role"
+            embed.description = "You have been given the Monster+ role"
             await ctx.send(embed=embed)
             return
         elif pvp_kills >= 10000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[12]))
-            embed.description="You have been given the Monster++ role"
+            embed.description = "You have been given the Monster++ role"
             await ctx.send(embed=embed)
             return
-            
 
         await ctx.send(embed=discord.Embed(
             title="I sense more bloodshed in your future",
             description="You need more than 100 Player Kills for this role"
         ))
 
-        
         return
 
     @friendly.command(aliases=['quester'])
@@ -541,35 +499,33 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def quester_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def quester_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[13:15]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-
-        embed = discord.Embed(title = "Role Given")
+        embed = discord.Embed(title="Role Given")
 
         # Quester
         quests = profile["quests_complete"]
         if quests >= 2500 and quests < 10000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[13]))
-            embed.description="You have been given the Quester role"
+            embed.description = "You have been given the Quester role"
             await ctx.send(embed=embed)
             return
         elif quests >= 10000 and quests < 30000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[14]))
-            embed.description="You have been given the Quester+ role"
+            embed.description = "You have been given the Quester+ role"
             await ctx.send(embed=embed)
             return
         elif quests >= 30000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[15]))
-            embed.description="You have been given the Quester++ role"
+            embed.description = "You have been given the Quester++ role"
             await ctx.send(embed=embed)
             return
-
 
         await ctx.send(embed=discord.Embed(
             title="Are you an adventurer or a couch potato?",
@@ -577,33 +533,27 @@ class Friendly(commands.Cog):
         ))
         return
 
-    
-
-
-
     @friendly.command(aliases=['forager'])
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def forager_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def forager_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
 
         for role in fly_roles[16:18]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-
-
-        embed = discord.Embed(title = "Role Given")
+        embed = discord.Embed(title="Role Given")
 
         # Add special roles
         skills = api.get_skills(smmoid)
-        
+
         # Forager
         total_skill_level = 0
         for skill in skills:
-            
+
             if skill["skill"] == "crafting":
                 continue
 
@@ -612,20 +562,19 @@ class Friendly(commands.Cog):
 
         if total_skill_level >= 150 and total_skill_level < 300:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[16]))
-            embed.description="You have been given the Forager role"
+            embed.description = "You have been given the Forager role"
             await ctx.send(embed=embed)
             return
         elif total_skill_level >= 300 and total_skill_level < 500:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[17]))
-            embed.description="You have been given the Forager+ role"
+            embed.description = "You have been given the Forager+ role"
             await ctx.send(embed=embed)
             return
         elif total_skill_level >= 500:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[18]))
-            embed.description="You have been given the Forager++ role"
+            embed.description = "You have been given the Forager++ role"
             await ctx.send(embed=embed)
             return
-
 
         await ctx.send(embed=discord.Embed(
             title="You're supposed to collect materials, not look at them...",
@@ -638,33 +587,31 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def tasker_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def tasker_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[21:23]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-        
-        embed = discord.Embed(title = "Role Given")
-
+        embed = discord.Embed(title="Role Given")
 
         # Tasker
         tasks = profile["tasks_completed"]
-        if tasks >= 1000: 
+        if tasks >= 1000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[23]))
-            embed.description="You have been given the Tasker++ role"
+            embed.description = "You have been given the Tasker++ role"
             await ctx.send(embed=embed)
             return
         elif tasks >= 500:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[22]))
-            embed.description="You have been given the Tasker+ role"
+            embed.description = "You have been given the Tasker+ role"
             await ctx.send(embed=embed)
             return
         elif tasks >= 250:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[21]))
-            embed.description="You have been given the Tasker role"
+            embed.description = "You have been given the Tasker role"
             await ctx.send(embed=embed)
             return
 
@@ -680,31 +627,28 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def slayer_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def slayer_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[24:25]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-        
-        embed = discord.Embed(title = "Role Given")
-
+        embed = discord.Embed(title="Role Given")
 
         # Tasker
         wb_kills = profile["boss_kills"]
         if wb_kills >= 100:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[25]))
-            embed.description="You have been given the Slayer+ role"
+            embed.description = "You have been given the Slayer+ role"
             await ctx.send(embed=embed)
             return
         elif wb_kills >= 50:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[24]))
-            embed.description="You have been given the Slayer role"
+            embed.description = "You have been given the Slayer role"
             await ctx.send(embed=embed)
             return
-        
 
         await ctx.send(embed=discord.Embed(
             title="Have you even heard of a World Boss before?",
@@ -718,28 +662,26 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def trader_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def trader_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[26:27]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-        
-        embed = discord.Embed(title = "Role Given")
-
+        embed = discord.Embed(title="Role Given")
 
         # Trader
         trades = profile["market_trades"]
-        if trades >= 10000: 
+        if trades >= 10000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[27]))
-            embed.description="You have been given the Trader+ role"
+            embed.description = "You have been given the Trader+ role"
             await ctx.send(embed=embed)
             return
         elif trades >= 1000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[26]))
-            embed.description="You have been given the Trader role"
+            embed.description = "You have been given the Trader role"
             await ctx.send(embed=embed)
             return
         await ctx.send(embed=discord.Embed(
@@ -753,36 +695,33 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def celebrity_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def celebrity_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
         for role in fly_roles[29:31]:
             await ctx.author.remove_roles(ctx.guild.get_role(role))
 
-        
-        embed = discord.Embed(title = "Role Given")
-
+        embed = discord.Embed(title="Role Given")
 
         # Celebrity
         rep = profile["reputation"]
-        if rep >= 500: 
+        if rep >= 500:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[31]))
-            embed.description="You have been given the Celebrity++ role"
+            embed.description = "You have been given the Celebrity++ role"
             await ctx.send(embed=embed)
             return
         elif rep >= 200:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[30]))
-            embed.description="You have been given the Celebrity+ role"
+            embed.description = "You have been given the Celebrity+ role"
             await ctx.send(embed=embed)
             return
         elif rep >= 30:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[29]))
-            embed.description="You have been given the Celebrity role"
+            embed.description = "You have been given the Celebrity role"
             await ctx.send(embed=embed)
             return
-        
 
         await ctx.send(embed=discord.Embed(
             title="Have you tried bribing noobs?",
@@ -790,35 +729,32 @@ class Friendly(commands.Cog):
         ))
 
         return
+
     @friendly.command(aliases=['veteran'])
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def veteran_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def veteran_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = api.get_all(smmoid)
 
-    
         if ctx.author._roles.has(fly_roles[32]):
             await ctx.send(embed=discord.Embed(title="You already have this role silly"))
             return
 
-        
-        embed = discord.Embed(title = "Role Given")
+        embed = discord.Embed(title="Role Given")
 
-
-        
         # Veteran
         creation = profile["creation_date"]
         now = datetime.now(timezone.utc)
         creation = parser.parse(creation)
         difference = now - creation
-        
+
         if difference.days >= 365:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[32]))
-            embed.description="You have been given the Veteran role"
+            embed.description = "You have been given the Veteran role"
             await ctx.send(embed=embed)
             return
 
@@ -829,89 +765,109 @@ class Friendly(commands.Cog):
 
         return
 
-
-    @friendly.command(aliases=['mush','m'])
+    @friendly.command(aliases=['mush', 'm'])
     @checks.in_fly()
     @checks.in_fly_guild()
     @checks.is_verified()
-    @commands.cooldown(1,30, BucketType.member)
-    async def mushroom(self,ctx):
+    @commands.cooldown(1, 30, BucketType.member)
+    async def mushroom(self, ctx):
         smmoid = db.get_smmoid(ctx.author.id)
         await ctx.send(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
-        
 
     @friendly.command(aliases=['bfc'])
     @checks.is_fly_admin()
     @checks.in_fly()
-    @commands.cooldown(1,600, BucketType.guild)
-    async def big_fly_check(self,ctx):
-
+    @commands.cooldown(1, 600, BucketType.guild)
+    async def big_fly_check(self, ctx):
 
         all_fly_roles = [
-        # Main Fly Role
-        ctx.guild.get_role(710315282920636506),
-        # NSF Role
-        ctx.guild.get_role(722110578516164670),
-        # Thicc (Levels)
-        ctx.guild.get_role(727719624434778124), ctx.guild.get_role(727722577908334662), ctx.guild.get_role(727722769785028672),
-        # Stepper
-        ctx.guild.get_role(710290715787264041), ctx.guild.get_role(720049949865279559), ctx.guild.get_role(727947354929365003), ctx.guild.get_role(829700204357877812),
-        # Gladiator (NPC)
-        ctx.guild.get_role(724649998985461841), ctx.guild.get_role(724650153218277457), ctx.guild.get_role(752699779888316417),
-        # Monster (PVP)
-        ctx.guild.get_role(710293875289489458), ctx.guild.get_role(720052795679703138), ctx.guild.get_role(752703370510336080),
-        # Quester
-        ctx.guild.get_role(752700240213311580), ctx.guild.get_role(752700554672865290), ctx.guild.get_role(752700633920045139),
-        # Forager
-        ctx.guild.get_role(767163012132896808), ctx.guild.get_role(829700288976781312), ctx.guild.get_role(829700338893979718),
-        # Tasker
-        ctx.guild.get_role(752706107985625139), ctx.guild.get_role(752706496315261068), ctx.guild.get_role(763043799869030400),
-        # Slayer
-        ctx.guild.get_role(752702198303031376), ctx.guild.get_role(752702447662923777),
-        # Decorated
-        ctx.guild.get_role(731018776648089670), ctx.guild.get_role(731019364068753449),
-        # Trader
-        ctx.guild.get_role(710277160857763860), ctx.guild.get_role(829692366092238858), ctx.guild.get_role(720048172399067200),
-        # Celebrity
-        ctx.guild.get_role(710307235124871189), ctx.guild.get_role(720062633281192008), ctx.guild.get_role(752701722719289398),
-        # Veteran
-        ctx.guild.get_role(752705054351556658),
-        # Suggester
-        ctx.guild.get_role(720047404996624487),
-        # Storyteller
-        ctx.guild.get_role(774361923218309130),
-        # Looter
-        ctx.guild.get_role(720049700782342215),
-        # Collector
-        ctx.guild.get_role(710290631855177739), ctx.guild.get_role(720050166396354671), ctx.guild.get_role(752699424735494175), 
-        # Tycoon
-        ctx.guild.get_role(723955238385746030), ctx.guild.get_role(723955584038076486),
-        # Thief
-        ctx.guild.get_role(734573085637869651), ctx.guild.get_role(734573239249928222),
-        # Sniper
-        ctx.guild.get_role(713281314882846730), ctx.guild.get_role(720053096855896084),
-        # Diamond
-        ctx.guild.get_role(717579223174348900), ctx.guild.get_role(720061797838618660),
-        # Hero
-        ctx.guild.get_role(710317545340797068), ctx.guild.get_role(720049289187033188),
-        # Meme'd
-        ctx.guild.get_role(710325364756447306), ctx.guild.get_role(720053250669281301),
-        # Hunter
-        ctx.guild.get_role(720052696757043294), ctx.guild.get_role(774354836614545419),
-        # Enforcer
-        ctx.guild.get_role(719173436856991804), ctx.guild.get_role(720052932971593800),
-        # Contributor
-        ctx.guild.get_role(868508713525334066), ctx.guild.get_role(720683761959960627), ctx.guild.get_role(720684106551132263),
-        # Secret CF/BF
-        ctx.guild.get_role(756119028543651951),ctx.guild.get_role(894229709192314920),
-        # CF/BF/BFF (non-secret)
-        ctx.guild.get_role(719181452855738400),ctx.guild.get_role(720041551069446225),ctx.guild.get_role(723506672944807946),
-        # charity
-        ctx.guild.get_role(713069407261425724),
-        # ping roles
-        ctx.guild.get_role(840696114537431080), ctx.guild.get_role(897118429629251584), ctx.guild.get_role(840694858259890196)
+            # Main Fly Role
+            ctx.guild.get_role(710315282920636506),
+            # NSF Role
+            ctx.guild.get_role(722110578516164670),
+            # Thicc (Levels)
+            ctx.guild.get_role(727719624434778124), ctx.guild.get_role(
+                727722577908334662), ctx.guild.get_role(727722769785028672),
+            # Stepper
+            ctx.guild.get_role(710290715787264041), ctx.guild.get_role(720049949865279559), ctx.guild.get_role(
+                727947354929365003), ctx.guild.get_role(829700204357877812),
+            # Gladiator (NPC)
+            ctx.guild.get_role(724649998985461841), ctx.guild.get_role(
+                724650153218277457), ctx.guild.get_role(752699779888316417),
+            # Monster (PVP)
+            ctx.guild.get_role(710293875289489458), ctx.guild.get_role(
+                720052795679703138), ctx.guild.get_role(752703370510336080),
+            # Quester
+            ctx.guild.get_role(752700240213311580), ctx.guild.get_role(
+                752700554672865290), ctx.guild.get_role(752700633920045139),
+            # Forager
+            ctx.guild.get_role(767163012132896808), ctx.guild.get_role(
+                829700288976781312), ctx.guild.get_role(829700338893979718),
+            # Tasker
+            ctx.guild.get_role(752706107985625139), ctx.guild.get_role(
+                752706496315261068), ctx.guild.get_role(763043799869030400),
+            # Slayer
+            ctx.guild.get_role(752702198303031376), ctx.guild.get_role(
+                752702447662923777),
+            # Decorated
+            ctx.guild.get_role(731018776648089670), ctx.guild.get_role(
+                731019364068753449),
+            # Trader
+            ctx.guild.get_role(710277160857763860), ctx.guild.get_role(
+                829692366092238858), ctx.guild.get_role(720048172399067200),
+            # Celebrity
+            ctx.guild.get_role(710307235124871189), ctx.guild.get_role(
+                720062633281192008), ctx.guild.get_role(752701722719289398),
+            # Veteran
+            ctx.guild.get_role(752705054351556658),
+            # Suggester
+            ctx.guild.get_role(720047404996624487),
+            # Storyteller
+            ctx.guild.get_role(774361923218309130),
+            # Looter
+            ctx.guild.get_role(720049700782342215),
+            # Collector
+            ctx.guild.get_role(710290631855177739), ctx.guild.get_role(
+                720050166396354671), ctx.guild.get_role(752699424735494175),
+            # Tycoon
+            ctx.guild.get_role(723955238385746030), ctx.guild.get_role(
+                723955584038076486),
+            # Thief
+            ctx.guild.get_role(734573085637869651), ctx.guild.get_role(
+                734573239249928222),
+            # Sniper
+            ctx.guild.get_role(713281314882846730), ctx.guild.get_role(
+                720053096855896084),
+            # Diamond
+            ctx.guild.get_role(717579223174348900), ctx.guild.get_role(
+                720061797838618660),
+            # Hero
+            ctx.guild.get_role(710317545340797068), ctx.guild.get_role(
+                720049289187033188),
+            # Meme'd
+            ctx.guild.get_role(710325364756447306), ctx.guild.get_role(
+                720053250669281301),
+            # Hunter
+            ctx.guild.get_role(720052696757043294), ctx.guild.get_role(
+                774354836614545419),
+            # Enforcer
+            ctx.guild.get_role(719173436856991804), ctx.guild.get_role(
+                720052932971593800),
+            # Contributor
+            ctx.guild.get_role(868508713525334066), ctx.guild.get_role(
+                720683761959960627), ctx.guild.get_role(720684106551132263),
+            # Secret CF/BF
+            ctx.guild.get_role(756119028543651951), ctx.guild.get_role(
+                894229709192314920),
+            # CF/BF/BFF (non-secret)
+            ctx.guild.get_role(719181452855738400), ctx.guild.get_role(
+                720041551069446225), ctx.guild.get_role(723506672944807946),
+            # charity
+            ctx.guild.get_role(713069407261425724),
+            # ping roles
+            ctx.guild.get_role(840696114537431080), ctx.guild.get_role(
+                897118429629251584), ctx.guild.get_role(840694858259890196)
         ]
-        
 
         try:
             guild = ctx.guild
@@ -920,7 +876,6 @@ class Friendly(commands.Cog):
             not_in_fly = 0
             not_linked = 0
             total = 0
-            
 
             fly1 = fly[0]
             fly2 = fly[1]
@@ -937,23 +892,22 @@ class Friendly(commands.Cog):
             fly3 = [x["user_id"] for x in fly3]
             fly4 = [x["user_id"] for x in fly4]
 
-            allmembers = fly1 + fly2 + fly3 + fly4 
+            allmembers = fly1 + fly2 + fly3 + fly4
             # for guild in fly:
             #     tempmembers = api.guild_members(guild)
             #     allmembers += [x["user_id"] for x in tempmembers]
 
-            #await ctx.send(allmembers)
-            
+            # await ctx.send(allmembers)
 
             listUsers = []
             await ctx.send(f"Starting. Checking {len(members)} people.")
             async with ctx.typing():
                 for member in members:
-                    
+
                     total += 1
                     if(total % 100 == 0):
                         await ctx.send(f"{total} out of {len(members)} checked")
-                    
+
                     # # if already linked to friendly server
                     # if db.in_fly(member.id):
                     #     pass
@@ -974,7 +928,7 @@ class Friendly(commands.Cog):
                             not_in_fly += 1
                             listUsers.append(f"{member.mention}")
                             print(f"{member.display_name}")
-                            await member.remove_roles(*all_fly_roles,reason="User left fly")
+                            await member.remove_roles(*all_fly_roles, reason="User left fly")
                             await member.add_roles(ctx.guild.get_role(acquaintance))
 
                             continue
@@ -982,123 +936,103 @@ class Friendly(commands.Cog):
                         if smmoid in allmembers:
                             # Add to database
                             try:
-                                db.fly_add(member.id,smmoid,0)
+                                db.fly_add(member.id, smmoid, 0)
                             except:
-                                db.fly_update(member.id,smmoid,0)
-                            
+                                db.fly_update(member.id, smmoid, 0)
 
-                        # Has Friendly role, but not in Friendly. 
+                        # Has Friendly role, but not in Friendly.
                         else:
                             listUsers.append(f"{member.mention}")
                             print(f"{member.display_name}")
 
                             not_in_fly += 1
                             print(not_in_fly)
-                            await member.remove_roles(*all_fly_roles,reason="User left fly")
+                            await member.remove_roles(*all_fly_roles, reason="User left fly")
                             await member.add_roles(ctx.guild.get_role(acquaintance))
 
-
-                                
-                        
                     else:
                         # unlinked. remove roles
                         not_linked += 1
                         print(f"{member.display_name}")
 
                         listUsers.append(f"{member.mention}")
-                        await member.remove_roles(*all_fly_roles,reason="User left fly")
+                        await member.remove_roles(*all_fly_roles, reason="User left fly")
                         await member.add_roles(ctx.guild.get_role(acquaintance))
-                            
-                        
-                    
 
                 await ctx.send(f"{len(members)} Friendly members checked.\n{not_in_fly} member(s) not in fly\n{not_linked} member(s) not linked to bot :(")
-                
 
-
-                splitUsers = [listUsers[i:i+33] for i in range(0,len(listUsers),33)]
+                splitUsers = [listUsers[i:i+33]
+                              for i in range(0, len(listUsers), 33)]
                 if len(splitUsers) != 0:
                     embed = Embed(
                         title="Users with Fly role removed"
                     )
                     for split in splitUsers:
-                        embed.add_field(name="Users",value=' '.join(split))
-                    
+                        embed.add_field(name="Users", value=' '.join(split))
+
                     await ctx.send(embed=embed)
-
-
 
                 return
         except Exception as e:
-            await ctx.send(embed=Embed(title="Error",description=e))
+            await ctx.send(embed=Embed(title="Error", description=e))
             raise e
 
-
-
-
     @friendly.command(aliases=['g'])
-    @commands.cooldown(1,30,BucketType.guild)
+    @commands.cooldown(1, 30, BucketType.guild)
     @checks.in_fly()
     @checks.in_fly_guild()
-    async def give(self,ctx, arg: int, members: commands.Greedy[discord.Member]):
+    async def give(self, ctx, arg: int, members: commands.Greedy[discord.Member]):
         out = ""
         for member in members:
             smmoid = db.get_smmoid(str(member.id))
-            
+
             if smmoid is not None:
-                out +=f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>\n"
+                out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>\n"
 
         await ctx.send(out)
 
-    
     @friendly.command(aliases=['t'])
-    @commands.cooldown(1,30,BucketType.guild)
+    @commands.cooldown(1, 30, BucketType.guild)
     @checks.in_fly()
     @checks.in_fly_guild()
-    async def trade(self,ctx, members: commands.Greedy[discord.Member]):
+    async def trade(self, ctx, members: commands.Greedy[discord.Member]):
         out = ""
         for member in members:
             smmoid = db.get_smmoid(str(member.id))
-            
+
             if smmoid is not None:
-                out +=f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
+                out += f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
 
         await ctx.send(out)
-            
-
-        
-
-        
 
     @friendly.command(aliases=['log'])
     @checks.in_fly()
     @checks.is_owner()
-    async def test2(self,ctx):
+    async def test2(self, ctx):
         try:
-            await flylog(self.bot,"Testing Testing","This is a test")
+            await flylog(self.bot, "Testing Testing", "This is a test")
         except Exception as e:
             await ctx.send(e)
             await ctx.send(traceback.print_exc())
-    
+
     @friendly.command(aliases=["rd"])
     @checks.is_owner()
-    async def remove_dyl(self,ctx):
+    async def remove_dyl(self, ctx):
         await ctx.author.remove_roles(ctx.guild.get_role(710315282920636506))
 
     @friendly.command(aliases=["bd"])
     @checks.is_owner()
-    async def bring_dyl(self,ctx):
+    async def bring_dyl(self, ctx):
         await ctx.author.add_roles(ctx.guild.get_role(710315282920636506))
-
 
     @friendly.command()
     @checks.is_owner()
-    async def test(self,ctx):
+    async def test(self, ctx):
         good = '☑️'
         stop = '🛑'
         page1 = Page(title="Testing", description="we worky")
-        page1.add_field(name="test3",value="test4")
-        page1.buttons([good,stop]).on_next(self.modcheck)
+        page1.add_field(name="test3", value="test4")
+        page1.buttons([good, stop]).on_next(self.modcheck)
 
         menu = ButtonMenu(ctx).add_pages([page1])
         menu2 = menu.set_custom_check(checks.is_fly_admin())
@@ -1106,7 +1040,7 @@ class Friendly(commands.Cog):
         await menu2.open()
 
         return
-    
+
     @staticmethod
     async def modcheck(menu):
         good = '☑️'
@@ -1120,19 +1054,17 @@ class Friendly(commands.Cog):
         #         await menu.close()
         # else:
         #     message = await menu.ctx.send(f"Not allowed: {menu.ctx.author.display_name}")
-            
 
     @staticmethod
-    async def admincheck(self,message:discord.Message):
+    async def admincheck(self, message: discord.Message):
         return message.author._roles.has(719789422178205769)
 
-
-    @friendly.command(aliases=['check_roles','cr','checkroles'])
+    @friendly.command(aliases=['check_roles', 'cr', 'checkroles'])
     @checks.in_fly()
     @checks.in_fly_guild()
     @checks.has_joined()
-    @commands.cooldown(1,60, BucketType.user)
-    async def add_roles(self,ctx):
+    @commands.cooldown(1, 60, BucketType.user)
+    async def add_roles(self, ctx):
         member = ctx.author
         smmoid = db.get_smmoid(str(member.id))
         profile = api.get_all(smmoid)
@@ -1146,7 +1078,7 @@ class Friendly(commands.Cog):
                 role = ctx.guild.get_role(fly_roles[0])
                 rolesadded += f"<@&{role.id}> "
                 await member.add_roles(role)
-                
+
             elif level >= 5000 and level < 10000:
                 role = ctx.guild.get_role(fly_roles[1])
                 rolesadded += f"<@&{role.id}> "
@@ -1155,7 +1087,7 @@ class Friendly(commands.Cog):
                 role = ctx.guild.get_role(fly_roles[2])
                 rolesadded += f"<@&{role.id}> "
                 await member.add_roles(role)
-            
+
             # Stepper
             steps = profile["steps"]
             if steps >= 7500 and steps < 50000:
@@ -1215,7 +1147,7 @@ class Friendly(commands.Cog):
             if tasks >= 250:
                 await member.add_roles(ctx.guild.get_role(fly_roles[21]))
                 rolesadded += f"<@&{fly_roles[21]}> "
-            
+
             # Slayer
             wb_kills = profile["boss_kills"]
             if wb_kills >= 100:
@@ -1245,7 +1177,7 @@ class Friendly(commands.Cog):
             elif rep >= 30:
                 await member.add_roles(ctx.guild.get_role(fly_roles[29]))
                 rolesadded += f"<@&{fly_roles[29]}> "
-            
+
             # Veteran
             creation = profile["creation_date"]
             now = datetime.now(timezone.utc)
@@ -1254,12 +1186,11 @@ class Friendly(commands.Cog):
             if difference.days >= 365:
                 await member.add_roles(ctx.guild.get_role(fly_roles[32]))
                 rolesadded += f"<@&{fly_roles[32]}> "
-            
 
             # Forager
             total_skill_level = 0
             for skill in skills:
-                
+
                 if skill["skill"] == "crafting":
                     continue
 
@@ -1282,44 +1213,41 @@ class Friendly(commands.Cog):
                 title="Success",
                 description="You have been given all applicable roles. Contact a Big Friend if they seem to be incorrect."
             ))
-            flylog(self.bot, "Role check run",f"**Roles given to {ingamename}:**\n{rolesadded}",member.id)
+            flylog(self.bot, "Role check run",
+                   f"**Roles given to {ingamename}:**\n{rolesadded}", member.id)
 
         return
-
 
     @friendly.command(aliases=["rfr"])
     @checks.in_fly()
     @checks.is_verified()
     @checks.is_fly_admin()
-    @commands.cooldown(1,30, BucketType.user)
-    async def remove_all_roles(self,ctx, member: discord.Member):
+    @commands.cooldown(1, 30, BucketType.user)
+    async def remove_all_roles(self, ctx, member: discord.Member):
         async with ctx.typing():
             if member is not None:
                 for roleid in fly_roles[:18]:
                     role = (ctx.guild.get_role(roleid))
-                    await member.remove_roles(role,reason="Admin role removal")
+                    await member.remove_roles(role, reason="Admin role removal")
                 for roleid in fly_roles[21:32]:
                     role = (ctx.guild.get_role(roleid))
-                    await member.remove_roles(role,reason="Admin role removal")
-
+                    await member.remove_roles(role, reason="Admin role removal")
 
             await ctx.send(f"Roles have been removed from {member.display_name}")
 
-            
-    @friendly.command(aliases=["traveler"])  
+    @friendly.command(aliases=["traveler"])
     @checks.in_fly()
     @checks.is_verified()
     @checks.is_owner()
-    async def remove_traveler(self,ctx,member:discord.Member):
-        
+    async def remove_traveler(self, ctx, member: discord.Member):
+
         if member is not None:
             await member.remove_roles(ctx.guild.get_role(traveler))
 
     @friendly.command(aliases=['fj'])
     @checks.is_owner()
-    async def force_join(self,ctx,member:discord.Member):
+    async def force_join(self, ctx, member: discord.Member):
         if member._roles.has(fly_roles[19]):
-            
 
             if not db.in_fly(member.id):
                 smmoid = db.get_smmoid(str(member.id))
@@ -1332,14 +1260,11 @@ class Friendly(commands.Cog):
                 await ctx.send("Added to database :P")
                 await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly check_roles` to check for all available Friendly roles\nOr you can run `{ctx.prefix}fly roles` for specific roles")
                 return
-                
 
             await ctx.send("They've already been granted the Friendly role :)")
             return
 
-
         smmoid = db.get_smmoid(str(member.id))
-
 
         # get guild from profile (get_all())
         profile = api.get_all(smmoid)
@@ -1348,14 +1273,12 @@ class Friendly(commands.Cog):
         except KeyError as e:
             await ctx.send("They are not in a guild")
             return
-        
 
-        
         # if user is in a fly guild....
         if guildid in fly or member.id == dyl:
             if not db.in_fly(member.id):
                 db.fly_add(member.id, smmoid, guildid)
-            
+
             # if user is in NSF
             if guildid == 541:
                 await member.add_roles(ctx.guild.get_role(fly_roles[20]))
@@ -1365,13 +1288,12 @@ class Friendly(commands.Cog):
             await member.add_roles(ctx.guild.get_role(traveler))
             await member.remove_roles(ctx.guild.get_role(acquaintance))
             await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly check_roles` to check for all available Friendly roles\nOr you can run `{ctx.prefix}fly roles` for specific roles")
-            
 
         else:
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
-    
+
 def setup(bot):
     bot.add_cog(Friendly(bot))
 
