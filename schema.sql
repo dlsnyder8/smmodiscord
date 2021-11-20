@@ -27,4 +27,22 @@ CREATE TABLE "friendly" (
   "smmoid" int,
   "guildid" int
 )
-}
+};
+
+CREATE TABLE "tracking" (
+  "id" SERIAL PRIMARY KEY,
+  "smmoid" int,
+  "timestamp" datetime,
+  "steps" int,
+  "quests" int,
+  "npckills" int,
+  "pvpkills" int,
+  "eventskills" int,
+  "reputation" int,
+  "tasks" int,
+  "bosskills" int,
+  "markettrades" int,
+  "bounties" int,
+  "dailies" int,
+  "chests" int
+);
