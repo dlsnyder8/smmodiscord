@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session, create_session, Session
 from sqlalchemy.ext.automap import automap_base
 import config
-from datetime import datetime
+from datetime import datetime, timezone, date
 
 
 # DATABASE_URL
@@ -342,7 +342,9 @@ def remove_guild_user(smmoid):
         session.rollback()
         raise e
 
-
+################
+# Fly Commands #
+################
 def fly_add(discid, smmoid, guildid=0):
     try:
         session.add(Friendly(discid=str(discid),
@@ -382,7 +384,7 @@ def in_fly(discid):
 
 def all_fly():
     try:
-        session.query(Friendly.discid, Friendly.smmoid, Friendly.guildid).all()
+        return session.query(Friendly.discid, Friendly.smmoid, Friendly.guildid).all()
 
     except Exception as e:
         session.rollback()
@@ -413,7 +415,7 @@ def tracking_add(smmoid,
                  dailies: int,
                  chests: int):
 
-    session.add(Tracking(smmoid=smmoid, timestamp=datetime.now(),
+    session.add(Tracking(smmoid=smmoid, timestamp=datetime.now(timezone.utc),
                 steps=steps, quests=quests, npckills=npckills,
                 pvpkills=pvpkills, eventskills=eventskills,
                 reputation=rep, tasks=tasks, bosskills=bosskills,
@@ -438,6 +440,30 @@ def tracking_get_all(smmoid):
                   Tracking.reputation, Tracking.tasks, Tracking.bosskills, Tracking.markettrades, Tracking.bounties,
                   Tracking.dailies, Tracking.chests).filter_by(smmoid=smmoid).order_by(Tracking.timestamp.asc()).all()
 
+def tracking_get_last_day(smmoid):
+    # If after noon, get all information from noon today onwards
+    if datetime.now(timezone.utc).hour > 12:
+        resultproxy = session.execute("SELECT * FROM tracking WHERE smmoid=:param AND tracking.timestamp > CURRENT_DATE + interval '12 hour' ORDER BY tracking.timestamp", {"param":smmoid})
+    # If before noon, get all information from yesterday at noon until now
+    else:
+        resultproxy = session.execute("SELECT * FROM tracking WHERE smmoid=:param AND tracking.timestamp > CURRENT_DATE + interval '12 hour' - interval '1 day' ORDER BY tracking.timestamp", {"param":smmoid})
+
+    # Convert each row to a dictionary and return list of dicts
+    result = [dict(row) for row in resultproxy]
+    return result
+
+
+def tracking_test(smmoid):
+    
+    if datetime.now(timezone.utc).hour > 12:
+        resultproxy = session.execute("SELECT * FROM tracking WHERE smmoid=:param AND tracking.timestamp > CURRENT_DATE + interval '12 hour' ORDER BY tracking.timestamp", {"param":smmoid})
+    else:
+        resultproxy = session.execute("SELECT * FROM tracking WHERE smmoid=:param AND tracking.timestamp > CURRENT_DATE + interval '12 hour' - interval '1 day' ORDER BY tracking.timestamp", {"param":smmoid})
+
+
+    result = [dict(row) for row in resultproxy]
+    return result
+
 
 if __name__ == "__main__":
     # print(is_ambassador(str(309115527962427402)))
@@ -448,4 +474,7 @@ if __name__ == "__main__":
 
     #tracking_add(2,1,1,1,1,1,1,1,1,1,1,1,1)
     #tracking_add(2,2,2,2,2,2,2,2,2,2,2,2,3)
-    print(tracking_get_all(2))
+    #print(tracking_get_last_day(2))
+    info = tracking_test(2)
+    print(info[0])
+    #print(datetime.date(datetime.now(timezone.utc)))
