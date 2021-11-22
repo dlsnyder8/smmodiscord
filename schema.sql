@@ -32,7 +32,7 @@ CREATE TABLE "friendly" (
 CREATE TABLE "tracking" (
   "id" SERIAL PRIMARY KEY,
   "smmoid" int,
-  "timestamp" datetime,
+  "timestamp" timestamp,
   "steps" int,
   "quests" int,
   "npckills" int,
@@ -46,3 +46,19 @@ CREATE TABLE "tracking" (
   "dailies" int,
   "chests" int
 );
+
+
+CREATE TABLE "events" (
+  "id" SERIAL PRIMARY KEY,
+  "type" varchar(64),
+  "start" datetime,
+  "end" datetime
+)
+
+CREATE TABLE "participants" (
+  "eventid" int,
+  "smmoid" int,
+  "start_stat" int,
+  "last_checked_stat" int,
+  "final_stat" int
+)
