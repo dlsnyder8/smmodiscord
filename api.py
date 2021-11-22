@@ -226,10 +226,32 @@ def item_info(itemid):
     else:
         print("Request Failed")
         return None
+
+# @status:
+#   1 : Ongoing
+#   2: Ended
+#   3: Hold
+#   4: All
+def get_guild_wars(guildid,status):
+    key =  {"api_key": next(tokens)}
+    url = f"https://api.simple-mmo.com/v1/guilds/wars/{guildid}/{status}" 
+    
+    ret = post(url, data=key, timeout=None)
+
+    if ret.ok:
+        content = ret.content
+        
+        x = content.decode("UTF-8")
+        info = json.loads(x)
+       
+        return info
+    else:
+        print("Guild War Request Failed\n")
+        return None
     
 if __name__ == "__main__":
-    profile = get_all(385801)
-    print(profile)
+    # profile = get_all(385801)
+    # print(profile)
     #print(guild_members(828))
     # creation = profile["creation_date"]
     # print(creation)
@@ -238,7 +260,7 @@ if __name__ == "__main__":
     # difference = now - creation
     # print(difference.days)
 
-
+    print(get_guild_wars(455,1))
     
     #print([x["user_id"] for x in guild_members(828)])
 
