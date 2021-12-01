@@ -95,7 +95,10 @@ class Pleb(commands.Cog):
                 return
             if(key in motto):
                 db.update_verified(smmoid, True)
-                await ctx.send(f'You are now verified!')
+                if ctx.guild.id == 710258284661178418:
+                    await ctx.send(f"You are now verified. If you're in Friendly, please run `&join` to be granted access to guild channels.")
+                else:
+                    await ctx.send(f'You are now verified!')
                 if ispleb:
 
                     plebid = db.pleb_id(guild.id)
