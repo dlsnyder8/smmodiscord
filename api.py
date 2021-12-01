@@ -228,9 +228,9 @@ def item_info(itemid):
         return None
     
 if __name__ == "__main__":
-    profile = get_all(385801)
-    print(profile)
-    #print(guild_members(828))
+   # profile = get_all(385801)
+    #print(profile)
+    print(guild_members(828))
     # creation = profile["creation_date"]
     # print(creation)
     # now = datetime.now(timezone.utc)
