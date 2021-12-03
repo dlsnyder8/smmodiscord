@@ -750,9 +750,8 @@ class Friendly(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-        
         embed = discord.Embed(title = "Role Given")
-
+        
 
         # Trader
         trades = profile["market_trades"]
