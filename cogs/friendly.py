@@ -1171,7 +1171,7 @@ class Friendly(commands.Cog):
         #First check if already has any of the roles bot gives:
         roleids = [r.id for r in member.roles]
         output = set(roleids).intersection(fly_roles)
-        if len(output)>0:
+        if len(output)>1:
             string = ""
             string += "You already have at least one of the roles the bot can give out. Please use one of the following role commands to apply for new roles.\n"
             string += "\n"
