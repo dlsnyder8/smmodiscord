@@ -1358,7 +1358,7 @@ class Friendly(commands.Cog):
                 for roleid in fly_roles[:18]:
                     role = (ctx.guild.get_role(roleid))
                     await member.remove_roles(role, reason="Admin role removal")
-                for roleid in fly_roles[21:32]:
+                for roleid in fly_roles[21:]:
                     role = (ctx.guild.get_role(roleid))
                     await member.remove_roles(role, reason="Admin role removal")
 
