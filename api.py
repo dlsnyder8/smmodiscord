@@ -248,6 +248,24 @@ def get_guild_wars(guildid,status):
     else:
         print("Guild War Request Failed\n")
         return None
+
+def diamond_market():
+    key = {"api_key": next(tokens)}
+    url = f"https://api.simple-mmo.com/v1/diamond-market"
+
+    ret = post(url, data=key, timeout=None)
+
+    if ret.ok:
+        content = ret.content
+        
+        x = content.decode("UTF-8")
+        info = json.loads(x)
+       
+        return info
+    else:
+        print("Diamond Market Request Failed\n")
+        return None
+
     
 if __name__ == "__main__":
     # profile = get_all(385801)
@@ -260,7 +278,7 @@ if __name__ == "__main__":
     # difference = now - creation
     # print(difference.days)
 
-    print(get_guild_wars(455,1))
+    #print(get_guild_wars(455,1))
     
     #print([x["user_id"] for x in guild_members(828)])
 
@@ -271,3 +289,4 @@ if __name__ == "__main__":
     #         print(pleb_status(385801),i)
 
     #equipment(385801)
+    print(diamond_market()[0])
