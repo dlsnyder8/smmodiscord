@@ -33,7 +33,7 @@ CREATE TABLE "friendly" (
 );
 
 CREATE TABLE "events" (
-  "id" int SERIAL PRIMARY KEY,
+  "id" SERIAL PRIMARY KEY,
   "serverid" numeric,
   "name" varchar(64),
   "type" varchar(16),
@@ -45,10 +45,10 @@ CREATE TABLE "events" (
 
 
 CREATE TABLE "event_info" (
-  "id" int SERIAL PRIMARY KEY,
+  "id" int PRIMARY KEY,
   "discordid" numeric,
   "starting_stat" int,
   "current_stat" int,
   "last_updated" timestamp
-)
+);
 

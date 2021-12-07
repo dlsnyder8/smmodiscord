@@ -270,7 +270,7 @@ def diamond_market():
 if __name__ == "__main__":
     # profile = get_all(385801)
     # print(profile)
-    #print(guild_members(828))
+    print(guild_members(828)[0])
     # creation = profile["creation_date"]
     # print(creation)
     # now = datetime.now(timezone.utc)
@@ -289,4 +289,4 @@ if __name__ == "__main__":
     #         print(pleb_status(385801),i)
 
     #equipment(385801)
-    print(diamond_market()[0])
+    #print(diamond_market()[0])

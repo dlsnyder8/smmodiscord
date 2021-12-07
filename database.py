@@ -419,11 +419,11 @@ def active_events():
 
 def event_info(eventid):
     try:
-        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time).filter_by(id=eventid).all()
+        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time).filter_by(id=eventid).first()
     except Exception as e:
         session.rollback()
         raise e
-        
+
 def join_event(eventid,discordid):
     try:
         session.add(Events(id=eventid,discordid=discordid))

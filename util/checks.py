@@ -28,6 +28,7 @@ def has_joined():
                 title="You need to join first",
                 description=f"Before you use this command, you need to run `{ctx.prefix}join`"
             ))
+            return False
 
 
     return commands.check(predicate)
