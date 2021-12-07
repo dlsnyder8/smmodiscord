@@ -417,6 +417,47 @@ def active_events():
         session.rollback()
         raise e
 
+def event_info(eventid):
+    try:
+        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time).filter_by(id=eventid).all()
+    except Exception as e:
+        session.rollback()
+        raise e
+        
+def join_event(eventid,discordid):
+    try:
+        session.add(Events(id=eventid,discordid=discordid))
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+
+def get_participants(eventid):
+    try:
+        return session.query(Events.discordid,Events.starting_stat,Events.current_stat,Events.last_updated).filter_by(id=eventid).all()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def update_start_stat(eventid,discordid,stat):
+    try:
+        session.query(Events).filter_by(id=eventid,discordid=discordid).update({Events.starting_stat : stat})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def update_stat(eventid,discordid,stat):
+    try:
+        session.query(Events).filter_by(id=eventid,discordid=discordid).update({Events.current_stat : stat, Events.last_updated : datetime.now(timezone.utc)})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+
+
 if __name__ == "__main__":
     #print(is_ambassador(str(309115527962427402)))
     # print(ambassadors(424))
