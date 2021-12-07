@@ -24,6 +24,8 @@ Server = Base.classes.server
 Plebs = Base.classes.plebs
 Guild = Base.classes.guilds
 Friendly = Base.classes.friendly
+Events = Base.classes.events
+Event_info = Base.classes.event_info
 
 def add_server(serverid, name):
     try:
@@ -380,6 +382,40 @@ def fly_remove(discid):
         session.rollback()
         raise e
 
+
+# Event Database Commands
+def create_event(serverid,name,eventtype):
+    # session.add(Guild(discid=str(discid), smmoid=smmoid,leader=False,ambassador=False, guildid=0))
+    try:
+        eventtoadd = Events(serverid=serverid,name=name,type=eventtype)
+        session.add(eventtoadd)
+        session.commit()
+        return eventtoadd.id
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def start_event(eventid):
+    try:
+        session.query(Events).filter_by(id=eventid).update({Events.is_started : True, Events.start_time : datetime.now(timezone.utc)})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+def end_event(eventid):
+    try:
+        session.query(Events).filter_by(id=eventid).update({Events.is_ended : False, Events.end_time : datetime.now(timezone.utc)})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def active_events():
+    try:
+        return session.query(Events.id, Events.serverid, Events.name, Events.type).filter_by(is_started=True,is_ended=False).all()
+    except Exception as e:
+        session.rollback()
+        raise e
 
 if __name__ == "__main__":
     #print(is_ambassador(str(309115527962427402)))

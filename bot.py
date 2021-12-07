@@ -67,6 +67,7 @@ bot.load_extension("cogs.error_handler")
 bot.load_extension("cogs.help")
 bot.load_extension("cogs.friendly")
 bot.load_extension("cogs.diamond")
+bot.load_extension("cogs.events")
 
 @bot.event
 async def on_ready():

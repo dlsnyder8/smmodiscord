@@ -32,3 +32,23 @@ CREATE TABLE "friendly" (
   "guildid" int
 );
 
+CREATE TABLE "events" (
+  "id" int SERIAL PRIMARY KEY,
+  "serverid" numeric,
+  "name" varchar(64),
+  "type" varchar(16),
+  "is_started" boolean DEFAULT false,
+  "is_ended" boolean default false,
+  "start_time" timestamp,
+  "end_time" timestamp
+);
+
+
+CREATE TABLE "event_info" (
+  "id" int SERIAL PRIMARY KEY,
+  "discordid" numeric,
+  "starting_stat" int,
+  "current_stat" int,
+  "last_updated" timestamp
+)
+
