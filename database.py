@@ -90,7 +90,7 @@ def add_diamond_channel(serverid,channelid):
 
 def get_diamond_ping_info():
     try:
-        return session.query(Server.serverid,Server.diamond_role,Server.diamond_channel).filter_by(diamond_ping=True).all()
+        return session.query(Server.serverid,Server.diamond_role,Server.diamond_channel, Server.last_pinged).filter_by(diamond_ping=True).all()
     except Exception as e:
         session.rollback()
         raise e
@@ -387,7 +387,8 @@ if __name__ == "__main__":
     # guild_leader_update(332314562575597579,False,0)
     # print(ambassadors(424))
     # print(conn_disc(587672))
-    print(in_fly(439777465494142996))
+    #print(in_fly(439777465494142996))
+    update_timestamp(710258284661178418,datetime.now(timezone.utc))
 
 
 

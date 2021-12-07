@@ -16,7 +16,7 @@ import config
 import logging
 
 # Logging setup?
-logger = logging.getLogger('discord')
+logger = logging.getLogger('__name__')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
@@ -37,9 +37,9 @@ if dev is True:
     TOKEN = DEV_TOKEN
 
 # Set discord intents
-intents = Intents.default()
-intents.members = True
-bot = commands.Bot(command_prefix='&', intents=intents) 
+intents = Intents.all()
+print(intents.value)
+bot = commands.Bot(command_prefix='&', intents=intents,status="Contact dyl#8008 with questions") 
 
 ###########################
 #     Local Variables     #
@@ -66,7 +66,7 @@ bot.load_extension("cogs.guild")
 bot.load_extension("cogs.error_handler")
 bot.load_extension("cogs.help")
 bot.load_extension("cogs.friendly")
-#bot.load_extension("cogs.log")
+bot.load_extension("cogs.diamond")
 
 @bot.event
 async def on_ready():
@@ -299,12 +299,12 @@ async def update_fly():
 
 @tasks.loop(hours=6)
 async def update_all_plebs():
-    await plebcheck()
+    #await plebcheck()
     return
 
 @tasks.loop(hours=6)
 async def update_all_guilds():
-    await guildcheck()
+    #await guildcheck()
     return
 
 
