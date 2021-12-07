@@ -4,6 +4,8 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session, create_session, Session
 from sqlalchemy.ext.automap import automap_base
 import config
+from datetime import datetime, timezone
+from dateutil import parser
 
 
 # DATABASE_URL
@@ -57,6 +59,45 @@ def add_leader_role(serverid,roleid):
 def add_ambassador_role(serverid,roleid):
     try:
         session.query(Server).filter_by(serverid=serverid).update({Server.ambassador_role : roleid})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+        
+def enable_diamond_ping(serverid,bool=False):
+    try:
+        session.query(Server).filter_by(serverid=serverid).update({Server.diamond_ping : bool})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def add_diamond_role(serverid,roleid):
+    try:
+        session.query(Server).filter_by(serverid=serverid).update({Server.diamond_role : roleid})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def add_diamond_channel(serverid,channelid):
+    try:
+        session.query(Server).filter_by(serverid=serverid).update({Server.diamond_channel : channelid})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def get_diamond_ping_info():
+    try:
+        return session.query(Server.serverid,Server.diamond_role,Server.diamond_channel, Server.last_pinged).filter_by(diamond_ping=True).all()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def update_timestamp(serverid,timestamp : datetime):
+    try:
+        session.query(Server).filter_by(serverid=serverid).update({Server.last_pinged : timestamp})
         session.commit()
     except Exception as e:
         session.rollback()
@@ -346,7 +387,8 @@ if __name__ == "__main__":
     # guild_leader_update(332314562575597579,False,0)
     # print(ambassadors(424))
     # print(conn_disc(587672))
-    print(in_fly(439777465494142996))
+    #print(in_fly(439777465494142996))
+    update_timestamp(710258284661178418,datetime.now(timezone.utc))
 
 
 
