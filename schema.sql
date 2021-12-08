@@ -40,7 +40,8 @@ CREATE TABLE "events" (
   "is_started" boolean DEFAULT false,
   "is_ended" boolean default false,
   "start_time" timestamp,
-  "end_time" timestamp
+  "end_time" timestamp,
+  "friendly_only" bool default true
 );
 
 

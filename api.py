@@ -34,7 +34,7 @@ def get_all(smmoid):
     elif ret.status_code == 429:
         print("Too many requests. Sleeping...")
         
-        time.sleep(30)
+        time.sleep(15)
         return pleb_status(smmoid)
     else:
         print("Failed\n")
@@ -268,8 +268,8 @@ def diamond_market():
 
     
 if __name__ == "__main__":
-    # profile = get_all(385801)
-    # print(profile)
+    profile = get_all(385801)
+    print(profile)
     print(guild_members(828)[0])
     # creation = profile["creation_date"]
     # print(creation)

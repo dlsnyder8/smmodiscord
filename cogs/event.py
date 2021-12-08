@@ -1,7 +1,7 @@
 import discord
 from discord import Embed
-from discord.ext import commands
-from util import checks
+from discord.ext import commands, tasks
+from util import checks, log
 import api
 import logging
 import database as db
@@ -17,6 +17,7 @@ class Event(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
         self.event_types = ["step","pvp","npc","level"]
+        self.stat_update.start()
 
     
     @commands.group(aliases = ['e'], hidden=True)
@@ -29,7 +30,8 @@ class Event(commands.Cog):
     @checks.is_owner()
     async def create(self,ctx,name : str, eventtype : str):
         if eventtype not in self.event_types:
-            await ctx.send(embed=Embed(title="Invalid event type",description="Events must be on of the following:\n`step`,`level`,`npc`,`pvp`"))
+            await ctx.send(embed=Embed(title="Invalid event type",description="Events must be one of the following:\n`step`,`level`,`npc`,`pvp`"))
+            return
 
         try:
             event_id = db.create_event(ctx.guild.id,name,eventtype)
@@ -45,6 +47,7 @@ class Event(commands.Cog):
     async def start(self,ctx,eventid):
         try:
             db.start_event(eventid)
+            # TODO: Update the current value of each particpant
             await ctx.send(f"Event {eventid} has started!")
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
@@ -55,18 +58,39 @@ class Event(commands.Cog):
     async def end(self,ctx,eventid):
         try:
             db.end_event(eventid)
-            await ctx.send(f"Event {eventid} has confluded.")
+            await ctx.send(f"Event {eventid} has concluded.")
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
             raise e
 
+
+    @event.command()
+    @checks.is_owner()
+    async def guild_only(self,ctx, eventid : int, boolean : bool):
+        try:
+            db.event_guild_only(eventid,boolean)
+            if boolean:
+                await ctx.send(f"Event {eventid} has been set to `guild only`")
+            else:
+                await ctx.send(f"Event {eventid} has been set to `public`")
+        except Exception as e:
+            await ctx.send(embed=Embed(title="Error", description=e))
+            raise e
+
+
+
     @event.command()
     @checks.in_fly()
+    @checks.is_verified()
     async def join(self,ctx,eventid=None):
-        active_events = db.active_events()
-        if len(active_events == 1):
+        active_events = db.available_events()
+        if len(active_events) == 1:
             eventid = active_events[0][0]
             try:
+                # if guild only, check if in guild
+                if active_events[0][-1] and not ctx.author._roles.has(710315282920636506):
+                    await ctx.send(f"This event is only for Friendly members.")
+                    return 
                 db.join_event(eventid,ctx.author.id)
                 await ctx.send(f"You have succesfully joined the {active_events[0][2]} event.")
             except Exception as e:
@@ -75,16 +99,110 @@ class Event(commands.Cog):
             
             return
         elif(eventid is None):
-            await ctx.send(f"There are multiple active events. Please specify the event id with `{ctx.prefix}event join [eventid]`")
+            if len(active_events) > 1:
+                await ctx.send(f"There are multiple active events. Please specify the event id with `{ctx.prefix}event join [eventid]`")
+            else:
+                await ctx.send("There are no joinable events right now.")
             return
         else:
             try:
+                
                 eventinfo = db.event_info(eventid)
+                if eventinfo[-1] and not ctx.author._roles.has(710315282920636506):
+                    await ctx.send(f"This event is only for Friendly members.")
+                    return 
                 db.join_event(eventid,ctx.author.id)
                 await ctx.send(f"You have succesfully joined the {eventinfo[1]} event.")
             except Exception as e:
                 await ctx.send(embed=Embed(title="Error", description=e))
                 raise e
+    
+
+    @event.command(aliases=['lb'])
+    @checks.is_owner()
+    async def leaderboard(self,ctx,eventid:int):
+        try:
+            participants = db.get_participants(eventid)
+        except:
+            await ctx.send("That doesn't appear to be a valid event id")
+            return
+        eventinfo = db.event_info(eventid)
+        participants.sort(reverse=True,key=lambda x:x[4])
+
+        embed = Embed(title=f"Top 10 Leaderboard for {eventinfo[1]}")
+        string = ""
+        print(participants)
+        for i in range(10):
+            try:
+                user = participants[i]
+            except IndexError:
+                break
+            discord_user = self.bot.get_user(user[0])
+
+            string+= f"**{i+1}.** {discord_user.mention} - {user[4]} {eventinfo[2]}\n"
+
+        embed.description = string
+        await ctx.send(embed=embed)
+
+        
+
+        
+
+
+    @event.command(aliases=['active'])
+    @checks.is_owner()
+    async def active_events(self,ctx):
+        print("Called")
+        events = db.active_events()
+        string = ""
+        for event in events:
+            string += f"**{event[2]}:** {event[3]} event with id: {event[0]}\n"
+        await ctx.send(embed=Embed(title="Active Events",description=string))
+
+    @event.command(aliases=['joinable'])
+    @checks.is_owner()
+    async def joinable_events(self,ctx):
+        print("Called")
+        events = db.available_events()
+        flyonly = ""
+        otherevents = ""
+
+        for event in events:
+            if event[4]:
+                flyonly += f"**{event[2]}:** {event[3]} event with id: **{event[0]}**\n"
+            else:
+                otherevents += f"**{event[2]}:** {event[3]} event with id: **{event[0]}**\n"
+
+        embed = Embed(title="Joinable Events",description="Below are events that you can join")
+        if len(flyonly) > 0 or len(otherevents) > 0:
+            if len(flyonly) > 0:
+                embed = embed.add_field(name="Fly Only Events",value=flyonly,inline=True)
+            if len(otherevents) > 0:
+                embed = embed.add_field(name="Open Events",value=otherevents,inline=True)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(embed=Embed(title="No Joinable Events"))
+    
+    @tasks.loop(hours=1)
+    async def stat_update(self):
+        await log.log(self.bot,"Task Started","Events Stats are being updated")
+        stat_convert = {"pvp" : "user_kills","step" : "steps", "npc" : "npc_kills", "level" : "level"}
+        all_events = db.available_events()
+
+        for event in all_events:
+            eventid = event[0]
+            participants = db.get_participants(eventid)
+            eventtype = event[3]
+            for participant in participants:
+                discid = participant[0]
+                smmoid = db.get_smmoid(discid)
+                profile = api.get_all(smmoid)
+                db.update_stat(eventid,discid,profile[stat_convert[eventtype]])
+
+
+    @stat_update.before_loop
+    async def before_stat_update(self):
+        await self.bot.wait_until_ready()
 
     
 def setup(bot):

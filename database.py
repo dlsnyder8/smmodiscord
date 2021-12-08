@@ -417,16 +417,32 @@ def active_events():
         session.rollback()
         raise e
 
+def available_events():
+    try:
+         return session.query(Events.id, Events.serverid, Events.name, Events.type, Events.friendly_only).filter_by(is_started=False).all()
+         
+    except Exception as e:
+        session.rollback()
+        raise e
+
 def event_info(eventid):
     try:
-        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time).filter_by(id=eventid).first()
+        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time,Events.friendly_only).filter_by(id=eventid).first()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def event_guild_only(eventid, boolean):
+    try:
+        session.query(Events).filter_by(id=eventid).update({Events.friendly_only : boolean})
+        session.commit()
     except Exception as e:
         session.rollback()
         raise e
 
 def join_event(eventid,discordid):
     try:
-        session.add(Events(id=eventid,discordid=discordid))
+        session.add(Event_info(id=eventid,discordid=discordid))
         session.commit()
     except Exception as e:
         session.rollback()
@@ -435,14 +451,14 @@ def join_event(eventid,discordid):
 
 def get_participants(eventid):
     try:
-        return session.query(Events.discordid,Events.starting_stat,Events.current_stat,Events.last_updated).filter_by(id=eventid).all()
+        return session.query(Event_info.discordid,Event_info.starting_stat,Event_info.current_stat,Event_info.last_updated,Event_info.current_stat - Event_info.starting_stat).filter_by(id=eventid).all()
     except Exception as e:
         session.rollback()
         raise e
 
 def update_start_stat(eventid,discordid,stat):
     try:
-        session.query(Events).filter_by(id=eventid,discordid=discordid).update({Events.starting_stat : stat})
+        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.starting_stat : stat})
         session.commit()
     except Exception as e:
         session.rollback()
@@ -450,7 +466,7 @@ def update_start_stat(eventid,discordid,stat):
 
 def update_stat(eventid,discordid,stat):
     try:
-        session.query(Events).filter_by(id=eventid,discordid=discordid).update({Events.current_stat : stat, Events.last_updated : datetime.now(timezone.utc)})
+        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.current_stat : stat, Event_info.last_updated : datetime.now(timezone.utc)})
         session.commit()
     except Exception as e:
         session.rollback()
@@ -465,7 +481,11 @@ if __name__ == "__main__":
     # print(ambassadors(424))
     # print(conn_disc(587672))
     #print(in_fly(439777465494142996))
-    update_timestamp(710258284661178418,datetime.now(timezone.utc))
+    # update_start_stat(2,332314562575597579,5)
+    # update_stat(2,332314562575597579,852)
+    eventinfo = get_participants(2)
+    eventinfo.sort(reverse=True,key=lambda x:x[4])
+    print(eventinfo)
 
 
 
