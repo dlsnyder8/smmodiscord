@@ -77,6 +77,45 @@ class Event(commands.Cog):
             await ctx.send(embed=Embed(title="Error", description=e))
             raise e
 
+    @event.command()
+    @checks.in_fly()
+    @checks.is_verified()
+    async def stat(self,ctx,eventid=None):
+
+        translation = {"pvp" : "PvP Kills","step" : "Steps", "npc" : "NPC Kills", "level" : "Levels"}
+
+        active_events = db.active_events()
+        print(len(active_events))
+        print(active_events)
+        if len(active_events) == 1:
+            eventid = active_events[0][0]
+            
+            progress = db.participant_progress(eventid,ctx.author.id)
+            eventinfo = db.event_info(eventid)
+            if progress is None:
+                await ctx.send("You are not particpating in the current event")
+                return
+                
+            
+        elif len(active_events) > 1:
+            if eventid is None:
+                await ctx.send(f"Please specify an event id as there are multiple active events.")
+                return
+            else:
+                progress = db.participant_progress(eventid,ctx.author.id)
+                eventinfo = db.event_info(eventid)
+                if progress is None:
+                    await ctx.send("You are not a participant in that event or that event does not exist.")
+                    return
+        
+        else:
+            await ctx.send("There are no active events right now. Please wait for someone to start one.")
+            return
+
+
+        embed = Embed(title=f"Your {translation[eventinfo[2]]} for the **{eventinfo[1]}** Event",description=f"**Starting amount:** {progress[0]}\n**Last Updated Amount:** {progress[1]}\n**Difference:** {progress[2]}")
+        embed = embed.set_footer(text=f"Last Updated: {progress[3]}")
+        await ctx.send(embed=embed)
 
 
     @event.command()

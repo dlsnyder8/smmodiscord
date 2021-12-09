@@ -425,6 +425,14 @@ def available_events():
         session.rollback()
         raise e
 
+
+def participant_progress(eventid,discordid):
+    try:
+        return session.query(Event_info.starting_stat,Event_info.current_stat,Event_info.current_stat - Event_info.starting_stat,Event_info.last_updated).filter_by(id=eventid,discordid=discordid).first()
+    except Exception as e:
+        session.rollback()
+        raise e
+
 def event_info(eventid):
     try:
         return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time,Events.friendly_only).filter_by(id=eventid).first()
@@ -483,9 +491,7 @@ if __name__ == "__main__":
     #print(in_fly(439777465494142996))
     # update_start_stat(2,332314562575597579,5)
     # update_stat(2,332314562575597579,852)
-    eventinfo = get_participants(2)
-    eventinfo.sort(reverse=True,key=lambda x:x[4])
-    print(eventinfo)
+    print(participant_progress(2,1284971298471294))
 
 
 
