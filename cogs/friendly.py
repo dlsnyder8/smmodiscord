@@ -85,11 +85,15 @@ class Friendly(commands.Cog):
     async def friendly(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
+        elif ctx.channel.id == 728355657283141735:
+            return
 
     @checks.in_fly()
     @friendly.command(aliases=['fc', 'friendcheck'])
     @checks.in_fly_guild()
     async def friend_check(self, ctx):
+
+        
         member = ctx.author
 
         weighted_fly_roles = {
