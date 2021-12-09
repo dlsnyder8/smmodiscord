@@ -24,6 +24,8 @@ Server = Base.classes.server
 Plebs = Base.classes.plebs
 Guild = Base.classes.guilds
 Friendly = Base.classes.friendly
+Events = Base.classes.events
+Event_info = Base.classes.event_info
 
 def add_server(serverid, name):
     try:
@@ -381,6 +383,105 @@ def fly_remove(discid):
         raise e
 
 
+# Event Database Commands
+def create_event(serverid,name,eventtype):
+    # session.add(Guild(discid=str(discid), smmoid=smmoid,leader=False,ambassador=False, guildid=0))
+    try:
+        eventtoadd = Events(serverid=serverid,name=name,type=eventtype)
+        session.add(eventtoadd)
+        session.commit()
+        return eventtoadd.id
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def start_event(eventid):
+    try:
+        session.query(Events).filter_by(id=eventid).update({Events.is_started : True, Events.start_time : datetime.now(timezone.utc)})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+def end_event(eventid):
+    try:
+        session.query(Events).filter_by(id=eventid).update({Events.is_ended : False, Events.end_time : datetime.now(timezone.utc)})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def active_events():
+    try:
+        return session.query(Events.id, Events.serverid, Events.name, Events.type).filter_by(is_started=True,is_ended=False).all()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def available_events():
+    try:
+         return session.query(Events.id, Events.serverid, Events.name, Events.type, Events.friendly_only).filter_by(is_started=False).all()
+         
+    except Exception as e:
+        session.rollback()
+        raise e
+
+
+def participant_progress(eventid,discordid):
+    try:
+        return session.query(Event_info.starting_stat,Event_info.current_stat,Event_info.current_stat - Event_info.starting_stat,Event_info.last_updated).filter_by(id=eventid,discordid=discordid).first()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def event_info(eventid):
+    try:
+        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time,Events.friendly_only).filter_by(id=eventid).first()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def event_guild_only(eventid, boolean):
+    try:
+        session.query(Events).filter_by(id=eventid).update({Events.friendly_only : boolean})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def join_event(eventid,discordid):
+    try:
+        session.add(Event_info(id=eventid,discordid=discordid))
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+
+def get_participants(eventid):
+    try:
+        return session.query(Event_info.discordid,Event_info.starting_stat,Event_info.current_stat,Event_info.last_updated,Event_info.current_stat - Event_info.starting_stat).filter_by(id=eventid).all()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def update_start_stat(eventid,discordid,stat):
+    try:
+        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.starting_stat : stat})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+def update_stat(eventid,discordid,stat):
+    try:
+        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.current_stat : stat, Event_info.last_updated : datetime.now(timezone.utc)})
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+
+
 if __name__ == "__main__":
     #print(is_ambassador(str(309115527962427402)))
     # print(ambassadors(424))
@@ -388,7 +489,9 @@ if __name__ == "__main__":
     # print(ambassadors(424))
     # print(conn_disc(587672))
     #print(in_fly(439777465494142996))
-    update_timestamp(710258284661178418,datetime.now(timezone.utc))
+    # update_start_stat(2,332314562575597579,5)
+    # update_stat(2,332314562575597579,852)
+    print(participant_progress(2,1284971298471294))
 
 
 
