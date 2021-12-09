@@ -45,13 +45,35 @@ class Event(commands.Cog):
     @event.command()
     @checks.is_owner()
     async def start(self,ctx,eventid):
+        stat_convert = {"pvp" : "user_kills","step" : "steps", "npc" : "npc_kills", "level" : "level"}
         try:
             db.start_event(eventid)
-            # TODO: Update the current value of each particpant
-            await ctx.send(f"Event {eventid} has started!")
+            eventinfo = db.event_info(eventid)
+           
+            members = db.get_participants(eventid)
+            if members is None:
+                await ctx.send("The event ID might be incorrect or something brokey")
+                return
+            
+
+            
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
             raise e
+
+        
+        for member in members:
+                
+            smmoid = db.get_smmoid(member[0])
+            profile = api.get_all(smmoid)
+            info = profile[stat_convert[eventinfo[2]]]
+
+            db.update_start_stat(eventid,member[0],info)
+
+
+
+
+        await ctx.send(f"Event {eventid} has started!")
     
     @event.command()
     @checks.is_owner()

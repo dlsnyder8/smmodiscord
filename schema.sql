@@ -46,7 +46,8 @@ CREATE TABLE "events" (
 
 
 CREATE TABLE "event_info" (
-  "id" int PRIMARY KEY,
+  "serial" SERIAL PRIMARY KEY,
+  "id" int,
   "discordid" numeric,
   "starting_stat" int,
   "current_stat" int,
