@@ -404,7 +404,7 @@ def start_event(eventid):
         raise e
 def end_event(eventid):
     try:
-        session.query(Events).filter_by(id=eventid).update({Events.is_ended : False, Events.end_time : datetime.now(timezone.utc)})
+        session.query(Events).filter_by(id=eventid).update({Events.is_ended : True, Events.end_time : datetime.now(timezone.utc)})
         session.commit()
     except Exception as e:
         session.rollback()
