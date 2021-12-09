@@ -51,6 +51,9 @@ class Event(commands.Cog):
             eventinfo = db.event_info(eventid)
            
             members = db.get_participants(eventid)
+            if len(members) == 0:
+                await ctx.send("There are no participants for that event")
+                return
             if members is None:
                 await ctx.send("The event ID might be incorrect or something brokey")
                 return
@@ -248,7 +251,7 @@ class Event(commands.Cog):
     async def stat_update(self):
         await log.log(self.bot,"Task Started","Events Stats are being updated")
         stat_convert = {"pvp" : "user_kills","step" : "steps", "npc" : "npc_kills", "level" : "level"}
-        all_events = db.available_events()
+        all_events = db.active_events()
 
         for event in all_events:
             eventid = event[0]
