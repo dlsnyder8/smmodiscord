@@ -46,6 +46,16 @@ def in_fly_guild():
     return commands.check(predicate)
 
 
+def no_bot_channel():
+    async def predicate(ctx):
+        if ctx.channel.id == 728355657283141735:
+            return False
+        else:
+            return True
+
+    return commands.check(predicate)
+
+
 def in_fly():
     async def predicate(ctx):
         if ctx.author.id == dyl:

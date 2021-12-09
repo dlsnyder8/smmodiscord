@@ -85,11 +85,11 @@ class Friendly(commands.Cog):
     async def friendly(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
-        elif ctx.channel.id == 728355657283141735:
-            return
+        
 
     @checks.in_fly()
     @friendly.command(aliases=['fc', 'friendcheck'])
+    @checks.no_bot_channel()
     @checks.in_fly_guild()
     async def friend_check(self, ctx):
 
@@ -219,6 +219,7 @@ class Friendly(commands.Cog):
     async def give_dyl_roles(self, ctx):
         pass
 
+    @checks.no_bot_channel()
     @checks.in_fly()
     @friendly.command(aliases=['sg', 'gold'])
     @checks.in_fly_guild()
@@ -313,6 +314,7 @@ class Friendly(commands.Cog):
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
+    @checks.no_bot_channel()
     @friendly.command(aliases=['roles'])
     @checks.in_fly()
     async def send_role_embed(self, ctx):
@@ -1169,6 +1171,7 @@ class Friendly(commands.Cog):
         return message.author._roles.has(719789422178205769)
 
     @friendly.command(aliases=['check_roles', 'cr', 'checkroles'])
+    @checks.no_bot_channel()
     @checks.in_fly()
     @checks.in_fly_guild()
     @checks.has_joined()
