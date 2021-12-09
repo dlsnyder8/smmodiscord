@@ -185,9 +185,10 @@ class Event(commands.Cog):
     @event.command(aliases=['lb'])
     @checks.is_owner()
     async def leaderboard(self,ctx,eventid:int):
-        try:
-            participants = db.get_participants(eventid)
-        except:
+        translation = {"pvp" : "PvP Kills","step" : "Steps", "npc" : "NPC Kills", "level" : "Levels"}
+    
+        participants = db.get_participants(eventid)
+        if len(participants) == 0 or participants is None:
             await ctx.send("That doesn't appear to be a valid event id")
             return
         eventinfo = db.event_info(eventid)
@@ -203,7 +204,7 @@ class Event(commands.Cog):
                 break
             discord_user = self.bot.get_user(user[0])
 
-            string+= f"**{i+1}.** {discord_user.mention} - {user[4]} {eventinfo[2]}\n"
+            string+= f"**{i+1}.** {discord_user.mention} - {user[4]} {translation[eventinfo[2]]}\n"
 
         embed.description = string
         await ctx.send(embed=embed)
@@ -216,7 +217,7 @@ class Event(commands.Cog):
     @event.command(aliases=['active'])
     @checks.is_owner()
     async def active_events(self,ctx):
-        print("Called")
+        
         events = db.active_events()
         string = ""
         for event in events:
@@ -226,7 +227,7 @@ class Event(commands.Cog):
     @event.command(aliases=['joinable'])
     @checks.is_owner()
     async def joinable_events(self,ctx):
-        print("Called")
+        
         events = db.available_events()
         flyonly = ""
         otherevents = ""
