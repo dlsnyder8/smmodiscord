@@ -466,7 +466,7 @@ def get_participants(eventid):
 
 def update_start_stat(eventid,discordid,stat):
     try:
-        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.starting_stat : stat})
+        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.starting_stat : stat, Event_info.current_stat : stat})
         session.commit()
     except Exception as e:
         session.rollback()
@@ -491,7 +491,7 @@ if __name__ == "__main__":
     #print(in_fly(439777465494142996))
     # update_start_stat(2,332314562575597579,5)
     # update_stat(2,332314562575597579,852)
-    print(participant_progress(2,1284971298471294))
+    print(type(get_participants(80)))
 
 
 
