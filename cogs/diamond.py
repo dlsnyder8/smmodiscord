@@ -79,7 +79,7 @@ class Diamond(commands.Cog):
                     channel = self.bot.get_channel(server[2])
                     role =  guild.get_role(server[1])
 
-                    plus30min = server[3] + timedelta(minutes=2)
+                    plus30min = server[3] + timedelta(minutes=10)
                     plus30min = pytz.utc.localize(plus30min)
                   
                     
