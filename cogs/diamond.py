@@ -28,6 +28,7 @@ class Diamond(commands.Cog):
     @commands.group(aliases = ['d'], hidden=True)
     async def diamond(self,ctx):
         if ctx.invoked_subcommand is None:
+        
             pass
 
 
