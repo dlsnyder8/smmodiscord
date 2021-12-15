@@ -67,6 +67,7 @@ class Diamond(commands.Cog):
     async def diamond_check(self):
         print("Diamond Loop starting")
         cheap_diamonds = False
+        more_than_200 = False
         string = ""
         listings = api.diamond_market()
         embed = Embed(title="Diamonds Under 1.2m")
@@ -75,7 +76,8 @@ class Diamond(commands.Cog):
             if listing["price_per_diamond"] <= 1200000: # 1.2m
                 cheap_diamonds = True
                 string += f"There are {listing['diamonds_remaining']} diamonds left at {listing['price_per_diamond']:,} each.\n" 
-        
+                if listing['diamonds_remaining'] >= 200:
+                    more_than_200 = True
         if cheap_diamonds:
             allinfo = db.get_diamond_ping_info()
            
@@ -94,7 +96,10 @@ class Diamond(commands.Cog):
                   
                     
                     if plus30min < datetime.now(timezone.utc):
-                        await channel.send(content=f"{role.mention}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
+                        if more_than_200:
+                            await channel.send(content=f"{role.mention}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
+                        else:
+                            await channel.send(content=f"{role.name}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
                         db.update_timestamp(server[0],datetime.now(timezone.utc))
                    
                     
