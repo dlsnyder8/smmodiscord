@@ -97,6 +97,14 @@ def get_diamond_ping_info():
         session.rollback()
         raise e
 
+def server_config(serverid):
+    try:
+        return session.query(Server.serverid,Server.diamond_ping,Server.diamond_role,Server.diamond_channel,Server.last_pinged).filter_by(serverid=serverid).all()
+    except Exception as e:
+        session.rollback()
+        raise e
+
+
 def update_timestamp(serverid,timestamp : datetime):
     try:
         session.query(Server).filter_by(serverid=serverid).update({Server.last_pinged : timestamp})
@@ -491,7 +499,9 @@ if __name__ == "__main__":
     #print(in_fly(439777465494142996))
     # update_start_stat(2,332314562575597579,5)
     # update_stat(2,332314562575597579,852)
-    print(type(get_participants(80)))
+    #print(type(get_participants(80)))
+    #print(server_config(731379317182824478))
+    update_timestamp(731379317182824478,datetime.now(timezone.utc))
 
 
 

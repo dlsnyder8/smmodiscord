@@ -37,6 +37,7 @@ class Diamond(commands.Cog):
         try:
             db.add_diamond_role(ctx.guild.id,role.id)
             db.add_diamond_channel(ctx.guild.id,channel.id)
+            db.update_timestamp(ctx.guild.id,datetime.now(timezone.utc))
             await ctx.send("Succesfully added the channel and role")
         except Exception as e:
             await ctx.send(e)
@@ -50,7 +51,15 @@ class Diamond(commands.Cog):
         except Exception as e:
             await ctx.send(e)
 
-
+    @diamond.command()
+    @checks.is_owner()  
+    async def config(self,ctx):
+       
+        config = db.server_config(ctx.guild.id)
+        print(config)
+        ID, ping_bool,role,channel,timestamp = config[0]
+        embed = Embed(title="Server Config",description=f"ID: {ID}\nDiamond Ping: {ping_bool}\nPinged Role: {ctx.guild.get_role(role)}\nChannel: {ctx.guild.get_channel(channel)}")
+        await ctx.send(embed=embed)
    
 
     @tasks.loop(minutes=1)
