@@ -92,7 +92,7 @@ class Friendly(commands.Cog):
     @checks.in_fly_guild()
     async def colors(self,ctx):
         embed = Embed(title="So you want a colored role?",description=f"There are 4 ways to not be a stinky color:\n- Join the guild and have access to 80+ roles\n- Boost the server\n- Post artwork in <#734892163502178434> to get the <@&733433793871872051> role\n- Win an event")
-
+        await ctx.send(embed=embed)
     @checks.in_fly()
     @friendly.command(aliases=['fc', 'friendcheck'])
     @checks.no_bot_channel()
