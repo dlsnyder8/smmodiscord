@@ -176,7 +176,7 @@ class Event(commands.Cog):
                     await ctx.send(f"This event is only for Friendly members.")
                     return 
                 db.join_event(eventid,ctx.author.id)
-                ctx.author.add_roles(ctx.guild.get_role(active_events[0][5]))
+                await ctx.author.add_roles(ctx.guild.get_role(active_events[0][5]))
 
                 await ctx.send(f"You have succesfully joined the {active_events[0][2]} event.")
             except Exception as e:
@@ -201,7 +201,7 @@ class Event(commands.Cog):
                     await ctx.send(f"This event is only for Friendly members.")
                     return 
                 db.join_event(eventid,ctx.author.id)
-                ctx.author.add_roles(ctx.guild.get_role(eventinfo[8]))
+                await ctx.author.add_roles(ctx.guild.get_role(eventinfo[8]))
                 await ctx.send(f"You have succesfully joined the {eventinfo[1]} event.")
             except Exception as e:
                 await ctx.send(embed=Embed(title="Error", description=e))
