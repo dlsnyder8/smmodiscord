@@ -89,6 +89,7 @@ class Event(commands.Cog):
                 return
             
             guildrole = ctx.guild.get_role(eventinfo[8])
+            await guildrole.delete(reason="Event ended")
             db.end_event(eventid)
             await ctx.send(f"Event {eventid} has concluded.")
         except Exception as e:
