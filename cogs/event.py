@@ -197,7 +197,7 @@ class Event(commands.Cog):
                 if eventinfo[3]:
                     await ctx.send(f"This event has already started")
                     return
-                if eventinfo[-1] and not ctx.author._roles.has(710315282920636506):
+                if eventinfo[7] and not ctx.author._roles.has(710315282920636506):
                     await ctx.send(f"This event is only for Friendly members.")
                     return 
                 db.join_event(eventid,ctx.author.id)
