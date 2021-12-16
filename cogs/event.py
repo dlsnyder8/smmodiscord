@@ -143,6 +143,18 @@ class Event(commands.Cog):
         await ctx.send(embed=embed)
 
 
+
+    @event.command()
+    @checks.is_owner()
+    async def participants(self,ctx,eventid=None):
+        if eventid is None:
+            await ctx.send("You must specify an event ID.")
+            return
+        else:
+            participants = db.get_participants(eventid)
+            await ctx.send(embed=Embed(title="Number of Participants",description=f"There are {len(participants)} people particpating in this event."))
+            return
+
     @event.command()
     @checks.in_fly()
     @checks.is_verified()
@@ -172,6 +184,9 @@ class Event(commands.Cog):
             try:
                 
                 eventinfo = db.event_info(eventid)
+                if eventinfo[3]:
+                    await ctx.send(f"This event has already started")
+                    return
                 if eventinfo[-1] and not ctx.author._roles.has(710315282920636506):
                     await ctx.send(f"This event is only for Friendly members.")
                     return 
