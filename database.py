@@ -474,7 +474,7 @@ def get_participants(eventid):
 
 def update_start_stat(eventid,discordid,stat):
     try:
-        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.starting_stat : stat, Event_info.current_stat : stat})
+        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.starting_stat : stat, Event_info.current_stat : stat, Event_info.last_updated : datetime.now(timezone.utc)})
         session.commit()
     except Exception as e:
         session.rollback()
@@ -501,7 +501,8 @@ if __name__ == "__main__":
     # update_stat(2,332314562575597579,852)
     #print(type(get_participants(80)))
     #print(server_config(731379317182824478))
-    update_timestamp(731379317182824478,datetime.now(timezone.utc))
+    #update_timestamp(731379317182824478,datetime.now(timezone.utc))
+    end_event(9)
 
 
 
