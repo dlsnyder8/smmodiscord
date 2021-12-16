@@ -392,10 +392,10 @@ def fly_remove(discid):
 
 
 # Event Database Commands
-def create_event(serverid,name,eventtype):
+def create_event(serverid,name,eventtype,roleid):
     # session.add(Guild(discid=str(discid), smmoid=smmoid,leader=False,ambassador=False, guildid=0))
     try:
-        eventtoadd = Events(serverid=serverid,name=name,type=eventtype)
+        eventtoadd = Events(serverid=serverid,name=name,type=eventtype,event_role=roleid)
         session.add(eventtoadd)
         session.commit()
         return eventtoadd.id
@@ -427,7 +427,7 @@ def active_events():
 
 def available_events():
     try:
-         return session.query(Events.id, Events.serverid, Events.name, Events.type, Events.friendly_only).filter_by(is_started=False).all()
+         return session.query(Events.id, Events.serverid, Events.name, Events.type, Events.friendly_only,Events.event_role).filter_by(is_started=False).all()
          
     except Exception as e:
         session.rollback()
@@ -443,7 +443,7 @@ def participant_progress(eventid,discordid):
 
 def event_info(eventid):
     try:
-        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time,Events.friendly_only).filter_by(id=eventid).first()
+        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time,Events.friendly_only,Events.event_role).filter_by(id=eventid).first()
     except Exception as e:
         session.rollback()
         raise e

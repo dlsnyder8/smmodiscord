@@ -34,10 +34,10 @@ class Event(commands.Cog):
             return
 
         try:
-            event_id = db.create_event(ctx.guild.id,name,eventtype)
-            print(event_id)
+            guildrole = await ctx.guild.create_role(name=name)
+            event_id = db.create_event(ctx.guild.id,name,eventtype,guildrole.id)
             await ctx.send(f"Event has been created with id {event_id}. Please remember this ID.")
-
+            
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
             raise e
@@ -52,9 +52,10 @@ class Event(commands.Cog):
            
             members = db.get_participants(eventid)
             if len(members) == 0:
-                await ctx.send("There are no participants for that event")
+                await ctx.send("There are no participants for that event. It has been ended automatically")
+                db.end_event(eventid)
                 return
-            if members is None:
+            elif members is None:
                 await ctx.send("The event ID might be incorrect or something brokey")
                 return
             
@@ -164,10 +165,12 @@ class Event(commands.Cog):
             eventid = active_events[0][0]
             try:
                 # if guild only, check if in guild
-                if active_events[0][-1] and not ctx.author._roles.has(710315282920636506):
+                if active_events[0][4] and not ctx.author._roles.has(710315282920636506):
                     await ctx.send(f"This event is only for Friendly members.")
                     return 
                 db.join_event(eventid,ctx.author.id)
+                ctx.author.add_roles(ctx.guild.get_role(active_events[0][5]))
+
                 await ctx.send(f"You have succesfully joined the {active_events[0][2]} event.")
             except Exception as e:
                 await ctx.send(embed=Embed(title="Error", description=e))
@@ -191,6 +194,7 @@ class Event(commands.Cog):
                     await ctx.send(f"This event is only for Friendly members.")
                     return 
                 db.join_event(eventid,ctx.author.id)
+                ctx.author.add_roles(ctx.guild.get_role(eventinfo[7]))
                 await ctx.send(f"You have succesfully joined the {eventinfo[1]} event.")
             except Exception as e:
                 await ctx.send(embed=Embed(title="Error", description=e))

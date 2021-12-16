@@ -42,6 +42,7 @@ CREATE TABLE "events" (
   "start_time" timestamp,
   "end_time" timestamp,
   "friendly_only" bool default true
+  "event_role" numeric
 );
 
 
