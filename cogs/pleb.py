@@ -96,9 +96,9 @@ class Pleb(commands.Cog):
             if(key in motto):
                 db.update_verified(smmoid, True)
                 if ctx.guild.id == 710258284661178418:
-                    await ctx.send(f"You are now verified. If you're in Friendly, please run `&join` to be granted access to guild channels.")
+                    await ctx.send(f"You are now verified. If you're in Friendly, please run `&join` to be granted access to guild channels. You can remove the verification key from your motto.")
                 else:
-                    await ctx.send(f'You are now verified!')
+                    await ctx.send(f'You are now verified! You can remove the verification key from your motto.')
                 if ispleb:
 
                     plebid = db.pleb_id(guild.id)
