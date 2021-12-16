@@ -83,6 +83,12 @@ class Event(commands.Cog):
     @checks.is_owner()
     async def end(self,ctx,eventid):
         try:
+            eventinfo = db.event_info(eventid)
+            if eventinfo is None:
+                await ctx.send("That event id is not valid")
+                return
+            
+            guildrole = ctx.guild.get_role(eventinfo[8])
             db.end_event(eventid)
             await ctx.send(f"Event {eventid} has concluded.")
         except Exception as e:
@@ -194,7 +200,7 @@ class Event(commands.Cog):
                     await ctx.send(f"This event is only for Friendly members.")
                     return 
                 db.join_event(eventid,ctx.author.id)
-                ctx.author.add_roles(ctx.guild.get_role(eventinfo[7]))
+                ctx.author.add_roles(ctx.guild.get_role(eventinfo[8]))
                 await ctx.send(f"You have succesfully joined the {eventinfo[1]} event.")
             except Exception as e:
                 await ctx.send(embed=Embed(title="Error", description=e))
