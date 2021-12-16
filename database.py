@@ -464,6 +464,12 @@ def join_event(eventid,discordid):
         session.rollback()
         raise e
 
+def has_joined(eventid,discordid):
+    try:
+        return session.query(Event_info).filter_by(id=eventid,discordid=discordid).first() is not None
+    except Exception as e:
+        session.rollback()
+        raise e
 
 def get_participants(eventid):
     try:
@@ -502,7 +508,7 @@ if __name__ == "__main__":
     #print(type(get_participants(80)))
     #print(server_config(731379317182824478))
     #update_timestamp(731379317182824478,datetime.now(timezone.utc))
-    end_event(9)
+    print(has_joined(10,332314562575597579))
 
 
 

@@ -175,6 +175,9 @@ class Event(commands.Cog):
                 if active_events[0][4] and not ctx.author._roles.has(710315282920636506):
                     await ctx.send(f"This event is only for Friendly members.")
                     return 
+                elif db.has_joined(eventid,ctx.author.id):
+                    await ctx.send(f"You've already joined the only active event.")
+                    return
                 db.join_event(eventid,ctx.author.id)
                 await ctx.author.add_roles(ctx.guild.get_role(active_events[0][5]))
 
@@ -191,6 +194,9 @@ class Event(commands.Cog):
                 await ctx.send("There are no joinable events right now.")
             return
         else:
+            if db.has_joined(eventid,ctx.author.id):
+                await ctx.send(f"You have already joined event {eventid}")
+                return
             try:
                 
                 eventinfo = db.event_info(eventid)
