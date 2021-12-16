@@ -697,7 +697,7 @@ class Friendly(commands.Cog):
 
         await ctx.send(embed=discord.Embed(
             title="More tasks are required of you",
-            description=f"You need more than 250 Completed tasks for this role. You have {tasks}."
+            description=f"You need more than 250 Completed tasks for this role. You have {nr_tasks}."
         ))
 
         return
