@@ -86,7 +86,7 @@ class Friendly(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
         
-    @friendly.commands()
+    @friendly.command()
     @checks.is_owner()
     async def nofly(self,ctx):
         await ctx.author.remove_roles(ctx.guild.get_role(fly_roles[19]))
