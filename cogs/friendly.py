@@ -86,7 +86,10 @@ class Friendly(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
         
-
+    @friendly.commands()
+    @checks.is_owner()
+    async def nofly(self,ctx):
+        await ctx.author.remove_roles(ctx.guild.get_role(fly_roles[19]))
 
     @commands.command()
     @checks.in_fly_guild()
@@ -315,6 +318,8 @@ class Friendly(commands.Cog):
             channel = self.bot.get_channel(728355657283141735)
             if ctx.author.id != dyl:
                 await channel.send(f"Welcome {ctx.author.mention} to the Friendliest guild in SimpleMMO!")
+
+            await ctx.send(f"{self.bot.get_user(581061608357363712).mention}\n ;adminlink {ctx.author.id} {smmoid}")
 
         else:
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
