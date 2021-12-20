@@ -60,14 +60,9 @@ dyl = 332314562575597579
 server = smmo_server # Change this to which ever server the bot is mainly in
 bot.server = server
 
-bot.load_extension("cogs.pleb")
-bot.load_extension("cogs.admin")
-bot.load_extension("cogs.guild")
-bot.load_extension("cogs.error_handler")
-bot.load_extension("cogs.help")
-bot.load_extension("cogs.friendly")
-bot.load_extension("cogs.diamond")
-bot.load_extension("cogs.event")
+for f in os.listdir('./cogs'):
+    if f.endswith('.py'):
+        bot.load_extension(f'cogs.{f[:-3]}')
 
 @bot.event
 async def on_ready():
