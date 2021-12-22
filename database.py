@@ -26,6 +26,7 @@ Guild = Base.classes.guilds
 Friendly = Base.classes.friendly
 Events = Base.classes.events
 Event_info = Base.classes.event_info
+Warinfo = Base.classes.warinfo
 
 def add_server(serverid, name):
     try:
@@ -494,6 +495,13 @@ def update_stat(eventid,discordid,stat):
         session.rollback()
         raise e
 
+
+###########################
+# War Info Commands #
+###########################
+
+async def setupwarinfo(discordid,smmoid):
+    pass
 
 
 if __name__ == "__main__":

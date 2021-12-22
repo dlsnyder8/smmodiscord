@@ -67,4 +67,3 @@ def setup(bot):
     print("Pleb Cog Loaded")
 
 
-asyncio.get_event_loop().run_forever()

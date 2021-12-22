@@ -268,8 +268,8 @@ def diamond_market():
 
     
 if __name__ == "__main__":
-    profile = get_all(385801)
-    print(profile)
+    #profile = get_all(385801)
+    #print(profile)
     #print(guild_members(828)[0])
     # creation = profile["creation_date"]
     # print(creation)
@@ -278,7 +278,7 @@ if __name__ == "__main__":
     # difference = now - creation
     # print(difference.days)
 
-    #print(get_guild_wars(455,1))
+    print(get_guild_wars(455,1))
     
     #print([x["user_id"] for x in guild_members(828)])
 
