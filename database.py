@@ -26,7 +26,7 @@ Guild = Base.classes.guilds
 Friendly = Base.classes.friendly
 Events = Base.classes.events
 Event_info = Base.classes.event_info
-Warinfo = Base.classes.warinfo
+#Warinfo = Base.classes.warinfo
 
 def add_server(serverid, name):
     try:
@@ -516,7 +516,8 @@ if __name__ == "__main__":
     #print(type(get_participants(80)))
     #print(server_config(731379317182824478))
     #update_timestamp(731379317182824478,datetime.now(timezone.utc))
-    print(has_joined(10,332314562575597579))
+    #print(has_joined(10,332314562575597579))
+    rollback()
 
 
 
