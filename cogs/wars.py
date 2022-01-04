@@ -17,7 +17,7 @@ class Wars(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
 
-    @checks.is_owner()
+    @checks.in_fly_guild()
     @commands.group(aliases = ['war','w'], hidden=True)
     async def wars(self,ctx):
         if ctx.invoked_subcommand is None:
