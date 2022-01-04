@@ -30,13 +30,17 @@ class Wars(commands.Cog):
             await ctx.send(embed=Embed(title="No Active Wars for Friendly",description="There are no active wars. They may be on hold or may have all ended."))
             return
         
+
+
         warstring = ""
-        for war in wars:
+        for war in wars[:35]:
             friendly = war['guild_1']
             guild = war['guild_2']
-            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Click Here](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+        print(len(warstring))
+        embed = Embed(title="Friendly Wars", description=warstring)
 
-        await ctx.send(embed=Embed(title="Friendly Wars",description=warstring))
+        await ctx.send(embed=embed)
 
 
     @wars.command()
@@ -50,7 +54,7 @@ class Wars(commands.Cog):
         for war in wars:
             friendly = war['guild_1']
             guild = war['guild_2']
-            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Click Here](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
         await ctx.send(embed=Embed(title="Friendly Too Wars",description=warstring))
 
@@ -65,12 +69,14 @@ class Wars(commands.Cog):
         for war in wars:
             friendly = war['guild_1']
             guild = war['guild_2']
-            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Click Here](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
         await ctx.send(embed=Embed(title="NSF Wars",description=warstring))
 
     
-    
+    @wars.command()
+    async def hug(self,ctx,guild):
+        pass
 
 def setup(bot):
     bot.add_cog(Wars(bot))
