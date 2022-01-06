@@ -212,14 +212,15 @@ class Admin(commands.Cog):
     @commands.command(hidden=True)
     @checks.is_owner()
     async def give(self,ctx, arg: int, members: commands.Greedy[discord.Member]):
+        string = ""
         for member in members:
             smmoid = db.get_smmoid(str(member.id))
             if(api.pleb_status(smmoid)): # If they a pleb
-                await ctx.send(f"{member.name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>")
+                string +=f"{member.name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>\n"
             else:
-                await ctx.send(f"{member.name} is not a pleb anymore")
+                string += f"{member.name} is not a pleb anymore\n"
         
-
+        await ctx.send(string)
 def setup(bot):
     bot.add_cog(Admin(bot))
     print("Admin Cog Loaded")
