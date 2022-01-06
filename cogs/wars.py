@@ -100,7 +100,7 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def options(self,ctx):
         embed = Embed(title="Customization Options")
-        string = f"`{ctx.prefix}war guild <int> - change which guild you're currently in (needs to be a Fly guild)"
+        string = f"`{ctx.prefix}war guild <int> - change which guild you're currently in (needs to be a Fly guild)\n"
         string+= f"`{ctx.prefix}war minlevel <int>` - sets the min level of your targets (default 200)\n"
         string+= f"`{ctx.prefix}war maxlevel <int>` - sets the max level of your targets (default 10,000)\n"
         string+= f"`{ctx.prefix}war goldping <bool>` - get pinged if out of safemode and gold is above your threshold\n"
