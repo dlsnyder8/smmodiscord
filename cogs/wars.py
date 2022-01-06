@@ -33,15 +33,17 @@ class Wars(commands.Cog):
 
 
         warstring = ""
-        for war in wars[:35]:
+        for war in wars:
             friendly = war['guild_1']
             guild = war['guild_2']
             warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
-        print(len(warstring))
+
+            if len(warstring) > 1900:
+                embed = Embed(title="Friendly Wars", description=warstring)
+                await ctx.send(embed=embed)
+        
         embed = Embed(title="Friendly Wars", description=warstring)
-
         await ctx.send(embed=embed)
-
 
     @wars.command()
     async def too(self,ctx):
