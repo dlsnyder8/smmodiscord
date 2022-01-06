@@ -33,7 +33,7 @@ class Wars(commands.Cog):
 
 
         warstring = ""
-        for war in wars:
+        for war in wars[:35]:
             friendly = war['guild_1']
             guild = war['guild_2']
             warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
