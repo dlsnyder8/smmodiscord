@@ -41,6 +41,7 @@ class Wars(commands.Cog):
             if len(warstring) > 1900:
                 embed = Embed(title="Friendly Wars", description=warstring)
                 await ctx.send(embed=embed)
+                warstring =""
         
         embed = Embed(title="Friendly Wars", description=warstring)
         await ctx.send(embed=embed)
