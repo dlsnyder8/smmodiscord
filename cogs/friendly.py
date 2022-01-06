@@ -908,7 +908,7 @@ class Friendly(commands.Cog):
             # Main Fly Role
             ctx.guild.get_role(710315282920636506),
             # NSF Role
-            ctx.guild.get_role(722110578516164670),
+            ctx.guild.get_role(722110578516164670), ctx.guild.get_role(783930500732551219),
             # Thicc (Levels)
             ctx.guild.get_role(727719624434778124), ctx.guild.get_role(
                 727722577908334662), ctx.guild.get_role(727722769785028672),
