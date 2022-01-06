@@ -252,12 +252,12 @@ class Wars(commands.Cog):
         print(guilds)
 
         guild = [x for x in guilds if x['guild_2']['id'] == target]
-        guild = guild[0]
-        print(guild)
+        print(guild[0])
         if len(guild) == 0:
-            await ctx.send("I could not find that target guild")
+            await ctx.send("That guild either doesn't exist or is not actively at war with you")
             return
         else:
+            guild = guild[0]
             embed = Embed(title="War Status",description=f"**{guild['guild_1']['name']}**\n{guild['guild_1']['kills']}\n\n**{guild['guild_2']['name']}**\n{guild['guild_2']['kills']}")
             await ctx.send(embed=embed)
 
