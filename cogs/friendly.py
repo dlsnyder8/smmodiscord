@@ -1364,7 +1364,7 @@ class Friendly(commands.Cog):
 
             await ctx.send(embed=Embed(
                 title="Success",
-                description="You have been given all applicable roles. Contact a Big Friend if they seem to be incorrect."
+                description=f"You have been given all applicable roles. Contact <@332314562575597579> if they seem to be incorrect."
             ))
             flylog(self.bot, "Role check run",
                    f"**Roles given to {ingamename}:**\n{rolesadded}", member.id)
