@@ -55,3 +55,13 @@ CREATE TABLE "event_info" (
   "last_updated" timestamp
 );
 
+CREATE TABLE "warinfo" (
+  "discordid" numeric PRIMARY KEY,
+  "smmoid" int,
+  "guildid" int,
+  "min_level" int default 200,
+  "max_level" int default 10000,
+  "gold_ping" bool default false,
+  "gold_amount" numeric default 5000000
+);
+

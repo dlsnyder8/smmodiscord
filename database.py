@@ -3,6 +3,7 @@ from sys import stderr, exit
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session, create_session, Session
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.exc import *
 import config
 from datetime import datetime, timezone
 from dateutil import parser
@@ -14,6 +15,7 @@ DATABASE_URL = config.DATABASE_URL
 
 # create engine (db object basically)
 engine = create_engine(DATABASE_URL)
+print(engine.table_names())
 #start automap and create session with automap
 Base = automap_base()
 Base.prepare(engine, reflect=True)
@@ -26,7 +28,7 @@ Guild = Base.classes.guilds
 Friendly = Base.classes.friendly
 Events = Base.classes.events
 Event_info = Base.classes.event_info
-#Warinfo = Base.classes.warinfo
+Warinfo = Base.classes.warinfo
 
 def add_server(serverid, name):
     try:
@@ -500,8 +502,60 @@ def update_stat(eventid,discordid,stat):
 # War Info Commands #
 ###########################
 
-async def setupwarinfo(discordid,smmoid):
-    pass
+def warinfo_setup(discordid,smmoid,guildid):
+    session.add(Warinfo(discordid=discordid,smmoid=smmoid,guildid=guildid))
+    commit()
+    return
+
+def warinfo_guild(discordid,guildid):
+    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.guildid : guildid})
+    commit()
+    return
+
+def warinfo_minlevel(discordid,minlevel):
+    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.min_level : minlevel})
+    commit()
+    return
+
+def warinfo_maxlevel(discordid,maxlevel):
+    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.max_level : maxlevel})
+    commit()
+    return
+
+def warinfo_goldping(discordid,ping : bool):
+    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.gold_ping : ping})
+    commit()
+    return
+
+def warinfo_goldamount(discordid,amount : int):
+    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.gold_amount : amount})
+    commit()
+    return
+
+def warinfo_isadded(discid):
+    return session.query(Warinfo).filter_by(discordid=discid).scalar() is not None
+
+def warinfo_profile(discid):
+    return session.query(Warinfo.smmoid,
+                        Warinfo.guildid,
+                        Warinfo.min_level,
+                        Warinfo.max_level,
+                        Warinfo.gold_ping,
+                        Warinfo.gold_amount).filter_by(discordid=discid).first()
+
+
+
+def commit():
+    try:
+        session.commit()
+    except IntegrityError as e:
+        reason = e.message
+        if "Duplicate entry" in reason:
+            session.rollback()
+        else:
+            session.rollback()
+            raise e
+
 
 
 if __name__ == "__main__":

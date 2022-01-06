@@ -55,6 +55,16 @@ def no_bot_channel():
 
     return commands.check(predicate)
 
+def warinfo_linked():
+    async def predicate(ctx):
+        if db.warinfo_isadded(ctx.author.id):
+            return True
+        else:
+            await ctx.send(f"If you're linked to the bot and in Friendly, then run `{ctx.prefix}war setup`")
+            return False
+
+    return commands.check(predicate)
+
 
 def in_fly():
     async def predicate(ctx):

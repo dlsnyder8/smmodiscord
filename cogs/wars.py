@@ -74,9 +74,192 @@ class Wars(commands.Cog):
         await ctx.send(embed=Embed(title="NSF Wars",description=warstring))
 
     
+    
     @wars.command()
-    async def hug(self,ctx,guild):
-        pass
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.is_verified()
+    async def setup(self,ctx, guildid : int):
+        if db.warinfo_isadded(ctx.author.id):
+            await ctx.send(f"You already did this. If you need a list of customization options, run `{ctx.prefix}war options`")
+            return
+        
+        if guildid not in (408, 455, 541, 482):
+            await ctx.send("It appears you did not enter a valid Friendly guild id. The options are:\n**408**\n**455**\n**541**\n")
+            return
+
+        smmoid = db.get_smmoid(ctx.author.id)
+        db.warinfo_setup(ctx.author.id,smmoid,guildid)
+
+        await ctx.send(f"Success! Please run `{ctx.prefix}war options` for a list of customization options, or run `{ctx.prefix}war profile` to see your current profile")
+    
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def options(self,ctx):
+        embed = Embed(title="Customization Options")
+        string = f"`{ctx.prefix}war guild <int> - change which guild you're currently in (needs to be a Fly guild)"
+        string+= f"`{ctx.prefix}war minlevel <int>` - sets the min level of your targets (default 200)\n"
+        string+= f"`{ctx.prefix}war maxlevel <int>` - sets the max level of your targets (default 10,000)\n"
+        string+= f"`{ctx.prefix}war goldping <bool>` - get pinged if out of safemode and gold is above your threshold\n"
+        string+= f"`{ctx.prefix}war gold <int>` - threshold amount to get pinged for (default 5,000,000)\n"
+
+        embed.description = string
+        await ctx.send(embed=embed)
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def profile(self,ctx):
+
+        info = db.warinfo_profile(ctx.author.id)
+
+        embed = Embed(title="Your War Profile")
+        string = f"**SMMO ID:** {info[0]}\n"
+        string += f"**Guild ID:** {info[1]}\n"
+        string += f"**Min Level:** {info[2]}\n"
+        string += f"**Max Level:** {info[3]}\n"
+        string += f"**Gold Ping:** {'Active' if info[4] else 'Inactive'}\n"
+        string += f"**Gold Ping Amount:** {info[5]}"
+
+        embed.description = string
+        await ctx.send(embed=embed)
+
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def guild(self,ctx,guildid : int):
+        if guildid not in (408, 455, 541, 482):
+            await ctx.send("It appears you did not enter a valid Friendly guild id. The options are:\n**408**\n**455**\n**541**\n")
+            return
+        
+        db.warinfo_guild(ctx.author.id,guildid)
+        await ctx.send(f"You have changed your active guild to {guildid}")
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def minlevel(self,ctx,level : int):
+        db.warinfo_minlevel(ctx.author.id,level)
+        await ctx.send(f"Min level updated to: {level}")
+        return
+
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def maxlevel(self,ctx,level : int):
+        db.warinfo_maxlevel(ctx.author.id,level)
+        await ctx.send(f"Max level updated to: {level}")
+        return
+    
+
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def goldping(self,ctx,ping : bool):
+        db.warinfo_goldping(ctx.author.id,ping)
+        await ctx.send(f"Gold ping set to: {'Active' if ping else 'Inactive'}")
+        return
+
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def gold(self,ctx,amount : int):
+        db.warinfo_goldamount(ctx.author.id,amount)
+        await ctx.send(f"You will be pinged if your gold is above {amount}")
+        return
+
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def targets(self,ctx):
+        profile = db.warinfo_profile(ctx.author.id)
+        targets = api.get_guild_wars(profile[1],1)
+        async with ctx.typing():
+            embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+            attacklist = ""
+            for i in range(5):
+                members = api.guild_members(targets[i]['guild_2']['id'])
+                members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and member['current_hp']/member['max_hp'] > 0.5]
+                
+                for member in members:
+                    attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
+
+                    if len(attacklist) > 300:
+                        embed.add_field(name="\u200b",value=attacklist)
+                        attacklist = ""
+                    if len(embed) > 5900:
+                        await ctx.send(embed=embed)
+                        embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+                    
+            
+        await ctx.send(embed=embed)
+
+
+    
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def top15(self,ctx):
+        profile = db.warinfo_profile(ctx.author.id)
+        targets = api.get_guild_wars(profile[1],1)
+        async with ctx.typing():
+            embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+            attacklist = ""
+            for i in range(15):
+                members = api.guild_members(targets[i]['guild_2']['id'])
+                members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and member['current_hp']/member['max_hp'] > 0.5]
+                
+                for member in members:
+                    attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
+
+                    if len(attacklist) > 300:
+                        embed.add_field(name="\u200b",value=attacklist)
+                        attacklist = ""
+                    if len(embed) > 5900:
+                        await ctx.send(embed=embed)
+                        embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+                    
+            
+            
+
+        await ctx.send(embed=embed)
+
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def status(self,ctx,target : int):
+        profile = db.warinfo_profile(ctx.author.id)
+
+        guilds = api.get_guild_wars(profile[1],1)
+        print(guilds)
+
+        guild = [x for x in guilds if x['guild_2']['id'] == target]
+        guild = guild[0]
+        print(guild)
+        if len(guild) == 0:
+            await ctx.send("I could not find that target guild")
+            return
+        else:
+            embed = Embed(title="War Status",description=f"**{guild['guild_1']['name']}**\n{guild['guild_1']['kills']}\n\n**{guild['guild_2']['name']}**\n{guild['guild_2']['kills']}")
+            await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Wars(bot))
