@@ -203,7 +203,7 @@ class Wars(commands.Cog):
                     attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
 
                     if len(attacklist) > 300:
-                        embed.add_field(name="\u200b",value=attacklist)
+                        embed.add_field(name="Attack",value=attacklist)
                         attacklist = ""
                     if len(embed) > 5900:
                         await ctx.send(embed=embed)
@@ -225,18 +225,55 @@ class Wars(commands.Cog):
             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
             attacklist = ""
             for i in range(15):
-                members = api.guild_members(targets[i]['guild_2']['id'])
-                members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
+                try:
+                    members = api.guild_members(targets[i]['guild_2']['id'])
+                    members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
-                for member in members:
-                    attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
+                    for member in members:
+                        attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
 
-                    if len(attacklist) > 300:
-                        embed.add_field(name="\u200b",value=attacklist)
-                        attacklist = ""
-                    if len(embed) > 5900:
-                        await ctx.send(embed=embed)
-                        embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+                        if len(attacklist) > 300:
+                            embed.add_field(name="Attack",value=attacklist)
+                            attacklist = ""
+                        if len(embed) > 5900:
+                            await ctx.send(embed=embed)
+                            embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+                except IndexError:
+                    break
+                    
+            
+            
+
+        await ctx.send(embed=embed)
+
+
+    
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def all(self,ctx):
+        profile = db.warinfo_profile(ctx.author.id)
+        targets = api.get_guild_wars(profile[1],1)
+        async with ctx.typing():
+            embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+            attacklist = ""
+            for i in range(500):
+                try:
+                    members = api.guild_members(targets[i]['guild_2']['id'])
+                    members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
+                
+                    for member in members:
+                        attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
+
+                        if len(attacklist) > 300:
+                            embed.add_field(name="Attack",value=attacklist)
+                            attacklist = ""
+                        if len(embed) > 5900:
+                            await ctx.send(embed=embed)
+                            embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+                except IndexError:
+                    break
                     
             
             
