@@ -23,7 +23,7 @@ class Wars(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
 
-    @wars.command()
+    @wars.command(aliases=['fly'])
     async def friendly(self,ctx):
         wars = api.get_guild_wars(408,1)
         if len(wars) == 0:
@@ -197,7 +197,7 @@ class Wars(commands.Cog):
             attacklist = ""
             for i in range(5):
                 members = api.guild_members(targets[i]['guild_2']['id'])
-                members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5]
+                members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                 for member in members:
                     attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
@@ -226,7 +226,7 @@ class Wars(commands.Cog):
             attacklist = ""
             for i in range(15):
                 members = api.guild_members(targets[i]['guild_2']['id'])
-                members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5]
+                members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                 for member in members:
                     attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
