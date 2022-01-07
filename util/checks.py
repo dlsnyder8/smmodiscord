@@ -60,7 +60,7 @@ def warinfo_linked():
         if db.warinfo_isadded(ctx.author.id):
             return True
         else:
-            await ctx.send(f"If you're linked to the bot and in Friendly, then run `{ctx.prefix}war setup`")
+            await ctx.send(f"If you're linked to the bot and in Friendly, then run `{ctx.prefix}war setup <guildid>`")
             return False
 
     return commands.check(predicate)
