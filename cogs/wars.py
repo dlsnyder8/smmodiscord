@@ -200,7 +200,7 @@ class Wars(commands.Cog):
                 members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                 for member in members:
-                    attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
+                    attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
                     if len(attacklist) > 300:
                         embed.add_field(name="Attack",value=attacklist)
@@ -230,7 +230,7 @@ class Wars(commands.Cog):
                     members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                     for member in members:
-                        attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
+                        attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
                         if len(attacklist) > 300:
                             embed.add_field(name="Attack",value=attacklist)
@@ -264,7 +264,7 @@ class Wars(commands.Cog):
                     members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                     for member in members:
-                        attacklist += f"[{member['name']} - Level {member['level']}](https://web.simple-mmo.com/user/attack/{member['user_id']})\n"
+                        attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
                         if len(attacklist) > 300:
                             embed.add_field(name="Attack",value=attacklist)
