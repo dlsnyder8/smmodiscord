@@ -69,7 +69,11 @@ class Wars(commands.Cog):
 
             
             warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
-
+            if len(warstring) > 1900:
+                embed = Embed(title="Friendly Too Wars", description=warstring)
+                await ctx.send(embed=embed)
+                warstring =""
+            
         await ctx.send(embed=Embed(title="Friendly Too Wars",description=warstring))
 
     @wars.command()
@@ -89,6 +93,11 @@ class Wars(commands.Cog):
                 guild = war['guild_1']
             warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
+            if len(warstring) > 1900:
+                embed = Embed(title="NSF Wars", description=warstring)
+                await ctx.send(embed=embed)
+                warstring =""
+                
         await ctx.send(embed=Embed(title="NSF Wars",description=warstring))
 
     
