@@ -36,7 +36,7 @@ class Wars(commands.Cog):
         for war in wars[:35]:
             friendly = war['guild_1']
             guild = war['guild_2']
-            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
             if len(warstring) > 1900:
                 embed = Embed(title="Friendly Wars", description=warstring)
@@ -57,7 +57,7 @@ class Wars(commands.Cog):
         for war in wars:
             friendly = war['guild_1']
             guild = war['guild_2']
-            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
         await ctx.send(embed=Embed(title="Friendly Too Wars",description=warstring))
 
@@ -72,7 +72,7 @@ class Wars(commands.Cog):
         for war in wars:
             friendly = war['guild_1']
             guild = war['guild_2']
-            warstring += f"**{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
         await ctx.send(embed=Embed(title="NSF Wars",description=warstring))
 
