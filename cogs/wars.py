@@ -31,7 +31,7 @@ class Wars(commands.Cog):
             return
         
 
-
+        print(wars)
         warstring = ""
         for war in wars[:35]:
             if war['guild_1']['id'] == 408:
@@ -97,7 +97,7 @@ class Wars(commands.Cog):
                 embed = Embed(title="NSF Wars", description=warstring)
                 await ctx.send(embed=embed)
                 warstring =""
-                
+
         await ctx.send(embed=Embed(title="NSF Wars",description=warstring))
 
     
