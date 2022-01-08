@@ -62,6 +62,7 @@ CREATE TABLE "warinfo" (
   "min_level" int default 200,
   "max_level" int default 10000,
   "gold_ping" bool default false,
-  "gold_amount" numeric default 5000000
+  "gold_amount" numeric default 5000000,
+  "last_pinged" timestamp default null
 );
 
