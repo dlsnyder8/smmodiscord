@@ -150,7 +150,7 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def minlevel(self,ctx,level : int):
         db.warinfo_minlevel(ctx.author.id,level)
-        await ctx.send(f"Min level updated to: {level}")
+        await ctx.send(f"Min level updated to: {level:,}")
         return
 
 
@@ -160,7 +160,7 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def maxlevel(self,ctx,level : int):
         db.warinfo_maxlevel(ctx.author.id,level)
-        await ctx.send(f"Max level updated to: {level}")
+        await ctx.send(f"Max level updated to: {level:,}")
         return
     
 
