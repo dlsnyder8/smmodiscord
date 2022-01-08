@@ -34,8 +34,13 @@ class Wars(commands.Cog):
 
         warstring = ""
         for war in wars[:35]:
-            friendly = war['guild_1']
-            guild = war['guild_2']
+            if war['guild_1']['id'] == 408:
+                friendly = war['guild_1'] 
+                guild = war['guild_2']
+            else:
+                friendly = war['guild_2'] 
+                guild = war['guild_1']
+
             warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
             if len(warstring) > 1900:
@@ -55,8 +60,14 @@ class Wars(commands.Cog):
         
         warstring = ""
         for war in wars:
-            friendly = war['guild_1']
-            guild = war['guild_2']
+            if war['guild_1']['id'] == 455:
+                friendly = war['guild_1'] 
+                guild = war['guild_2']
+            else:
+                friendly = war['guild_2'] 
+                guild = war['guild_1']
+
+            
             warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
         await ctx.send(embed=Embed(title="Friendly Too Wars",description=warstring))
@@ -70,8 +81,12 @@ class Wars(commands.Cog):
         
         warstring = ""
         for war in wars:
-            friendly = war['guild_1']
-            guild = war['guild_2']
+            if war['guild_1']['id'] == 541:
+                friendly = war['guild_1'] 
+                guild = war['guild_2']
+            else:
+                friendly = war['guild_2'] 
+                guild = war['guild_1']
             warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
 
         await ctx.send(embed=Embed(title="NSF Wars",description=warstring))
@@ -228,7 +243,11 @@ class Wars(commands.Cog):
             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
             attacklist = ""
             for i in range(5):
-                members = api.guild_members(targets[i]['guild_2']['id'])
+                if targets[i]['guild_2']['id'] in (408, 455, 541, 482):
+                    members = api.guild_members(targets[i]['guild_1']['id'])
+                else:
+                    members = api.guild_members(targets[i]['guild_2']['id'])
+
                 members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                 for member in members:
@@ -258,7 +277,10 @@ class Wars(commands.Cog):
             attacklist = ""
             for i in range(15):
                 try:
-                    members = api.guild_members(targets[i]['guild_2']['id'])
+                    if targets[i]['guild_2']['id'] in (408, 455, 541, 482):
+                        members = api.guild_members(targets[i]['guild_1']['id'])
+                    else:
+                        members = api.guild_members(targets[i]['guild_2']['id'])
                     members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                     for member in members:
@@ -292,7 +314,10 @@ class Wars(commands.Cog):
             attacklist = ""
             for i in range(500):
                 try:
-                    members = api.guild_members(targets[i]['guild_2']['id'])
+                    if targets[i]['guild_2']['id'] in (408, 455, 541, 482):
+                        members = api.guild_members(targets[i]['guild_1']['id'])
+                    else:
+                        members = api.guild_members(targets[i]['guild_2']['id'])
                     members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                     for member in members:
