@@ -244,7 +244,7 @@ def get_guild_wars(guildid,status):
         x = content.decode("UTF-8")
         info = json.loads(x)
 
-        info.sort(reverse=True,key=lambda x:x['guild_1']['kills'])
+        info.sort(reverse=True,key=lambda x:(x['guild_1']['kills'] + x['guild_2']['kills']))
         return info
     else:
         print("Guild War Request Failed\n")
