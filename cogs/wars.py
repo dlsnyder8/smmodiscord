@@ -126,7 +126,7 @@ class Wars(commands.Cog):
         string += f"**Min Level:** {info[2]}\n"
         string += f"**Max Level:** {info[3]}\n"
         string += f"**Gold Ping:** {'Active' if info[4] else 'Inactive'}\n"
-        string += f"**Gold Ping Amount:** {info[5]}"
+        string += f"**Gold Ping Amount:** {info[5]:,}"
 
         embed.description = string
         await ctx.send(embed=embed)
@@ -181,9 +181,41 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def gold(self,ctx,amount : int):
         db.warinfo_goldamount(ctx.author.id,amount)
-        await ctx.send(f"You will be pinged if your gold is above {amount}")
+        await ctx.send(f"You will be pinged if your gold is above {amount:,}")
         return
 
+
+
+    @wars.command()
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def attack(self,ctx, guildid: int):
+        profile = db.warinfo_profile(ctx.author.id)
+        
+        async with ctx.typing():
+            embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+            attacklist = ""
+            
+            members = api.guild_members(guildid)
+            print(members)
+            if members is None:
+                await ctx.send("Invalid Guild ID or API Malfunction")
+                return
+            members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
+            print(members)
+            for member in members:
+                attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
+
+                if len(attacklist) > 300:
+                    embed.add_field(name="Attack",value=attacklist)
+                    attacklist = ""
+                if len(embed) > 5900:
+                    await ctx.send(embed=embed)
+                    embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+                    
+        embed.description=attacklist
+        await ctx.send(embed=embed)
 
     @wars.command()
     @checks.in_fly()
@@ -209,7 +241,7 @@ class Wars(commands.Cog):
                         await ctx.send(embed=embed)
                         embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
                     
-            
+        embed.description=attacklist
         await ctx.send(embed=embed)
 
 
@@ -243,7 +275,7 @@ class Wars(commands.Cog):
                     
             
             
-
+        embed.description=attacklist
         await ctx.send(embed=embed)
 
 
@@ -277,7 +309,7 @@ class Wars(commands.Cog):
                     
             
             
-
+        embed.description=attacklist
         await ctx.send(embed=embed)
 
 
