@@ -188,8 +188,10 @@ def guild_info(guildid):
     ret = post(url, data=key, timeout=5)
     if ret.ok:
         content = ret.content
-        print(content)
-        return content
+        x = content.decode("UTF-8")
+        info = json.loads(x)
+        
+        return info
 
     else:
         print("Guild Request failed")
@@ -204,6 +206,8 @@ def guild_members(guildid):
         content = ret.content
         x = content.decode("UTF-8")
         members = json.loads(x)
+
+        members.sort(reverse=True,key=lambda x: x['level'])
         return members
 
     elif ret.status_code == 429:
@@ -271,7 +275,7 @@ def diamond_market():
 if __name__ == "__main__":
     #profile = get_all(385801)
     #print(profile)
-    print(guild_members(828)[0])
+    #print(guild_members(828)[0])
     # creation = profile["creation_date"]
     # print(creation)
     # now = datetime.now(timezone.utc)
@@ -292,3 +296,4 @@ if __name__ == "__main__":
     #equipment(385801)
     #print(diamond_market()[0])
     #print(guild_members(408))
+    print(guild_info(408))

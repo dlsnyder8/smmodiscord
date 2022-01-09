@@ -238,7 +238,8 @@ class Wars(commands.Cog):
                     await ctx.send(embed=embed)
                     embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
                     
-        embed.description=attacklist
+            if len(attacklist) > 0:
+                embed.add_field(name="Attack",value=attacklist)
         await ctx.send(embed=embed)
 
     @wars.command()
@@ -268,8 +269,9 @@ class Wars(commands.Cog):
                     if len(embed) > 5900:
                         await ctx.send(embed=embed)
                         embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+            if len(attacklist) > 0:
+                embed.add_field(name="Attack",value=attacklist)
                     
-        embed.description=attacklist
         await ctx.send(embed=embed)
 
 
@@ -301,12 +303,15 @@ class Wars(commands.Cog):
                         if len(embed) > 5900:
                             await ctx.send(embed=embed)
                             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+                
                 except IndexError:
                     break
+            if len(attacklist) > 0:
+                embed.add_field(name="Attack",value=attacklist)
                     
             
             
-        embed.description=attacklist
+       
         await ctx.send(embed=embed)
 
 
@@ -338,12 +343,12 @@ class Wars(commands.Cog):
                         if len(embed) > 5900:
                             await ctx.send(embed=embed)
                             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
+
                 except IndexError:
                     break
+            if len(attacklist) > 0:
+                embed.add_field(name="Attack",value=attacklist)
                     
-            
-            
-        embed.description=attacklist
         await ctx.send(embed=embed)
 
 
@@ -352,20 +357,52 @@ class Wars(commands.Cog):
     @checks.in_fly_guild()
     @checks.warinfo_linked()
     async def status(self,ctx,target : int):
-        profile = db.warinfo_profile(ctx.author.id)
+        async with ctx.typing():
+            profile = db.warinfo_profile(ctx.author.id)
 
-        guilds = api.get_guild_wars(profile[1],1)
-        print(guilds)
+            guilds = api.get_guild_wars(profile[1],1)
+            print(guilds)
 
-        guild = [x for x in guilds if x['guild_2']['id'] == target]
-        
-        if len(guild) == 0:
-            await ctx.send("That guild either doesn't exist or is not actively at war with you")
+            guild = [x for x in guilds if x['guild_2']['id'] == target]
+            
+            if len(guild) == 0:
+                await ctx.send("That guild either doesn't exist or is not actively at war with you")
+                return
+            else:
+                guild = guild[0]
+                embed = Embed(title="War Status",description=f"**{guild['guild_1']['name']}**\n{guild['guild_1']['kills']}\n\n**{guild['guild_2']['name']}**\n{guild['guild_2']['kills']}")
+                await ctx.send(embed=embed)
             return
-        else:
-            guild = guild[0]
-            embed = Embed(title="War Status",description=f"**{guild['guild_1']['name']}**\n{guild['guild_1']['kills']}\n\n**{guild['guild_2']['name']}**\n{guild['guild_2']['kills']}")
+
+    @wars.command(aliases=['nosm'])
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.warinfo_linked()
+    async def nosafemode(self,ctx,target:int):
+        async with ctx.typing():
+            guildmembers = api.guild_members(target)
+            if guildmembers is None:
+                await ctx.send("That guild id does not appear to be valid")
+                return
+            guildinfo = api.guild_info(target)
+            members = [x for x in guildmembers if x['safe_mode'] == 0]
+            embed = Embed(title="No Safe Mode",description=f"{guildinfo['name']} members out of safe mode")
+            attacklist = ""
+            for member in members:
+                    attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
+
+                    if len(attacklist) > 300:
+                        embed.add_field(name="\u200b",value=attacklist)
+                        attacklist = ""
+                    if len(embed) > 5900:
+                        await ctx.send(embed=embed)
+                        embed = Embed(title="No Safe Mode",description=f"{guildinfo['name']} members out of safe mode")
+                        
+            if len(attacklist) > 0:
+                embed.add_field(name="Attack",value=attacklist)
             await ctx.send(embed=embed)
+            return
+
 
 def setup(bot):
     bot.add_cog(Wars(bot))
