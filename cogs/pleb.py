@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands, tasks
+from discord import Embed
 from discord.utils import get
 from util import checks
 import database as db
@@ -55,7 +56,8 @@ class Pleb(commands.Cog):
     async def verify(self,ctx, *args):
         # needs 1 arg, smmo id
         if len(args) != 1:
-            await ctx.send(f"Incorrect Number of Arguments! \n Correct usage: {ctx.prefix}verify [SMMO-ID]")
+            await ctx.send(embed=Embed(title=f"Verification Process",
+                            description="1) Please find your SMMO ID by running `+us YourNameHere` or navigating to your profile on web app and getting the 4-6 digits in the url\n2) Run `&verify SMMOID`\n3) Add the verification key to your motto, then run `&verify SMMOID` again"))
             return
 
         
