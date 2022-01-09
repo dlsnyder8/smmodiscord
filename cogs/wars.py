@@ -41,7 +41,7 @@ class Wars(commands.Cog):
                 friendly = war['guild_2'] 
                 guild = war['guild_1']
 
-            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members?new_page=true&attackable=true)\n"
 
             if len(warstring) > 1900:
                 embed = Embed(title="Friendly Wars", description=warstring)
@@ -68,7 +68,7 @@ class Wars(commands.Cog):
                 guild = war['guild_1']
 
             
-            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members?new_page=true&attackable=true)\n"
             if len(warstring) > 1900:
                 embed = Embed(title="Friendly Too Wars", description=warstring)
                 await ctx.send(embed=embed)
@@ -91,7 +91,7 @@ class Wars(commands.Cog):
             else:
                 friendly = war['guild_2'] 
                 guild = war['guild_1']
-            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members)\n"
+            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members?new_page=true&attackable=true)\n"
 
             if len(warstring) > 1900:
                 embed = Embed(title="NSF Wars", description=warstring)
@@ -231,10 +231,10 @@ class Wars(commands.Cog):
             for member in members:
                 attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
-                if len(attacklist) > 300:
+                if len(attacklist) > 250:
                     embed.add_field(name="Attack",value=attacklist)
                     attacklist = ""
-                if len(embed) > 5900:
+                if len(embed) > 5600:
                     await ctx.send(embed=embed)
                     embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
                     
@@ -263,10 +263,10 @@ class Wars(commands.Cog):
                 for member in members:
                     attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
-                    if len(attacklist) > 300:
+                    if len(attacklist) > 250:
                         embed.add_field(name="Attack",value=attacklist)
                         attacklist = ""
-                    if len(embed) > 5900:
+                    if len(embed) > 5600:
                         await ctx.send(embed=embed)
                         embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
             if len(attacklist) > 0:
@@ -337,10 +337,10 @@ class Wars(commands.Cog):
                     for member in members:
                         attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
-                        if len(attacklist) > 300:
+                        if len(attacklist) > 250:
                             embed.add_field(name="Attack",value=attacklist)
                             attacklist = ""
-                        if len(embed) > 5900:
+                        if len(embed) > 5600:
                             await ctx.send(embed=embed)
                             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
 
@@ -391,10 +391,10 @@ class Wars(commands.Cog):
             for member in members:
                     attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
-                    if len(attacklist) > 300:
+                    if len(attacklist) > 250:
                         embed.add_field(name="\u200b",value=attacklist)
                         attacklist = ""
-                    if len(embed) > 5900:
+                    if len(embed) > 5600:
                         await ctx.send(embed=embed)
                         embed = Embed(title="No Safe Mode",description=f"{guildinfo['name']} members out of safe mode")
                         
