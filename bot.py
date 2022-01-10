@@ -172,6 +172,10 @@ async def plebcheck(ctx=None):
             #print(f'{discid} is not found is the server')
             in_server += 1
             continue
+        
+        # If user is muted, do not give them the role
+        if user._roles.has(751808682169466962):
+            continue
 
         isPleb = api.pleb_status(smmoid)
 
