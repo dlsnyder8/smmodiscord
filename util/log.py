@@ -30,7 +30,8 @@ async def log(bot, title : str, desc : str):
     channel = bot.get_channel(790666439673643028)
     embed = discord.Embed(
         title=title, 
-        description=desc, 
+        description=desc,
+        timestamp=datetime.now(datetime.utcnow), 
         color=0x00ff00
         )
     

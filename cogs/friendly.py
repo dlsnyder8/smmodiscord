@@ -8,7 +8,7 @@ import database as db
 import api
 from discord.ext.commands.cooldowns import BucketType
 import logging
-from util.log import flylog
+from util.log import flylog, log, flylog2,flylog3
 import sys
 import traceback
 from datetime import datetime, timezone
@@ -1032,30 +1032,10 @@ class Friendly(commands.Cog):
                     if(total % 100 == 0):
                         await ctx.send(f"{total} out of {len(members)} checked")
 
-                    # # if already linked to friendly server
-                    # if db.in_fly(member.id):
-                    #     pass
-                    # else:
-
-                        # If user has the Friendly role
-                        # If user has not been put in database
-                        # If user has been linked (have smmoid)
+                    
                     if db.islinked(member.id):
                         smmoid = db.get_smmoid(member.id)
 
-                        #profile = api.get_all(smmoid)
-
-                        try:
-                            #guildid = profile["guild"]["id"]
-                            pass
-                        except KeyError as e:
-                            not_in_fly += 1
-                            listUsers.append(f"{member.mention}")
-                            print(f"{member.display_name}")
-                            await member.remove_roles(*all_fly_roles, reason="User left fly")
-                            await member.add_roles(ctx.guild.get_role(acquaintance))
-
-                            continue
 
                         if smmoid in allmembers:
                             # Add to database
@@ -1446,6 +1426,174 @@ class Friendly(commands.Cog):
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
+
+    @tasks.loop(hours=1)
+    async def flycheck(self):
+        await log(self.bot,"Task Started","Events Stats are being updated")
+        guild = self.bot.get_guild(710258284661178418)
+        all_fly_roles = [
+            # Main Fly Role
+            guild.get_role(710315282920636506),
+            # NSF Role
+            guild.get_role(722110578516164670), guild.get_role(783930500732551219),
+            # Thicc (Levels)
+            guild.get_role(727719624434778124), guild.get_role(
+                727722577908334662), guild.get_role(727722769785028672),
+            # Stepper
+            guild.get_role(710290715787264041), guild.get_role(720049949865279559), guild.get_role(
+                727947354929365003), guild.get_role(829700204357877812),
+            # Gladiator (NPC)
+            guild.get_role(724649998985461841), guild.get_role(
+                724650153218277457), guild.get_role(752699779888316417),
+            # Monster (PVP)
+            guild.get_role(710293875289489458), guild.get_role(
+                720052795679703138), guild.get_role(752703370510336080),
+            # Quester
+            guild.get_role(752700240213311580), guild.get_role(
+                752700554672865290), guild.get_role(752700633920045139),
+            # Forager
+            guild.get_role(767163012132896808), guild.get_role(
+                829700288976781312), guild.get_role(829700338893979718),
+            # Tasker
+            guild.get_role(752706107985625139), guild.get_role(
+                752706496315261068), guild.get_role(763043799869030400),
+            # Slayer
+            guild.get_role(752702198303031376), guild.get_role(
+                752702447662923777),
+            # Decorated
+            guild.get_role(731018776648089670), guild.get_role(
+                731019364068753449),
+            # Trader
+            guild.get_role(710277160857763860), guild.get_role(
+                829692366092238858), guild.get_role(720048172399067200),
+            # Celebrity
+            guild.get_role(710307235124871189), guild.get_role(
+                720062633281192008), guild.get_role(752701722719289398),
+            # Veteran
+            guild.get_role(752705054351556658),
+            # Suggester
+            guild.get_role(720047404996624487),
+            # Storyteller
+            guild.get_role(774361923218309130),
+            # Looter
+            guild.get_role(720049700782342215),
+            # Collector
+            guild.get_role(710290631855177739), guild.get_role(
+                720050166396354671), guild.get_role(752699424735494175),
+            # Tycoon
+            guild.get_role(723955238385746030), guild.get_role(
+                723955584038076486),
+            # Thief
+            guild.get_role(734573085637869651), guild.get_role(
+                734573239249928222),
+            # Sniper
+            guild.get_role(713281314882846730), guild.get_role(
+                720053096855896084),
+            # Diamond
+            guild.get_role(717579223174348900), guild.get_role(
+                720061797838618660),
+            # Hero
+            guild.get_role(710317545340797068), guild.get_role(
+                720049289187033188),
+            # Meme'd
+            guild.get_role(710325364756447306), guild.get_role(
+                720053250669281301),
+            # Hunter
+            guild.get_role(720052696757043294), guild.get_role(
+                774354836614545419),
+            # Enforcer
+            guild.get_role(719173436856991804), guild.get_role(
+                720052932971593800),
+            # Contributor
+            guild.get_role(868508713525334066), guild.get_role(
+                720683761959960627), guild.get_role(720684106551132263),
+            # Secret CF/BF
+            guild.get_role(756119028543651951), guild.get_role(
+                894229709192314920),
+            # CF/BF/BFF (non-secret)
+            guild.get_role(719181452855738400), guild.get_role(
+                720041551069446225), guild.get_role(723506672944807946),
+            # charity
+            guild.get_role(713069407261425724),
+            # ping roles
+            guild.get_role(840696114537431080), guild.get_role(
+                897118429629251584), guild.get_role(840694858259890196)
+        ]
+
+
+        fly_role = guild.get_role(710315282920636506)
+        members = fly_role.members
+        not_in_fly = 0
+        not_linked = 0
+        total = 0
+
+        fly1 = fly[0]
+        fly2 = fly[1]
+        fly3 = fly[2]
+        fly4 = fly[3]
+
+        fly1 = api.guild_members(fly1)
+        fly2 = api.guild_members(fly2)
+        fly3 = api.guild_members(fly3)
+        fly4 = api.guild_members(fly4)
+
+        fly1 = [x["user_id"] for x in fly1]
+        fly2 = [x["user_id"] for x in fly2]
+        fly3 = [x["user_id"] for x in fly3]
+        fly4 = [x["user_id"] for x in fly4]
+
+        allmembers = fly1 + fly2 + fly3 + fly4
+        listUsers = []
+
+        for member in members:
+            total += 1
+            if db.islinked(member.id):
+                smmoid = db.get_smmoid(member.id)
+
+                if smmoid in allmembers:
+                    # Add to database
+                    try:
+                        db.fly_add(member.id, smmoid, 0)
+                    except:
+                        db.fly_update(member.id, smmoid, 0)
+
+                # Has Friendly role, but not in Friendly.
+                else:
+                    listUsers.append(f"{member.mention}")
+                    not_in_fly += 1
+                    await member.remove_roles(*all_fly_roles, reason="User left fly")
+                    await member.add_roles(guild.get_role(acquaintance))
+
+            else:
+                # unlinked. remove roles
+                not_linked += 1
+                print(f"{member.display_name}")
+
+                listUsers.append(f"{member.mention}")
+                await member.remove_roles(*all_fly_roles, reason="User left fly")
+                await member.add_roles(guild.get_role(acquaintance))
+
+        await flylog2("Friendly Check",f"{len(members)} Friendly members checked.\n{not_in_fly} member(s) not in fly\n{not_linked} member(s) not linked to bot :(")
+        splitUsers = [listUsers[i:i+33]
+        for i in range(0, len(listUsers), 33)]
+        if len(splitUsers) != 0:
+            embed = Embed(
+                title="Users with Fly role removed"
+            )
+            for split in splitUsers:
+                embed.add_field(name="Users", value=' '.join(split))
+
+            flylog3(self.bot,embed)
+
+
+
+
+
+
+
+    @flycheck.before_loop
+    async def before_flycheck(self):
+        await self.bot.wait_until_ready()
 
 def setup(bot):
     bot.add_cog(Friendly(bot))
