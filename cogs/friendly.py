@@ -79,7 +79,7 @@ dyl = 332314562575597579
 class Friendly(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        #self.flycheck.start()
+        self.flycheck.start()
 
     @checks.in_fly()
     @commands.group(aliases=['fly', 'f'], hidden=True)
