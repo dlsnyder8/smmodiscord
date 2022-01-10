@@ -289,18 +289,18 @@ async def guildcheck(ctx=None):
 
 @tasks.loop(hours=6)
 async def update_fly():
-    # await flycheck()
+    #await flycheck()
     return
 
 
-@tasks.loop(hours=6)
+@tasks.loop(hours=3)
 async def update_all_plebs():
-    #await plebcheck()
+    await plebcheck()
     return
 
-@tasks.loop(hours=6)
+@tasks.loop(hours=3)
 async def update_all_guilds():
-    #await guildcheck()
+    await guildcheck()
     return
 
 
