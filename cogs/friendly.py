@@ -1562,13 +1562,20 @@ class Friendly(commands.Cog):
                 else:
                     listUsers.append(f"{member.mention}")
                     not_in_fly += 1
+                    memberroles = ""
+                    for role in member.roles:
+                        memberroles += f"{role.mention}\n"
+                    await flylog3(self.bot,Embed(title=f"{member.display_name}'s Roles",description=memberroles))
                     await member.remove_roles(*all_fly_roles, reason="User left fly")
                     await member.add_roles(guild.get_role(acquaintance))
 
             else:
                 # unlinked. remove roles
                 not_linked += 1
-                print(f"{member.display_name}")
+                memberroles = ""
+                for role in member.roles:
+                    memberroles += f"{role.mention}\n"
+                await flylog3(self.bot,Embed(title=f"{member.display_name}'s Roles",description=memberroles))
 
                 listUsers.append(f"{member.mention}")
                 await member.remove_roles(*all_fly_roles, reason="User left fly")

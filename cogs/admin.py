@@ -221,6 +221,13 @@ class Admin(commands.Cog):
                 string += f"{member.name} is not a pleb anymore\n"
         
         await ctx.send(string)
+
+    @admin.command()
+    @checks.is_owner()
+    async def test(self,ctx):
+        await ctx.send(embed=Embed(description=ctx.author.roles))
+
+
 def setup(bot):
     bot.add_cog(Admin(bot))
     print("Admin Cog Loaded")
