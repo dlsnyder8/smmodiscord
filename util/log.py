@@ -39,6 +39,23 @@ async def log(bot, title : str, desc : str):
     await channel.send(embed=embed)
 
 
+async def flylog2(bot,title : str, desc: str):
+    channel = bot.get_channel(770177350758563850)
+    embed = discord.Embed(
+        title=title, 
+        description=desc,
+        timestamp=datetime.now(datetime.utcnow), 
+        color=0x00ff00
+        )
+    
+
+    await channel.send(embed=embed)
+
+async def flylog3(bot,embed):
+    channel = bot.get_channel(770177350758563850)
+    await channel.send(embed=embed)
+
+
 async def flylog(bot, title: str, desc: str, userid):
     channel = bot.get_channel(770177350758563850) # Actual log channel
     #channel = bot.get_channel(868565628695494716) #shit-code-only channel
