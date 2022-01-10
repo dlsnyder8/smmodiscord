@@ -552,6 +552,14 @@ def warinfo_ping_update(discordid):
     commit()
     return
 
+def warinfo_test():
+    members = session.query(Warinfo.discordid).all()
+    for member in members:
+        print(member)
+        session.query(Warinfo).filter_by(discordid=member[0]).update({Warinfo.last_pinged : datetime.now(timezone.utc)})
+        commit()
+
+
 
 
 def commit():
@@ -580,8 +588,8 @@ if __name__ == "__main__":
     #print(server_config(731379317182824478))
     #update_timestamp(731379317182824478,datetime.now(timezone.utc))
     #print(has_joined(10,332314562575597579))
-    #rollback()
-    print(gold_ping_users())
+    rollback()
+    #warinfo_test()
 
 
 

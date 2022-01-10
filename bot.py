@@ -89,48 +89,6 @@ async def restart(ctx):
     await bot.close()
 
 
-@bot.command(hidden=True)
-@checks.is_owner()
-async def flycheck(ctx=None):
-    print("Fly Check is starting")
-    guild = bot.get_guild(fly)
-    fly_roles = [bot.get_role(710315282920636506),
-                bot.get_role(722110578516164670)]
-
-    if ctx is not None:
-        await ctx.send("Fly Check is starting")
-
-    flymembers = db.all_fly()
-
-    for member in flymembers:
-        discid = int(member[0])
-        smmoid = member[1]
-        guildid = member[2]
-        
-
-
-        # get guild from profile (get_all())
-        profile = api.get_all(smmoid)
-        try:
-            current_guildid = profile["guild"]["id"]
-        except KeyError as e:
-            await ctx.send("You are not in a guild")
-            return
-        
-        # if user has left the fly guild
-        if current_guildid not in fly:
-            user = bot.get_member(discid)
-
-            if user is None:
-                continue
-
-            user.remove_roles(fly_roles,reason = "Automatic Removal")
-            db.fly_remove(discid)
-        
-        else:
-            if current_guildid != guildid:
-                db.fly_update(discid,smmoid,current_guildid)
-
 
 
         
@@ -139,7 +97,7 @@ async def flycheck(ctx=None):
 @bot.command(hidden=True)
 @checks.is_owner()
 async def plebcheck(ctx=None):
-    log.log(bot,"Pleb Check Started","")
+    await log.log(bot,"Pleb Check Started","")
     if(db.server_added(server)): # server has been initialized
         pleb_role = db.pleb_id(server)
     else:
@@ -205,7 +163,7 @@ async def plebcheck(ctx=None):
 @bot.command(hidden=True)
 @checks.is_owner()
 async def guildcheck(ctx=None):
-    log.log(bot,"Guild Check Started","")
+    await log.log(bot,"Guild Check Started","")
 
     if(ctx is not None):
         await ctx.send("Guild check starting...")

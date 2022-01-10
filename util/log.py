@@ -10,7 +10,7 @@ import api
 import asyncio
 import time
 import logging
-from datetime import datetime
+from datetime import datetime,timezone
 
 
 logger = logging.getLogger('__name__')
@@ -31,7 +31,7 @@ async def log(bot, title : str, desc : str):
     embed = discord.Embed(
         title=title, 
         description=desc,
-        timestamp=datetime.now(datetime.utcnow), 
+        timestamp=datetime.now(timezone.utc), 
         color=0x00ff00
         )
     
@@ -44,7 +44,7 @@ async def flylog2(bot,title : str, desc: str):
     embed = discord.Embed(
         title=title, 
         description=desc,
-        timestamp=datetime.now(datetime.utcnow), 
+        timestamp=datetime.now(timezone.now), 
         color=0x00ff00
         )
     
@@ -62,7 +62,7 @@ async def flylog(bot, title: str, desc: str, userid):
     embed = discord.Embed(
         title = title,
         description = desc,
-        timestamp=datetime.now(),
+        timestamp=datetime.now(timezone.utc),
         color=0x008e64
     )
     embed.set_footer(text=f"ID: {userid}")
