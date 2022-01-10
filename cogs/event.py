@@ -88,10 +88,20 @@ class Event(commands.Cog):
                 await ctx.send("That event id is not valid")
                 return
             
-            guildrole = ctx.guild.get_role(eventinfo[8])
-            await guildrole.delete(reason="Event ended")
+            
             db.end_event(eventid)
             await ctx.send(f"Event {eventid} has concluded.")
+        except Exception as e:
+            await ctx.send(embed=Embed(title="Error", description=e))
+            raise e
+
+    @event.command()
+    @checks.is_owner()
+    async def cleanup(self,ctx,eventid : int):
+        try:
+            eventinfo = db.event_info(eventid)
+            guildrole = ctx.guild.get_role(eventinfo[8])
+            await guildrole.delete(reason="Event ended")
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
             raise e
