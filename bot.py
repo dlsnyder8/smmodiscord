@@ -7,8 +7,9 @@ import database as db
 import random   
 import string
 import api
-from util import checks
+from util import checks,log
 import asyncio
+from datetime import datetime
 
 import config
 
@@ -138,7 +139,7 @@ async def flycheck(ctx=None):
 @bot.command(hidden=True)
 @checks.is_owner()
 async def plebcheck(ctx=None):
-    print("Pleb Check is starting!")
+    log.log(bot,"Pleb Check Started","")
     if(db.server_added(server)): # server has been initialized
         pleb_role = db.pleb_id(server)
     else:
@@ -184,12 +185,14 @@ async def plebcheck(ctx=None):
 
         elif isPleb is True:
             db.update_status(smmoid, True) # they are a pleb
-            await user.add_roles(role) # give user pleb role
+            if not user._roles.has(role):
+                await user.add_roles(role) # give user pleb role
             #print(f'{user} with uid: {smmoid} has pleb!')
 
         elif isPleb is False: # user is not pleb
             db.update_status(smmoid, False) # not a pleb
-            await user.remove_roles(role) # remove pleb role
+            if user._roles.has(role):
+                await user.remove_roles(role) # remove pleb role
             #print(f'{user} lost pleb!')
 
     if ctx is not None:
@@ -202,7 +205,7 @@ async def plebcheck(ctx=None):
 @bot.command(hidden=True)
 @checks.is_owner()
 async def guildcheck(ctx=None):
-    print("Guild Check is starting")
+    log.log(bot,"Guild Check Started","")
 
     if(ctx is not None):
         await ctx.send("Guild check starting...")
@@ -302,7 +305,7 @@ async def update_all_plebs():
     await plebcheck()
     return
 
-@tasks.loop(hours=3)
+@tasks.loop(hours=4)
 async def update_all_guilds():
     await guildcheck()
     return
