@@ -1427,7 +1427,7 @@ class Friendly(commands.Cog):
             return
 
 
-    @tasks.loop(hours=1)
+    @tasks.loop(hours=3)
     async def flycheck(self):
         await log(self.bot,"Task Started","Events Stats are being updated")
         guild = self.bot.get_guild(710258284661178418)
