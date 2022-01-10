@@ -143,13 +143,13 @@ async def plebcheck(ctx=None):
 
         elif isPleb is True:
             db.update_status(smmoid, True) # they are a pleb
-            if not user._roles.has(role):
+            if not user._roles.has(832878414839021598):
                 await user.add_roles(role) # give user pleb role
             #print(f'{user} with uid: {smmoid} has pleb!')
 
         elif isPleb is False: # user is not pleb
             db.update_status(smmoid, False) # not a pleb
-            if user._roles.has(role):
+            if user._roles.has(832878414839021598):
                 await user.remove_roles(role) # remove pleb role
             #print(f'{user} lost pleb!')
 
