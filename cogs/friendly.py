@@ -1429,7 +1429,8 @@ class Friendly(commands.Cog):
 
     @tasks.loop(hours=3)
     async def flycheck(self):
-        await log(self.bot,"Task Started","Events Stats are being updated")
+        await log(self.bot,"Fly Check Started","Friendly guild members are being checked")
+        await flylog2(self.bot,"Fly Check Started","Friendly guild members are being checked")
         guild = self.bot.get_guild(710258284661178418)
         all_fly_roles = [
             # Main Fly Role
