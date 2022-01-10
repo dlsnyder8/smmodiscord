@@ -1,10 +1,13 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import Embed
-from util import checks
+from util import checks, log
 import api
 import logging
 import database as db
+from datetime import datetime,timezone,timedelta
+from dateutil import parser
+import pytz
 
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.INFO)
@@ -402,6 +405,42 @@ class Wars(commands.Cog):
                 embed.add_field(name="Attack",value=attacklist)
             await ctx.send(embed=embed)
             return
+
+    @tasks.loop(minutes=5)
+    async def gold_ping(self):
+        await log.log(self.bot,"Gold Ping","Checking for friendly members with gold out....")
+        channel = self.bot.get_channel()
+        members = db.gold_ping_users()
+        for member in members:
+            smmoid = member[0]
+            discordid = member[1]
+            goldamount = member[2]
+            lastping = member[3]
+
+            plus30min = pytz.utc.localize(lastping + timedelta(minutes=29))
+            # No API calls if it hasn't even been 30 minutes since last ping
+            if plus30min < datetime.now(timezone.utc):
+                continue
+            
+            info = api.get_all(smmoid)
+
+            # Skip user if not in Friendly guild
+            try:
+                if info['guild']['id'] not in (408, 455, 541, 482):
+                    continue
+            except Exception:
+                continue
+            
+
+            if info['safe_mode'] == 0 and info['gold'] >= goldamount:
+                embed = Embed(title="Actions",description = f"[:bank: Quick, bank your gold!](https://web.simple-mmo.com/bank/deposit) \n \u200b \n[:shield: Help! Stab to protect their gold!](https://web.simple-mmo.com/user/attack/{smmoid})")
+                await channel.send(f"{self.bot.get_user(581061608357363712).mention} gold ping! {info['gold']:,} gold out!",embed=embed)
+                db.warinfo_ping_update(discordid)
+
+
+    @gold_ping.before_loop
+    async def before_gold_ping(self):
+        await self.bot.wait_until_ready()
 
 
 def setup(bot):
