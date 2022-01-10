@@ -51,14 +51,14 @@ class Guild(commands.Cog):
             db.add_guild_person(str(dmem.id),smmoid)
 
         # get guild from profile (get_all())
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
             await ctx.send("They are not in a guild")
             return
         # check if leader of guild
-        members = api.guild_members(guildid)
+        members = await api.guild_members(guildid)
         for member in members:
             
             
@@ -86,14 +86,14 @@ class Guild(commands.Cog):
             db.add_guild_person(str(ctx.author.id),smmoid)
 
         # get guild from profile (get_all())
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
             await ctx.send("You are not in a guild")
             return
         # check if leader of guild
-        members = api.guild_members(guildid)
+        members = await api.guild_members(guildid)
         for member in members:
             
             
@@ -149,7 +149,7 @@ class Guild(commands.Cog):
         
         # check if member is in caller's guild
         
-        members = api.guild_members(guildid)
+        members = await api.guild_members(guildid)
         for mem in members:
             if mem["user_id"] == smmoid:
                 # add ambassador role if all True

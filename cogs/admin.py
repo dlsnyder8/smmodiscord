@@ -1,8 +1,8 @@
 import discord
 from discord.embeds import Embed
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
-from util import checks
+from util import checks,log
 import database as db
 import api
 import asyncio
@@ -26,6 +26,9 @@ logger.addHandler(handler)
 class Admin(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
+        self.update_all_plebs.start()
+        self.update_all_guilds.start()
+        self.yadda.start()
 
 
     
@@ -124,9 +127,6 @@ class Admin(commands.Cog):
     
     
 
-
-
-
     @admin.command()
     @checks.is_owner()
     async def ping(ctx):
@@ -215,7 +215,7 @@ class Admin(commands.Cog):
         string = ""
         for member in members:
             smmoid = db.get_smmoid(str(member.id))
-            if(api.pleb_status(smmoid)): # If they a pleb
+            if(await api.pleb_status(smmoid)): # If they a pleb
                 string +=f"{member.name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>\n"
             else:
                 string += f"{member.name} is not a pleb anymore\n"
@@ -227,6 +227,199 @@ class Admin(commands.Cog):
     async def test(self,ctx):
         await ctx.send(embed=Embed(description=ctx.author.roles))
 
+    
+
+        
+
+
+    @commands.command(hidden=True)
+    @checks.is_owner()
+    async def plebcheck(self,ctx=None):
+        print("Pleb check starting")
+        await log.log(self.bot,"Pleb Check Started","")
+        if(db.server_added(server)): # server has been initialized
+            pleb_role = db.pleb_id(server)
+        else:
+            print("Server has not been added to db")
+            return
+        
+
+        if ctx is not None:
+            await ctx.send("Pleb check starting...")
+
+        plebs = db.get_all_plebs()
+        guild = self.bot.get_guild(int(server))
+        role = guild.get_role(int(pleb_role))
+        count = 0
+        if ctx is not None:
+            await ctx.send(f"There are {len(plebs)} people to check.")
+        in_server = 0
+        for pleb in plebs:
+
+            count +=1
+            if ctx is not None:
+                if count % 100 == 0:
+                    await ctx.send(f"{count} members checked")
+            
+            discid = int(pleb[0])
+            smmoid = int(pleb[1])
+            
+            
+            user = guild.get_member(discid) # get user object
+            if user is None:
+                #print(f'{discid} is not found is the server')
+                in_server += 1
+                continue
+            
+            # If user is muted, do not give them the role
+            if user._roles.has(751808682169466962):
+                continue
+
+            isPleb = await api.pleb_status(smmoid)
+
+            if isPleb is None:
+                print("THE API IS STUPID")
+
+            elif isPleb is True:
+                db.update_status(smmoid, True) # they are a pleb
+                if not user._roles.has(832878414839021598):
+                    await user.add_roles(role) # give user pleb role
+                #print(f'{user} with uid: {smmoid} has pleb!')
+
+            elif isPleb is False: # user is not pleb
+                db.update_status(smmoid, False) # not a pleb
+                if user._roles.has(832878414839021598):
+                    await user.remove_roles(role) # remove pleb role
+                #print(f'{user} lost pleb!')
+
+        if ctx is not None:
+            await ctx.send(f"Pleb check finished! {in_server} linked members not in this server")
+
+        print("Pleb check finished")
+
+
+
+    @commands.command(hidden=True)
+    @checks.is_owner()
+    async def guildcheck(self,ctx=None):
+        print("Guild check starting")
+        await log.log(self.bot,"Guild Check Started","")
+
+        if(ctx is not None):
+            await ctx.send("Guild check starting...")
+
+        guild = self.bot.get_guild(int(server))
+        leaderrole = guild.get_role(int(db.leader_id(server)))
+        ambassadorrole = guild.get_role(int(db.ambassador_role(server)))
+        
+
+        ambassadors = db.all_ambassadors()
+        leaders = db.all_leaders()
+
+        # discid, smmoid, guildid
+        for leader in leaders:
+            await asyncio.sleep(0.5)
+            discid = int(leader[0])
+            lsmmoid = int(leader[1])
+            guildid = int(leader[2])
+
+            # get any guild ambassadors in that guild
+            guildambs = [x for x in ambassadors if x[2] == guildid]
+
+
+            # check leader in guild
+            members = await api.guild_members(guildid)
+
+            # get leader from member list
+            try:
+                gLeader = [x for x in members if x["position"] == "Leader"]
+            except Exception as e:
+                # if the guild has been disbanded, remove leader + any guild ambassadors
+                if(members["error"] == "guild not found"):
+                    user = guild.get_member(discid)
+                    if user is not None:
+                        print(f"{user.name} is not a leader because guild {guildid} has been deleted.")
+                        # if not leader, remove role and update db
+                        await user.remove_roles(leaderrole)
+                    db.guild_leader_update(str(discid),False,0,0)
+
+
+                    if len(guildambs) > 0:
+                        for amb in guildambs:
+                            user = guild.get_member(int(amb[0]))
+                            if user is not None:
+                                print(f"{user.name} is not an ambassador because guild {guildid} has been deleted.")
+                                await user.remove_roles(ambassadorrole)
+                            db.guild_ambassador_update(amb[0], False, 0)
+                    continue
+
+
+            # if current leader is not one w/ role, remove leader + ambassadors
+            if int(gLeader[0]["user_id"]) != lsmmoid:
+                user = guild.get_member(discid)
+                if user is not None:
+                    print(f"{user.name} is not a leader")
+                    # if not leader, remove role and update db
+                    await user.remove_roles(leaderrole)
+                db.guild_leader_update(str(discid),False,0,0)
+
+
+                if len(guildambs) > 0:
+                    for amb in guildambs:
+                        user = guild.get_member(int(amb[0]))
+                        if user is not None:
+                            print(f"{user.name} is not an ambassador")
+                            await user.remove_roles(ambassadorrole)
+                        db.guild_ambassador_update(amb[0], False, 0)
+                continue
+            
+            # if gleader is person w/ role, check ambassadors to see if they're in guild
+            else:
+                if len(guildambs) > 0:
+                    for amb in guildambs:
+                        # if ambassador is not in members list
+                        if len([x for x in members if int(x["user_id"]) == int(amb[1])]) == 0:
+                            user = guild.get_member(int(amb[0]))
+                            if user is not None:
+                                print(f"{user.name} is not an ambassador")
+
+                                await user.remove_roles(ambassadorrole)
+                            db.guild_ambassador_update(amb[0], False, 0)
+
+
+        if(ctx is not None):
+            await ctx.send("Guild Check has finished.")
+        print("Guild Check has finished")
+
+
+    @tasks.loop(hours=3)
+    async def update_all_plebs(self):
+        await self.plebcheck()
+        return
+
+    @tasks.loop(hours=4)
+    async def update_all_guilds(self):
+        await self.guildcheck()
+        return
+
+    @update_all_plebs.before_loop
+    async def before_pleb(self):
+        await self.bot.wait_until_ready()
+
+    @update_all_guilds.before_loop
+    async def before_guilds(self):
+        await self.bot.wait_until_ready()
+
+    @tasks.loop(hours=37)
+    async def yadda(self):
+        print("Yaddayadda")
+        channel = self.bot.get_channel(860889861145493524)
+        await channel.send("Yadda exposed the tickets")
+        return
+
+    @yadda.before_loop
+    async def before_yadda(self):
+        await self.bot.wait_until_ready()
 
 def setup(bot):
     bot.add_cog(Admin(bot))

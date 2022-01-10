@@ -69,7 +69,7 @@ class Diamond(commands.Cog):
         cheap_diamonds = False
         more_than_200 = False
         string = ""
-        listings = api.diamond_market()
+        listings = await api.diamond_market()
         embed = Embed(title="Diamonds Under 1.2m")
 
         for listing in listings:

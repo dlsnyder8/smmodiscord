@@ -9,6 +9,8 @@ import database as db
 import itertools
 from datetime import datetime, timezone
 from dateutil import parser
+import aiohttp
+import asyncio
 
 
 
@@ -18,129 +20,142 @@ API_KEY = config.API_KEY
 
 #key = {"api_key": API_KEY}
 
-def get_all(smmoid):
-    url = "https://api.simple-mmo.com/v1/player/info/" + str(smmoid)
+async def get_all(smmoid):
     key =  {"api_key": next(tokens)}
-    
-    ret = post(url, data=key, timeout=5)
+    url = "https://api.simple-mmo.com/v1/player/info/" + str(smmoid)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
+            if ret.status == 200:
+                content = ret.content
+                x = await content.read()
+                info = json.loads(x)
+                
+                return info
 
-    if ret.ok:
-        content = ret.content
-        x = content.decode("UTF-8")
-        info = json.loads(x)
-        #print(info)
-        return info
-
-    elif ret.status_code == 429:
-        print("Too many requests. Sleeping...")
-        
-        time.sleep(15)
-        return pleb_status(smmoid)
-    else:
-        print("Failed\n")
-        return None
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(5)
+                return await get_all(smmoid)
+            else:
+                print("Failed\n")
+                return None
 
 
 
-def equipment(smmoid):
+async def equipment(smmoid):
     key =  {"api_key": next(tokens)}
     
     url = "https://api.simple-mmo.com/v1/player/equipment/" + str(smmoid)
-    
-    ret = post(url, data=key,timeout=None)
-    if ret.ok:
-        try:
-            content = ret.content
-            x = content.decode("UTF-8")
-            info = json.loads(x)
-            print(info)
-            safemode = info["safeMode"]
-            if safemode == 1:
-                return True
-            return False
-        except Exception as e:
-            if(info["error"] == "user not found"):
-                db.remove_user(smmoid)
-                print("Removed user: " + str(smmoid))
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
             
-    elif ret.status_code == 429:
-        print("Too many requests. Sleeping...")
-        
-        time.sleep(30)
-        return pleb_status(smmoid)
-    else:
-        print(f'Return status: {ret.status_code} for ID: {smmoid}')
-        print(f'{ret.reason}')
-        print("Pleb Status Request Failed\n")
-        return None
+            if ret.status == 200:
+                try:
+                    content = ret.content
+                    x = await content.read()
+                    info = json.loads(x)
+                    
+                    safemode = info["safeMode"]
+                    if safemode == 1:
+                        return True
+                    return False
+                except Exception as e:
+                    if(info["error"] == "user not found"):
+                        db.remove_user(smmoid)
+                        print("Removed user: " + str(smmoid))
+                    
+            elif ret.status_code == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(30)
+                return equipment(smmoid)
+            else:
+                print(f'Return status: {ret.status_code} for ID: {smmoid}')
+                print(f'{ret.reason}')
+                print("Pleb Status Request Failed\n")
+                return None
 
 
 
 
 
 
-def safemode_status(smmoid):
+async def safemode_status(smmoid):
     key =  {"api_key": next(tokens)}
     
     url = "https://api.simple-mmo.com/v1/player/info/" + str(smmoid)
     
-    ret = post(url, data=key,timeout=None)
-    if ret.ok:
-        try:
-            content = ret.content
-            x = content.decode("UTF-8")
-            info = json.loads(x)
-            safemode = info["safeMode"]
-            if safemode == 1:
-                return True
-            return False
-        except Exception as e:
-            if(info["error"] == "user not found"):
-                db.remove_user(smmoid)
-                print("Removed user: " + str(smmoid))
-            
-    elif ret.status_code == 429:
-        print("Too many requests. Sleeping...")
-        
-        time.sleep(30)
-        return pleb_status(smmoid)
-    else:
-        print(f'Return status: {ret.status_code} for ID: {smmoid}')
-        print(f'{ret.reason}')
-        print("Pleb Status Request Failed\n")
-        return None
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
+            if ret.status == 200:
+                try:
+                    content = ret.content
+                    x = await content.read()
+                    info = json.loads(x)
+                    safemode = info["safeMode"]
+                    if safemode == 1:
+                        return True
+                    return False
+                except Exception as e:
+                    if(info["error"] == "user not found"):
+                        db.remove_user(smmoid)
+                        print("Removed user: " + str(smmoid))
+                    
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(10)
+                return safemode_status(smmoid)
+            else:
+                print(f'Return status: {ret.status_code} for ID: {smmoid}')
+                print(f'{ret.reason}')
+                print("Pleb Status Request Failed\n")
+                return None
 
-def get_skills(smmoid):
+async def get_skills(smmoid):
     url = "https://api.simple-mmo.com/v1/player/skills/"+str(smmoid)
     key = {"api_key": next(tokens)}
-    ret = post(url,data=key,timeout=10)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
+            if ret.status == 200:
+                content = ret.content
+                x = await content.read()
+                info = json.loads(x)
+                return info
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(10)
+                return get_skills(smmoid)
+            else:
+                print("Failed")
+                return None
 
-    if ret.ok:
-        content = ret.content
-        x = content.decode("UTF-8")
-        info = json.loads(x)
-        return info
-    else:
-        print("Failed")
-        return None
 
-
-def get_motto(smmoid):
+async def get_motto(smmoid):
+    
     key =  {"api_key": next(tokens)}
     url = "https://api.simple-mmo.com/v1/player/info/" + str(smmoid)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
     
-    ret = post(url, data=key, timeout=None)
-
-    if ret.ok:
-        content = ret.content
-        
-        x = content.decode("UTF-8")
-        info = json.loads(x)
-        motto = info["motto"]
-        return motto
-    else:
-        print("Motto Request Failed\n")
-        return None
+    
+            if ret.status == 200:
+                content = ret.content
+                
+                x = content.read()
+                info = json.loads(x)
+                motto = info["motto"]
+                return motto
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(10)
+                return await get_motto(smmoid)
+            else:
+                print("Motto Request Failed\n")
+                return None
 
 def get_token():
     pass
@@ -148,78 +163,120 @@ def get_token():
 
 
 
-def pleb_status(smmoid):
+async def pleb_status(smmoid):
+    
     key =  {"api_key": next(tokens)}
-    
     url = "https://api.simple-mmo.com/v1/player/info/" + str(smmoid)
-    
-    ret = post(url, data=key,timeout=None)
-    if ret.ok:
-        try:
-            content = ret.content
-            x = content.decode("UTF-8")
-            info = json.loads(x)
-            pleb = info["membership"]
-            if pleb == 1:
-                return True
-            return False
-        except Exception as e:
-            if(info["error"] == "user not found"):
-                db.remove_user(smmoid)
-                print("Removed user: " + str(smmoid))
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
             
-    elif ret.status_code == 429:
-        print("Too many requests. Sleeping...")
+            if ret.status == 200:
+                try:
+                    content = ret.content
+                    x = await content.read()
+                    info = json.loads(x)
+                    
+                    pleb = info["membership"]
+                    if pleb == 1:
+                        return True
+                    return False
+                except Exception as e:
+                    print(ret)
+
+                    if(info["error"] == "user not found"):
+                        db.remove_user(smmoid)
+                        print("Removed user: " + str(smmoid))
+                        return
+                    
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(10)
+                return await pleb_status(smmoid)
+            else:
+                print(f'Return status: {ret.status_code} for ID: {smmoid}')
+                print(f'{ret.reason}')
+                print("Pleb Status Request Failed\n")
+                return None
+
+    
+            
+    # ret = post(url, data=key,timeout=None)
+    # if ret.ok:
+    #     try:
+    #         content = ret.content
+    #         x = content.decode("UTF-8")
+    #         info = json.loads(x)
+    #         pleb = info["membership"]
+    #         if pleb == 1:
+    #             return True
+    #         return False
+    #     except Exception as e:
+    #         if(info["error"] == "user not found"):
+    #             db.remove_user(smmoid)
+    #             print("Removed user: " + str(smmoid))
+            
+    # elif ret.status_code == 429:
+    #     print("Too many requests. Sleeping...")
         
-        time.sleep(30)
-        return pleb_status(smmoid)
-    else:
-        print(f'Return status: {ret.status_code} for ID: {smmoid}')
-        print(f'{ret.reason}')
-        print("Pleb Status Request Failed\n")
-        return None
+    #     time.sleep(30)
+    #     return pleb_status(smmoid)
+    # else:
+    #     print(f'Return status: {ret.status_code} for ID: {smmoid}')
+    #     print(f'{ret.reason}')
+    #     print("Pleb Status Request Failed\n")
+    #     return None
 
 
 
-def guild_info(guildid):
+async def guild_info(guildid):
+
     key =  {"api_key": next(tokens)}
     url = "https://api.simple-mmo.com/v1/guilds/info/" + str(guildid)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
 
-    ret = post(url, data=key, timeout=5)
-    if ret.ok:
-        content = ret.content
-        x = content.decode("UTF-8")
-        info = json.loads(x)
-        
-        return info
+    
+            if ret.ok:
+                content = ret.content
+                x = await content.read()
+                info = json.loads(x)
+                
+                return info
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(10)
+                return await guild_info(guildid)
 
-    else:
-        print("Guild Request failed")
-        return None
+            else:
+                print("Guild Request failed")
+                return None
 
-def guild_members(guildid):
+async def guild_members(guildid):
     key =  {"api_key": next(tokens)}
     url = "https://api.simple-mmo.com/v1/guilds/members/" + str(guildid)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
 
-    ret = post(url, data=key, timeout=5)
-    if ret.ok:
-        content = ret.content
-        x = content.decode("UTF-8")
-        members = json.loads(x)
+    
+            if ret.status == 200:
+                content = ret.content
+                x = await content.read()
+                members = json.loads(x)
 
-        members.sort(reverse=True,key=lambda x: x['level'])
-        return members
+                members.sort(reverse=True,key=lambda x: x['level'])
+                return members
 
-    elif ret.status_code == 429:
-        print("Too many requests. Sleeping...")
-        print(ret.headers)
-        
-        time.sleep(30)
-        return guild_members(guildid)
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(10)
+                return guild_members(guildid)
 
-    else:
-        print("Guild Members failed")
-        return None
+            else:
+                print("Guild Members failed")
+                return None
 
 def item_info(itemid):
     key =  {"api_key": next(tokens)}
@@ -236,46 +293,57 @@ def item_info(itemid):
 #   2: Ended
 #   3: Hold
 #   4: All
-def get_guild_wars(guildid,status):
+async def get_guild_wars(guildid,status):
     key =  {"api_key": next(tokens)}
     url = f"https://api.simple-mmo.com/v1/guilds/wars/{guildid}/{status}" 
-    
-    ret = post(url, data=key, timeout=None)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
+            if ret.status == 200:
+                content = ret.content
+                
+                x = await content.read()
+                info = json.loads(x)
 
-    if ret.ok:
-        content = ret.content
-        
-        x = content.decode("UTF-8")
-        info = json.loads(x)
+                info.sort(reverse=True,key=lambda x:(x['guild_1']['kills'] + x['guild_2']['kills']))
+                return info
 
-        info.sort(reverse=True,key=lambda x:(x['guild_1']['kills'] + x['guild_2']['kills']))
-        return info
-    else:
-        print("Guild War Request Failed\n")
-        return None
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(10)
+                return await get_guild_wars(guildid,status)
+            else:
+                print("Guild War Request Failed\n")
+                return None
 
-def diamond_market():
+async def diamond_market():
     key = {"api_key": next(tokens)}
     url = f"https://api.simple-mmo.com/v1/diamond-market"
 
-    ret = post(url, data=key, timeout=None)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url,data=key) as ret:
 
-    if ret.ok:
-        content = ret.content
-        
-        x = content.decode("UTF-8")
-        info = json.loads(x)
-       
-        return info
-    else:
-        print("Diamond Market Request Failed\n")
-        return None
+            if ret.status == 200:
+                content = ret.content
+                
+                x = await content.read()
+                info = json.loads(x)
+            
+                return info
+            elif ret.status == 429:
+                print("Too many requests. Sleeping...")
+                
+                await asyncio.sleep(10)
+                return await diamond_market()
+            else:
+                print("Diamond Market Request Failed\n")
+                return None
 
     
 if __name__ == "__main__":
-    profile = get_all(385801)
-    print(profile)
-    #print(guild_members(828)[0])
+    # profile = get_all(385801)
+    # print(profile)
+    # #print(guild_members(828)[0])
     # creation = profile["creation_date"]
     # print(creation)
     # now = datetime.now(timezone.utc)
@@ -297,3 +365,5 @@ if __name__ == "__main__":
     #print(diamond_market()[0])
     #print(guild_members(408)[0])
     #print(guild_info(408))
+    #status = await pleb_status(385801)
+    print(get_all(385801))

@@ -28,7 +28,7 @@ class Pleb(commands.Cog):
     @checks.is_owner()
     async def ispleb(self,ctx,arg):
         smmoid = int(arg)
-        ispleb = api.pleb_status(smmoid)
+        ispleb = await api.pleb_status(smmoid)
         if ispleb:
             await ctx.send(f'{smmoid} is a pleb')
         else:
@@ -88,8 +88,8 @@ class Pleb(commands.Cog):
         key = db.verif_key(smmoid, str(ctx.author.id))
         if(key is not None):
             
-            motto = api.get_motto(smmoid)
-            ispleb = api.pleb_status(smmoid)
+            motto = await api.get_motto(smmoid)
+            ispleb = await api.pleb_status(smmoid)
 
         
             if motto is None:

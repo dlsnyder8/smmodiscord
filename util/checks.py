@@ -128,14 +128,14 @@ def is_leader():
     async def predicate(ctx):
         smmoid = (db.get_smmoid(str(ctx.author.id)))
         # get guild from profile (get_all())
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
             await ctx.send("You are not in a guild")
             return
 
-        members = api.guild_members(guildid)
+        members = await api.guild_members(guildid)
         for member in members:
             if member["user_id"] == smmoid:
                 if member["position"] == "Leader":

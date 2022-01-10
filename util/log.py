@@ -44,7 +44,7 @@ async def flylog2(bot,title : str, desc: str):
     embed = discord.Embed(
         title=title, 
         description=desc,
-        timestamp=datetime.now(timezone.now), 
+        timestamp=datetime.now(timezone.utc), 
         color=0x00ff00
         )
     

@@ -79,6 +79,7 @@ dyl = 332314562575597579
 class Friendly(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        #self.flycheck.start()
 
     @checks.in_fly()
     @commands.group(aliases=['fly', 'f'], hidden=True)
@@ -241,7 +242,7 @@ class Friendly(commands.Cog):
             for member in members:
                 smmoid = db.get_smmoid(str(member.id))
                 if smmoid is not None:
-                    if api.safemode_status(smmoid):
+                    if await api.safemode_status(smmoid):
                         out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
                     else:
                         out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
@@ -268,7 +269,7 @@ class Friendly(commands.Cog):
 
             if not db.in_fly(ctx.author.id):
                 smmoid = db.get_smmoid(str(ctx.author.id))
-                profile = api.get_all(smmoid)
+                profile = await api.get_all(smmoid)
                 try:
                     guildid = profile["guild"]["id"]
                 except KeyError as e:
@@ -284,7 +285,7 @@ class Friendly(commands.Cog):
         smmoid = db.get_smmoid(str(ctx.author.id))
 
         # get guild from profile (get_all())
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
@@ -361,7 +362,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def thicc_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
         if ctx.guild.get_role(fly_roles[2]) in ctx.author.roles:
             embed = discord.Embed(title = "No Role Given")
@@ -407,7 +408,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def stepper_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
 
         if ctx.guild.get_role(fly_roles[6]) in ctx.author.roles:
@@ -462,7 +463,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def gladiator_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
 
         if ctx.guild.get_role(fly_roles[9]) in ctx.author.roles:
@@ -509,7 +510,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def monster_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
 
         if ctx.guild.get_role(fly_roles[12]) in ctx.author.roles:
@@ -560,7 +561,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def quester_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
 
         if ctx.guild.get_role(fly_roles[15]) in ctx.author.roles:
@@ -622,7 +623,7 @@ class Friendly(commands.Cog):
         embed = discord.Embed(title = "Role Given")
 
         # Add special roles
-        skills = api.get_skills(smmoid)
+        skills = await api.get_skills(smmoid)
 
         # Forager
         total_skill_level = 0
@@ -670,7 +671,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def tasker_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
         if ctx.guild.get_role(fly_roles[23]) in ctx.author.roles:
             embed = discord.Embed(title = "No Role Given")
@@ -720,7 +721,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def slayer_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
 
         if ctx.guild.get_role(fly_roles[25]) in ctx.author.roles:
@@ -764,7 +765,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def trader_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
 
         if ctx.guild.get_role(fly_roles[27]) in ctx.author.roles:
@@ -804,7 +805,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def celebrity_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
 
         if ctx.guild.get_role(fly_roles[31]) in ctx.author.roles:
@@ -856,7 +857,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def veteran_roles(self, ctx):
         smmoid = db.get_smmoid(str(ctx.author.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
 
     
         if ctx.author._roles.has(fly_roles[32]):
@@ -1006,10 +1007,10 @@ class Friendly(commands.Cog):
             fly3 = fly[2]
             fly4 = fly[3]
 
-            fly1 = api.guild_members(fly1)
-            fly2 = api.guild_members(fly2)
-            fly3 = api.guild_members(fly3)
-            fly4 = api.guild_members(fly4)
+            fly1 = await api.guild_members(fly1)
+            fly2 = await api.guild_members(fly2)
+            fly3 = await api.guild_members(fly3)
+            fly4 = await api.guild_members(fly4)
 
             fly1 = [x["user_id"] for x in fly1]
             fly2 = [x["user_id"] for x in fly2]
@@ -1200,10 +1201,10 @@ class Friendly(commands.Cog):
             return  
         
         smmoid = db.get_smmoid(str(member.id))
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
         rolesadded = ""
         # Add special roles
-        skills = api.get_skills(smmoid)
+        skills = await api.get_skills(smmoid)
         async with ctx.typing():
             # Thicc (Levels)
             level = profile["level"]
@@ -1384,7 +1385,7 @@ class Friendly(commands.Cog):
 
             if not db.in_fly(member.id):
                 smmoid = db.get_smmoid(str(member.id))
-                profile = api.get_all(smmoid)
+                profile = await api.get_all(smmoid)
                 try:
                     guildid = profile["guild"]["id"]
                 except KeyError as e:
@@ -1400,7 +1401,7 @@ class Friendly(commands.Cog):
         smmoid = db.get_smmoid(str(member.id))
 
         # get guild from profile (get_all())
-        profile = api.get_all(smmoid)
+        profile = await api.get_all(smmoid)
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
@@ -1533,10 +1534,10 @@ class Friendly(commands.Cog):
         fly3 = fly[2]
         fly4 = fly[3]
 
-        fly1 = api.guild_members(fly1)
-        fly2 = api.guild_members(fly2)
-        fly3 = api.guild_members(fly3)
-        fly4 = api.guild_members(fly4)
+        fly1 = await api.guild_members(fly1)
+        fly2 = await api.guild_members(fly2)
+        fly3 = await api.guild_members(fly3)
+        fly4 = await api.guild_members(fly4)
 
         fly1 = [x["user_id"] for x in fly1]
         fly2 = [x["user_id"] for x in fly2]
@@ -1581,7 +1582,7 @@ class Friendly(commands.Cog):
                 await member.remove_roles(*all_fly_roles, reason="User left fly")
                 await member.add_roles(guild.get_role(acquaintance))
 
-        await flylog2("Friendly Check",f"{len(members)} Friendly members checked.\n{not_in_fly} member(s) not in fly\n{not_linked} member(s) not linked to bot :(")
+        await flylog2(self.bot,"Friendly Check",f"{len(members)} Friendly members checked.\n{not_in_fly} member(s) not in fly\n{not_linked} member(s) not linked to bot :(")
         splitUsers = [listUsers[i:i+33]
         for i in range(0, len(listUsers), 33)]
         if len(splitUsers) != 0:

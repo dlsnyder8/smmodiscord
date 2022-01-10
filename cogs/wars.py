@@ -19,6 +19,7 @@ logger.addHandler(handler)
 class Wars(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
+        self.gold_ping.start()
 
     @checks.in_fly_guild()
     @commands.group(aliases = ['war','w'], hidden=True)
@@ -28,7 +29,7 @@ class Wars(commands.Cog):
 
     @wars.command(aliases=['fly'])
     async def friendly(self,ctx):
-        wars = api.get_guild_wars(408,1)
+        wars = await api.get_guild_wars(408,1)
         if len(wars) == 0:
             await ctx.send(embed=Embed(title="No Active Wars for Friendly",description="There are no active wars. They may be on hold or may have all ended."))
             return
@@ -56,7 +57,7 @@ class Wars(commands.Cog):
 
     @wars.command()
     async def too(self,ctx):
-        wars = api.get_guild_wars(455,1)
+        wars = await api.get_guild_wars(455,1)
         if len(wars) == 0:
             await ctx.send(embed=Embed(title="No Active Wars for Friendly Too",description="There are no active wars. They may be on hold or may have all ended."))
             return
@@ -81,7 +82,7 @@ class Wars(commands.Cog):
 
     @wars.command()
     async def nsf(self,ctx):
-        wars = api.get_guild_wars(541,1)
+        wars = await api.get_guild_wars(541,1)
         if len(wars) == 0:
             await ctx.send(embed=Embed(title="No Active Wars for NSF",description="There are no active wars. They may be on hold or may have all ended."))
             return
@@ -224,7 +225,7 @@ class Wars(commands.Cog):
             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
             attacklist = ""
             
-            members = api.guild_members(guildid)
+            members = await api.guild_members(guildid)
             print(members)
             if members is None:
                 await ctx.send("Invalid Guild ID or API Malfunction")
@@ -251,15 +252,15 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def targets(self,ctx):
         profile = db.warinfo_profile(ctx.author.id)
-        targets = api.get_guild_wars(profile[1],1)
+        targets = await api.get_guild_wars(profile[1],1)
         async with ctx.typing():
             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
             attacklist = ""
             for i in range(5):
                 if targets[i]['guild_2']['id'] in (408, 455, 541, 482):
-                    members = api.guild_members(targets[i]['guild_1']['id'])
+                    members = await api.guild_members(targets[i]['guild_1']['id'])
                 else:
-                    members = api.guild_members(targets[i]['guild_2']['id'])
+                    members = await api.guild_members(targets[i]['guild_2']['id'])
 
                 members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
@@ -285,16 +286,16 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def top15(self,ctx):
         profile = db.warinfo_profile(ctx.author.id)
-        targets = api.get_guild_wars(profile[1],1)
+        targets = await api.get_guild_wars(profile[1],1)
         async with ctx.typing():
             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
             attacklist = ""
             for i in range(15):
                 try:
                     if targets[i]['guild_2']['id'] in (408, 455, 541, 482):
-                        members = api.guild_members(targets[i]['guild_1']['id'])
+                        members = await api.guild_members(targets[i]['guild_1']['id'])
                     else:
-                        members = api.guild_members(targets[i]['guild_2']['id'])
+                        members = await api.guild_members(targets[i]['guild_2']['id'])
                     members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                     for member in members:
@@ -325,16 +326,16 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def all(self,ctx):
         profile = db.warinfo_profile(ctx.author.id)
-        targets = api.get_guild_wars(profile[1],1)
+        targets = await api.get_guild_wars(profile[1],1)
         async with ctx.typing():
             embed = Embed(title="Targets",description=f"{ctx.author.mention}'s Targets")
             attacklist = ""
             for i in range(500):
                 try:
                     if targets[i]['guild_2']['id'] in (408, 455, 541, 482):
-                        members = api.guild_members(targets[i]['guild_1']['id'])
+                        members = await api.guild_members(targets[i]['guild_1']['id'])
                     else:
-                        members = api.guild_members(targets[i]['guild_2']['id'])
+                        members = await api.guild_members(targets[i]['guild_2']['id'])
                     members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
                 
                     for member in members:
@@ -363,7 +364,7 @@ class Wars(commands.Cog):
         async with ctx.typing():
             profile = db.warinfo_profile(ctx.author.id)
 
-            guilds = api.get_guild_wars(profile[1],1)
+            guilds = await api.get_guild_wars(profile[1],1)
             print(guilds)
 
             guild = [x for x in guilds if x['guild_2']['id'] == target]
@@ -383,11 +384,11 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def nosafemode(self,ctx,target:int):
         async with ctx.typing():
-            guildmembers = api.guild_members(target)
+            guildmembers = await api.guild_members(target)
             if guildmembers is None:
                 await ctx.send("That guild id does not appear to be valid")
                 return
-            guildinfo = api.guild_info(target)
+            guildinfo = await api.guild_info(target)
             members = [x for x in guildmembers if x['safe_mode'] == 0]
             embed = Embed(title="No Safe Mode",description=f"{guildinfo['name']} members out of safe mode")
             attacklist = ""
@@ -409,20 +410,23 @@ class Wars(commands.Cog):
     @tasks.loop(minutes=5)
     async def gold_ping(self):
         await log.log(self.bot,"Gold Ping","Checking for friendly members with gold out....")
-        channel = self.bot.get_channel()
+        channel = self.bot.get_channel(846657320184053760)
         members = db.gold_ping_users()
         for member in members:
+            
             smmoid = member[0]
             discordid = member[1]
             goldamount = member[2]
             lastping = member[3]
+            
 
             plus30min = pytz.utc.localize(lastping + timedelta(minutes=29))
             # No API calls if it hasn't even been 30 minutes since last ping
             if plus30min < datetime.now(timezone.utc):
                 continue
-            
-            info = api.get_all(smmoid)
+
+            info = await api.get_all(smmoid)
+           
 
             # Skip user if not in Friendly guild
             try:
@@ -432,7 +436,7 @@ class Wars(commands.Cog):
                 continue
             
 
-            if info['safe_mode'] == 0 and info['gold'] >= goldamount:
+            if info['safeMode'] == 0 and info['gold'] >= goldamount:
                 embed = Embed(title="Actions",description = f"[:bank: Quick, bank your gold!](https://web.simple-mmo.com/bank/deposit) \n \u200b \n[:shield: Help! Stab to protect their gold!](https://web.simple-mmo.com/user/attack/{smmoid})")
                 await channel.send(f"{self.bot.get_user(581061608357363712).mention} gold ping! {info['gold']:,} gold out!",embed=embed)
                 db.warinfo_ping_update(discordid)

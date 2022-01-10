@@ -69,7 +69,7 @@ class Event(commands.Cog):
         for member in members:
                 
             smmoid = db.get_smmoid(member[0])
-            profile = api.get_all(smmoid)
+            profile = await api.get_all(smmoid)
             info = profile[stat_convert[eventinfo[2]]]
 
             db.update_start_stat(eventid,member[0],info)
@@ -303,7 +303,7 @@ class Event(commands.Cog):
             for participant in participants:
                 discid = participant[0]
                 smmoid = db.get_smmoid(discid)
-                profile = api.get_all(smmoid)
+                profile = await api.get_all(smmoid)
                 db.update_stat(eventid,discid,profile[stat_convert[eventtype]])
 
 
