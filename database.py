@@ -503,7 +503,7 @@ def update_stat(eventid,discordid,stat):
 ###########################
 
 def warinfo_setup(discordid,smmoid,guildid):
-    session.add(Warinfo(discordid=discordid,smmoid=smmoid,guildid=guildid))
+    session.add(Warinfo(discordid=discordid,smmoid=smmoid,guildid=guildid,last_pinged=datetime.now(timezone.utc)))
     commit()
     return
 
@@ -542,6 +542,15 @@ def warinfo_profile(discid):
                         Warinfo.max_level,
                         Warinfo.gold_ping,
                         Warinfo.gold_amount).filter_by(discordid=discid).first()
+def gold_ping_users():
+    return session.query(Warinfo.smmoid,
+                            Warinfo.discordid,
+                            Warinfo.gold_amount,
+                            Warinfo.last_pinged).filter_by(gold_ping=True).all()
+def warinfo_ping_update(discordid):
+    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.last_pinged : datetime.now(timezone.utc)})
+    commit()
+    return
 
 
 
@@ -571,7 +580,8 @@ if __name__ == "__main__":
     #print(server_config(731379317182824478))
     #update_timestamp(731379317182824478,datetime.now(timezone.utc))
     #print(has_joined(10,332314562575597579))
-    rollback()
+    #rollback()
+    print(gold_ping_users())
 
 
 

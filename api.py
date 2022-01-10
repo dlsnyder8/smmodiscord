@@ -273,8 +273,8 @@ def diamond_market():
 
     
 if __name__ == "__main__":
-    #profile = get_all(385801)
-    #print(profile)
+    profile = get_all(385801)
+    print(profile)
     #print(guild_members(828)[0])
     # creation = profile["creation_date"]
     # print(creation)
@@ -295,5 +295,5 @@ if __name__ == "__main__":
 
     #equipment(385801)
     #print(diamond_market()[0])
-    #print(guild_members(408))
-    print(guild_info(408))
+    #print(guild_members(408)[0])
+    #print(guild_info(408))
