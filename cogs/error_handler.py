@@ -69,6 +69,7 @@ class CommandErrorHandler(commands.Cog):
 
         else:
             await ctx.send(embed=discord.Embed(title="Error",description='Ignoring exception in command {}:'.format(ctx.command)))
+            await ctx.send(embed=discord.Embed(title="Traceback",description=error.__traceback__))
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 
