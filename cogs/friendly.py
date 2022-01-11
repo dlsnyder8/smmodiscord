@@ -233,18 +233,19 @@ class Friendly(commands.Cog):
         guild = self.bot.get_guild(710258284661178418)
         role = guild.get_role(710315282920636506)
         members = role.members
-        with open('friendly.csv','w',newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(['smmoid','name','npc_kills','user_kills','quests_complete','level','tasks','boss_kills','market_trades','reputation','bounties','dailies','chests'])
-            for member in members:
-                smmoid = db.get_smmoid(member.id)
-                x = await api.get_all(smmoid)
+        async with ctx.typing():
+            with open('friendly.csv','w',newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(['smmoid','name','npc_kills','user_kills','quests_complete','level','tasks','boss_kills','market_trades','reputation','bounties','dailies','chests'])
+                for member in members:
+                    smmoid = db.get_smmoid(member.id)
+                    x = await api.get_all(smmoid)
 
-                data = [smmoid,x['name'],x['npc_kills'],x['user_kills'],x['quests_complete'],x['level'],x['tasks_completed'],x['boss_kills'],x['market_trades'],x['reputation'],x['bounties_completed'],x['dailies_unlocked'],x['chests_opened']]
-                writer.writerow(data)
-        file_csv = open('friendly.csv')
-        await ctx.send("Here are the guild stats",file=file_csv)
-        os.remove('friendly.csv')
+                    data = [smmoid,x['name'],x['npc_kills'],x['user_kills'],x['quests_complete'],x['level'],x['tasks_completed'],x['boss_kills'],x['market_trades'],x['reputation'],x['bounties_completed'],x['dailies_unlocked'],x['chests_opened']]
+                    writer.writerow(data)
+            file_csv = open('friendly.csv')
+            await ctx.send("Here are the guild stats",file=file_csv)
+            os.remove('friendly.csv')
 
 
 
