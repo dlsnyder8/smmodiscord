@@ -28,7 +28,7 @@ class Admin(commands.Cog):
         self.bot = bot
         self.update_all_plebs.start()
         self.update_all_guilds.start()
-        self.yadda.start()
+        #self.yadda.start()
 
 
     

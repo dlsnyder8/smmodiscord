@@ -40,8 +40,8 @@ if dev is True:
 
 # Set discord intents
 intents = Intents.all()
-print(intents.value)
-bot = commands.Bot(command_prefix='&', intents=intents,status="Contact dyl#8008 with questions") 
+game = discord.Game("Contact dyl#8008 with questions")
+bot = commands.Bot(command_prefix='&', intents=intents,activity=game,status=discord.Status.dnd) 
 
 ###########################
 #     Local Variables     #
