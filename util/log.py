@@ -69,3 +69,10 @@ async def flylog(bot, title: str, desc: str, userid):
     await channel.send(embed=embed)
 
 
+async def errorlog(bot,embed):
+    channel = bot.get_channel(790666439673643028)
+
+    await channel.send("<@332314562575597579>",embed=embed)
+    return
+
+
