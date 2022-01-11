@@ -420,24 +420,26 @@ class Wars(commands.Cog):
                 goldamount = member[2]
                 lastping = member[3]
                 
-
+               
                 plus30min = pytz.utc.localize(lastping + timedelta(minutes=29))
                 # No API calls if it hasn't even been 30 minutes since last ping
-                if plus30min < datetime.now(timezone.utc):
+                
+                if plus30min > datetime.now(timezone.utc):
                     continue
 
                 info = await api.get_all(smmoid)
             
-
+               
                 # Skip user if not in Friendly guild
                 try:
                     if info['guild']['id'] not in (408, 455, 541, 482):
                         continue
                 except Exception:
                     continue
-                
+               
 
                 if info['safeMode'] == 0 and info['gold'] >= goldamount:
+                   
                     embed = Embed(title="Actions",description = f"[:bank: Quick, bank your gold!](https://web.simple-mmo.com/bank/deposit) \n \u200b \n[:shield: Help! Stab to protect their gold!](https://web.simple-mmo.com/user/attack/{smmoid})")
                     await channel.send(f"{self.bot.get_user(581061608357363712).mention} gold ping! {info['gold']:,} gold out!",embed=embed)
                     db.warinfo_ping_update(discordid)
