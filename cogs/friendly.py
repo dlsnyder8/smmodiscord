@@ -15,6 +15,7 @@ from dateutil import parser
 from dpymenus import Page, ButtonMenu
 import csv
 import os
+import aiofiles
 
 
 logger = logging.getLogger('__name__')
@@ -234,7 +235,7 @@ class Friendly(commands.Cog):
         role = guild.get_role(710315282920636506)
         members = role.members
         async with ctx.typing():
-            with open('friendly.csv','w',newline='') as csvfile:
+            async with aiofiles.open('friendly.csv','w',newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(['smmoid','name','npc_kills','user_kills','quests_complete','level','tasks','boss_kills','market_trades','reputation','bounties','dailies','chests'])
                 for member in members:
