@@ -144,7 +144,7 @@ async def get_motto(smmoid):
             if ret.status == 200:
                 content = ret.content
                 
-                x = content.read()
+                x = await content.read()
                 info = json.loads(x)
                 motto = info["motto"]
                 return motto
