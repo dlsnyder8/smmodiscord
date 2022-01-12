@@ -298,6 +298,8 @@ class Wars(commands.Cog):
         profile = db.warinfo_profile(ctx.author.id)
         targets = await api.get_guild_wars(profile[1],1)
         members = []
+        attacklist = ""
+        
         async with ctx.typing():
             for i in range(15):
                 try:
@@ -310,6 +312,7 @@ class Wars(commands.Cog):
             
             members.sort(reverse=True,key=lambda x: x['level'])
             members = [x for x in members if x['level'] >= profile[2] and x['level'] <= profile[3] and x['current_hp']/x['max_hp'] > 0.5 and x['safe_mode'] == 0]
+            
             for member in members:
                 attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
