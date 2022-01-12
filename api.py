@@ -272,7 +272,7 @@ async def guild_members(guildid):
                 print("Too many requests. Sleeping...")
                 
                 await asyncio.sleep(10)
-                return guild_members(guildid)
+                return await guild_members(guildid)
 
             else:
                 print("Guild Members failed")
@@ -366,4 +366,5 @@ if __name__ == "__main__":
     #print(guild_members(408)[0])
     #print(guild_info(408))
     #status = await pleb_status(385801)
-    print(get_all(385801))
+    #await get_all(385801)
+    pass

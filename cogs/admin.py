@@ -334,6 +334,7 @@ class Admin(commands.Cog):
             try:
                 gLeader = [x for x in members if x["position"] == "Leader"]
             except Exception as e:
+                print("members:",members)
                 # if the guild has been disbanded, remove leader + any guild ambassadors
                 if(members["error"] == "guild not found"):
                     user = guild.get_member(discid)

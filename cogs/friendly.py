@@ -235,7 +235,7 @@ class Friendly(commands.Cog):
         role = guild.get_role(710315282920636506)
         members = role.members
         async with ctx.typing():
-            async with aiofiles.open('friendly.csv','w',newline='') as csvfile:
+            with open('friendly.csv','w',newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(['smmoid','name','npc_kills','user_kills','quests_complete','level','tasks','boss_kills','market_trades','reputation','bounties','dailies','chests'])
                 for member in members:
@@ -336,7 +336,7 @@ class Friendly(commands.Cog):
                 roles_given += f" ,<@&{fly_roles[20]}>"
 
             await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {ctx.author.mention}\n{roles_given}", ctx.author.id)
-
+            await self.bot.get_channel(749919607376314368).send(embed=Embed(title="Beginning of year stats",description=f'{profile}'))
             channel = self.bot.get_channel(728355657283141735)
             if ctx.author.id != dyl:
                 await channel.send(f"Welcome {ctx.author.mention} to the Friendliest guild in SimpleMMO!")
@@ -1366,7 +1366,7 @@ class Friendly(commands.Cog):
                 title="Success",
                 description=f"You have been given all applicable roles. Contact <@332314562575597579> if they seem to be incorrect."
             ))
-            flylog(self.bot, "Role check run",
+            await flylog(self.bot, "Role check run",
                    f"**Roles given to {ingamename}:**\n{rolesadded}", member.id)
 
         return

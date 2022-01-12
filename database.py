@@ -588,8 +588,9 @@ if __name__ == "__main__":
     #print(server_config(731379317182824478))
     #update_timestamp(731379317182824478,datetime.now(timezone.utc))
     #print(has_joined(10,332314562575597579))
-    rollback()
+    #rollback()
     #warinfo_test()
+    warinfo_goldamount(723340862393942027,5000000)
 
 
 
