@@ -264,8 +264,11 @@ async def guild_members(guildid):
                 content = ret.content
                 x = await content.read()
                 members = json.loads(x)
-
-                members.sort(reverse=True,key=lambda x: x['level'])
+                
+                try:
+                    members.sort(reverse=True,key=lambda x: x['level'])
+                except:
+                    pass
                 return members
 
             elif ret.status == 429:
