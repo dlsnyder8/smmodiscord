@@ -70,7 +70,7 @@ for f in os.listdir('./cogs'):
 async def on_ready():
     
     print(f'{bot.user.name} has connected to Discord')
-    
+    await log.errorlog(bot,embed=discord.Embed(title="Bot Started",description="The bot has been restarted"))
     print(f"Tasks have been started")
     
 
