@@ -15,7 +15,8 @@ CREATE TABLE "plebs" (
   "discid" varchar(64),
   "verification" varchar(32),
   "verified" boolean DEFAULT false,
-  "pleb_active" boolean DEFAULT false
+  "pleb_active" boolean DEFAULT false,
+  "guild_ban" boolean default false
 );
 
 CREATE TABLE "guilds" (
