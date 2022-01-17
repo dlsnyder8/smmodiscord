@@ -246,6 +246,14 @@ def ambassador_role(serverid):
 def all_servers():
     return session.query(Server.serverid).all()
 
+def is_banned(discid):
+    return session.query(Plebs.guild_ban).filter_by(discid=str(discid)).first()[0]
+
+def ban(discid,boolean : bool):
+    session.query(Plebs).filter_by(discid=str(discid)).update({Plebs.guild_ban : boolean})
+    commit()
+    return
+
 def get_smmoid(discid):
     try:
         return session.query(Plebs.smmoid).filter_by(discid=str(discid), verified=True).first()[0]
@@ -590,7 +598,10 @@ if __name__ == "__main__":
     #print(has_joined(10,332314562575597579))
     #rollback()
     #warinfo_test()
-    warinfo_goldamount(723340862393942027,5000000)
+    #warinfo_goldamount(723340862393942027,5000000)
+    print(is_banned(332314562575597579))
+    ban(332314562575597579,False)
+    print(is_banned(332314562575597579))
 
 
 
