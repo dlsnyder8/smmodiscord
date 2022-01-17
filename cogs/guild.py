@@ -74,7 +74,7 @@ class Guild(commands.Cog):
                     await ctx.send(f"They are only a member of your guild. If they want the Ambassador role, their guild leader will need to connect and run `{ctx.prefix}g aa <ID/@mention>`")
                     return
 
-    
+    @checks.is_guild_banned()
     @guild.command(aliases = ['c'], usage="", description="Gives you the leader role if you're the leader of a guild. You must verify with the bot first.")
     @checks.is_verified()
     async def connect(self,ctx):
@@ -111,7 +111,7 @@ class Guild(commands.Cog):
                     await ctx.send(f"You are only a member of your guild. If you want the Ambassador role, your guild leader will need to connect and run `{ctx.prefix}g aa <ID/@mention>`")
                     return
         
-    
+    @checks.is_guild_banned()
     @checks.is_leader()
     @guild.command(aliases = ['aa'],usage="<ID/@Mention>",description="Adds a user as an ambassador for your guild. They must verify with the bot first.")
     async def addambassador(self,ctx,*,member: discord.Member):
@@ -128,6 +128,10 @@ class Guild(commands.Cog):
             await ctx.send(
                 embed=embed
             )
+            return
+
+        if db.is_banned(member.id):
+            await ctx.send(embed=discord.Embed(title="Banned",description=f"{member.mention} has been banned from the guild portion of this bot and cannot be added as an ambassador."))
             return
         if not db.is_added(str(member.id)):
             db.add_guild_person(str(member.id),smmoid)

@@ -156,7 +156,11 @@ def is_leader():
                     return False
 
         await ctx.send("The code is probably broken. Cry to dyl")
-        
-
-    
     return commands.check(predicate)
+    
+def is_guild_banned():
+    async def predicate(ctx):
+        return not db.is_banned(ctx.author.id)
+    return commands.check(predicate)
+    
+    
