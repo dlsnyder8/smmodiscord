@@ -69,11 +69,12 @@ CREATE TABLE "warinfo" (
 
 CREATE TABLE "smackback" (
   "id" SERIAL PRIMARY KEY,
-  "smackedby" numeric,
+  "tobesmacked" numeric,
   "guildmember" numeric,
-  "completed_by" numeric,
+  "completed_by" numeric default null,
   "posted" timestamp,
   "completed_at" timestamp default null,
-  "completed" bool default false
-  
+  "completed" bool default false,
+  "messageid" numeric
+
 );

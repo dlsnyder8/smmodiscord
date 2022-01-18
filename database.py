@@ -29,6 +29,7 @@ Friendly = Base.classes.friendly
 Events = Base.classes.events
 Event_info = Base.classes.event_info
 Warinfo = Base.classes.warinfo
+Smackback = Base.classes.smackback
 
 def add_server(serverid, name):
     try:
@@ -566,6 +567,29 @@ def warinfo_test():
         print(member)
         session.query(Warinfo).filter_by(discordid=member[0]).update({Warinfo.last_pinged : datetime.now(timezone.utc)})
         commit()
+
+
+def sb_create(tobesmacked : int, guildmember: int, messageid : int):
+    session.add(Smackback(tobesmacked=tobesmacked,guildmember=guildmember,posted=datetime.now(timezone.utc),messageid=messageid))
+    commit()
+    return
+
+def sb_iscompleted(id : int):
+    return session.query(Smackback.completed).filter_by(id=id).first()[0]
+
+def sb_complete(id: int):
+    session.query(Smackback).filter_by(id=id).update({Smackback.completed : True})
+    commit()
+    return
+
+def sb_info(id: int):
+    return session.query(Smackback.tobesmacked,
+                    Smackback.guildmember,
+                    Smackback.completed_by,
+                    Smackback.completed,
+                    Smackback.messageid,
+                    Smackback.posted,
+                    Smackback.completed_at).filter_by(id=id).first()
 
 
 
