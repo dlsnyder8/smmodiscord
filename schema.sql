@@ -67,3 +67,13 @@ CREATE TABLE "warinfo" (
   "last_pinged" timestamp default null
 );
 
+CREATE TABLE "smackback" (
+  "id" SERIAL PRIMARY KEY,
+  "smackedby" numeric,
+  "guildmember" numeric,
+  "completed_by" numeric,
+  "posted" timestamp,
+  "completed_at" timestamp default null,
+  "completed" bool default false
+  
+);

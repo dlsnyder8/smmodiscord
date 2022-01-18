@@ -8,3 +8,4 @@ cogs/__pycache__/*
 config.py
 
 discord.log
+friendly.csv
