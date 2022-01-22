@@ -336,7 +336,7 @@ class Friendly(commands.Cog):
                 roles_given += f" ,<@&{fly_roles[20]}>"
 
             await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {ctx.author.mention}\n{roles_given}", ctx.author.id)
-            await self.bot.get_channel(749919607376314368).send(embed=Embed(title="Beginning of year stats",description=f'{profile}'))
+            await self.bot.get_channel(934284308112375808).send(embed=Embed(title="Beginning of year stats",description=f'{profile}'))
             channel = self.bot.get_channel(728355657283141735)
             if ctx.author.id != dyl:
                 await channel.send(f"Welcome {ctx.author.mention} to the Friendliest guild in SimpleMMO!")
