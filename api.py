@@ -237,7 +237,7 @@ async def guild_info(guildid):
         async with session.post(url,data=key) as ret:
 
     
-            if ret.ok:
+            if ret.status == 200:
                 content = ret.content
                 x = await content.read()
                 info = json.loads(x)
