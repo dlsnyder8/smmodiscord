@@ -200,8 +200,9 @@ class Admin(commands.Cog):
     @commands.command(hidden=True)
     @checks.is_owner()
     async def reload(self,ctx,*,cog:str):
+        string = f"cog.{cog}"
         try:
-            self.bot.reload_extension(cog)
+            self.bot.reload_extension(string)
         except Exception as e:
             await ctx.send(f'**ERROR:** {type(e).__name__} -{e}')
         
