@@ -331,9 +331,9 @@ class Friendly(commands.Cog):
             roles_given += f"<@&{fly_roles[19]}>"
             # if user is in NSF
             if guildid == 541:
-                nsf_role = ctx.guild.get_role(fly_roles[20])
+                nsf_role = ctx.guild.get_role(783930500732551219)
                 await ctx.author.add_roles(nsf_role)
-                roles_given += f" ,<@&{fly_roles[20]}>"
+                roles_given += f" ,<@&783930500732551219>"
 
             await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {ctx.author.mention}\n{roles_given}", ctx.author.id)
             await self.bot.get_channel(934284308112375808).send(embed=Embed(title="Beginning of year stats",description=f'{profile}'))
