@@ -200,7 +200,7 @@ class Admin(commands.Cog):
     @commands.command(hidden=True)
     @checks.is_owner()
     async def reload(self,ctx,*,cog:str):
-        string = f"cog.{cog}"
+        string = f"cogs.{cog}"
         try:
             self.bot.reload_extension(string)
         except Exception as e:
