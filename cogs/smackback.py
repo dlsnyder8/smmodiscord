@@ -17,7 +17,7 @@ class Smackback(commands.Cog):
 
     
     @commands.group(aliases = ['sb'])
-    async def Template(self,ctx):
+    async def smackback(self,ctx):
         if ctx.invoked_subcommand is None:
             pass
 

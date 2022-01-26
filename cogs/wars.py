@@ -427,6 +427,7 @@ class Wars(commands.Cog):
             guild = [x for x in guilds if x['guild_2']['id'] == target]
             if len(guild) == 0:
                 guild = [x for x in guilds if x['guild_1']['id'] == target]
+                # TODO: This check below does not work
                 if len(guild) == 0:
                     await ctx.send("That guild either doesn't exist or is not actively at war with you")
                     return
