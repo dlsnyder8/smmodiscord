@@ -27,7 +27,7 @@ class Event(commands.Cog):
 
 
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def create(self,ctx,name : str, eventtype : str):
         if eventtype not in self.event_types:
             await ctx.send(embed=Embed(title="Invalid event type",description="Events must be one of the following:\n`step`,`level`,`npc`,`pvp`"))
@@ -43,7 +43,7 @@ class Event(commands.Cog):
             raise e
 
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def start(self,ctx,eventid):
         stat_convert = {"pvp" : "user_kills","step" : "steps", "npc" : "npc_kills", "level" : "level"}
         try:
@@ -80,7 +80,7 @@ class Event(commands.Cog):
         await ctx.send(f"Event {eventid} has started!")
     
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def end(self,ctx,eventid):
         try:
             eventinfo = db.event_info(eventid)
@@ -108,7 +108,7 @@ class Event(commands.Cog):
 
 
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def guild_only(self,ctx, eventid : int, boolean : bool):
         try:
             db.event_guild_only(eventid,boolean)
@@ -225,7 +225,7 @@ class Event(commands.Cog):
     
 
     @event.command(aliases=['lb'])
-    @checks.is_owner()
+    @checks.in_fly()
     async def leaderboard(self,ctx,eventid:int):
         translation = {"pvp" : "PvP Kills","step" : "Steps", "npc" : "NPC Kills", "level" : "Levels"}
     
@@ -257,7 +257,7 @@ class Event(commands.Cog):
 
 
     @event.command(aliases=['active'])
-    @checks.is_owner()
+    @checks.in_fly()
     async def active_events(self,ctx):
         
         events = db.active_events()
@@ -267,7 +267,7 @@ class Event(commands.Cog):
         await ctx.send(embed=Embed(title="Active Events",description=string))
 
     @event.command(aliases=['joinable'])
-    @checks.is_owner()
+    @checks.in_fly()
     async def joinable_events(self,ctx):
         
         events = db.available_events()
