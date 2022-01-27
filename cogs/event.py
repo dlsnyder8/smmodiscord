@@ -174,7 +174,7 @@ class Event(commands.Cog):
 
 
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def participants(self,ctx,eventid=None):
         if eventid is None:
             await ctx.send("You must specify an event ID.")
