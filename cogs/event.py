@@ -87,6 +87,9 @@ class Event(commands.Cog):
             if eventinfo is None:
                 await ctx.send("That event id is not valid")
                 return
+            elif eventinfo[4] is True:
+                await ctx.send("That event has already been ended")
+                return
             
             await self.stat_update()
             db.end_event(eventid)
