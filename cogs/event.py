@@ -102,6 +102,10 @@ class Event(commands.Cog):
             eventinfo = db.event_info(eventid)
             guildrole = ctx.guild.get_role(eventinfo[8])
             await guildrole.delete(reason="Event ended")
+            await ctx.send("Cleanup Concluded")
+
+        except AttributeError as e:
+            await ctx.send("This event has already been cleaned up")
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
             raise e
