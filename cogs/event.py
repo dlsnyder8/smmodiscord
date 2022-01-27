@@ -103,6 +103,12 @@ class Event(commands.Cog):
     async def cleanup(self,ctx,eventid : int):
         try:
             eventinfo = db.event_info(eventid)
+            if eventinfo is None:
+                await ctx.send("That appears to be an invalid ID")
+                return
+            if eventinfo[4] is False:
+                await ctx.send(f"You can't cleanup an active event!\n\nIf you want to end an event, run `&event end {eventid}`")
+                return
             guildrole = ctx.guild.get_role(eventinfo[8])
             await guildrole.delete(reason="Event ended")
             await ctx.send("Cleanup Concluded")
