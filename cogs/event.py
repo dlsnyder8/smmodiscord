@@ -88,7 +88,7 @@ class Event(commands.Cog):
                 await ctx.send("That event id is not valid")
                 return
             
-            
+            await self.stat_update()
             db.end_event(eventid)
             await ctx.send(f"Event {eventid} has concluded.")
         except Exception as e:
