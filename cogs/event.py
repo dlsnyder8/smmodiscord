@@ -141,8 +141,6 @@ class Event(commands.Cog):
         translation = {"pvp" : "PvP Kills","step" : "Steps", "npc" : "NPC Kills", "level" : "Levels"}
 
         active_events = db.active_events()
-        print(len(active_events))
-        print(active_events)
         if len(active_events) == 1:
             eventid = active_events[0][0]
             
