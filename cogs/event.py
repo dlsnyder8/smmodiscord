@@ -122,6 +122,29 @@ class Event(commands.Cog):
 
     @event.command()
     @checks.MI6()
+    async def results(self,ctx,eventid: int):
+        translation = {"pvp" : "PvP Kills","step" : "Steps", "npc" : "NPC Kills", "level" : "Levels"}
+    
+        participants = db.get_participants(eventid)
+        if len(participants) == 0 or participants is None:
+            await ctx.send("That doesn't appear to be a valid event id")
+            return
+        eventinfo = db.event_info(eventid)
+        participants.sort(reverse=True,key=lambda x:x[4])
+
+        embed = Embed(title=f"Results for {eventinfo[1]}")
+        string = ""
+        i = 1
+        for particpant in participants:
+            string += f"**{i}.** <@{particpant[0]}> - {particpant[4]} {translation[eventinfo[2]]}\n"
+
+        embed.description = string
+        await ctx.send(embed=embed)
+
+
+
+    @event.command()
+    @checks.MI6()
     async def guild_only(self,ctx, eventid : int, boolean : bool):
         try:
             db.event_guild_only(eventid,boolean)
@@ -249,7 +272,7 @@ class Event(commands.Cog):
 
         embed = Embed(title=f"Top 10 Leaderboard for {eventinfo[1]}")
         string = ""
-        print(participants)
+        
         for i in range(10):
             try:
                 user = participants[i]
