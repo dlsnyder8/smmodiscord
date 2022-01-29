@@ -137,7 +137,7 @@ class Event(commands.Cog):
         i = 1
         for particpant in participants:
             string += f"**{i}.** <@{particpant[0]}> - {particpant[4]} {translation[eventinfo[2]]}\n"
-
+            i += 1
         embed.description = string
         await ctx.send(embed=embed)
 
