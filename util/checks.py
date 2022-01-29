@@ -1,6 +1,7 @@
 import discord
 from discord.embeds import Embed
 from discord.ext import commands
+from sqlalchemy import true
 import api
 import database as db
 
@@ -33,6 +34,13 @@ def has_joined():
 
     return commands.check(predicate)
 
+def MI6():
+    async def predicate(ctx):
+        if ctx.author.id == dyl or ctx.author._roles.has(749919277213155379):
+            return True
+        else: return False
+
+    return commands.check(predicate)
 
 def in_fly_guild():
     async def predicate(ctx):

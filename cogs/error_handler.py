@@ -3,6 +3,7 @@ import traceback
 import sys
 from discord.ext import commands
 import logging
+from util.log import *
 
 
 
@@ -68,8 +69,10 @@ class CommandErrorHandler(commands.Cog):
 
 
         else:
-            await ctx.send(embed=discord.Embed(title="Error",description='Ignoring exception in command {}:'.format(ctx.command)))
-            await ctx.send(embed=discord.Embed(title="Traceback",description=traceback.format_exc()))
+            await errorlog(self.bot,embed=discord.Embed(title="Error",description=f"Ignoring exception in command {ctx.command}. Run by {ctx.author.mention} in guild {ctx.guild.name}"))
+
+            #await ctx.send(embed=discord.Embed(title="Error",description='Ignoring exception in command {}:'.format(ctx.command)))
+            #await ctx.send(embed=discord.Embed(title="Traceback",description=traceback.format_exc()))
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 

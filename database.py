@@ -455,7 +455,15 @@ def participant_progress(eventid,discordid):
 
 def event_info(eventid):
     try:
-        return session.query(Events.serverid,Events.name,Events.type,Events.is_started,Events.is_ended,Events.start_time,Events.end_time,Events.friendly_only,Events.event_role).filter_by(id=eventid).first()
+        return session.query(Events.serverid,
+                            Events.name,
+                            Events.type,
+                            Events.is_started,
+                            Events.is_ended,
+                            Events.start_time,
+                            Events.end_time,
+                            Events.friendly_only,
+                            Events.event_role).filter_by(id=eventid).first()
     except Exception as e:
         session.rollback()
         raise e

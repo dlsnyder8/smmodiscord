@@ -27,7 +27,7 @@ class Event(commands.Cog):
 
 
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def create(self,ctx,name : str, eventtype : str):
         if eventtype not in self.event_types:
             await ctx.send(embed=Embed(title="Invalid event type",description="Events must be one of the following:\n`step`,`level`,`npc`,`pvp`"))
@@ -43,7 +43,7 @@ class Event(commands.Cog):
             raise e
 
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def start(self,ctx,eventid):
         stat_convert = {"pvp" : "user_kills","step" : "steps", "npc" : "npc_kills", "level" : "level"}
         try:
@@ -80,12 +80,15 @@ class Event(commands.Cog):
         await ctx.send(f"Event {eventid} has started!")
     
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def end(self,ctx,eventid):
         try:
             eventinfo = db.event_info(eventid)
             if eventinfo is None:
                 await ctx.send("That event id is not valid")
+                return
+            elif eventinfo[4] is True:
+                await ctx.send("That event has already been ended")
                 return
             
             await self.stat_update()
@@ -100,15 +103,25 @@ class Event(commands.Cog):
     async def cleanup(self,ctx,eventid : int):
         try:
             eventinfo = db.event_info(eventid)
+            if eventinfo is None:
+                await ctx.send("That appears to be an invalid ID")
+                return
+            if eventinfo[4] is False:
+                await ctx.send(f"You can't cleanup an active event!\n\nIf you want to end an event, run `&event end {eventid}`")
+                return
             guildrole = ctx.guild.get_role(eventinfo[8])
             await guildrole.delete(reason="Event ended")
+            await ctx.send("Cleanup Concluded")
+
+        except AttributeError as e:
+            await ctx.send("This event has already been cleaned up")
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
             raise e
 
 
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def guild_only(self,ctx, eventid : int, boolean : bool):
         try:
             db.event_guild_only(eventid,boolean)
@@ -128,8 +141,6 @@ class Event(commands.Cog):
         translation = {"pvp" : "PvP Kills","step" : "Steps", "npc" : "NPC Kills", "level" : "Levels"}
 
         active_events = db.active_events()
-        print(len(active_events))
-        print(active_events)
         if len(active_events) == 1:
             eventid = active_events[0][0]
             
@@ -163,7 +174,7 @@ class Event(commands.Cog):
 
 
     @event.command()
-    @checks.is_owner()
+    @checks.MI6()
     async def participants(self,ctx,eventid=None):
         if eventid is None:
             await ctx.send("You must specify an event ID.")
@@ -225,7 +236,7 @@ class Event(commands.Cog):
     
 
     @event.command(aliases=['lb'])
-    @checks.is_owner()
+    @checks.in_fly()
     async def leaderboard(self,ctx,eventid:int):
         translation = {"pvp" : "PvP Kills","step" : "Steps", "npc" : "NPC Kills", "level" : "Levels"}
     
@@ -257,7 +268,7 @@ class Event(commands.Cog):
 
 
     @event.command(aliases=['active'])
-    @checks.is_owner()
+    @checks.in_fly()
     async def active_events(self,ctx):
         
         events = db.active_events()
@@ -267,7 +278,7 @@ class Event(commands.Cog):
         await ctx.send(embed=Embed(title="Active Events",description=string))
 
     @event.command(aliases=['joinable'])
-    @checks.is_owner()
+    @checks.in_fly()
     async def joinable_events(self,ctx):
         
         events = db.available_events()
