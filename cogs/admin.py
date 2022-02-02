@@ -4,6 +4,7 @@ from discord.ext import commands, tasks
 from discord.utils import get
 from util import checks,log
 import database as db
+from discord.ext.commands.cooldowns import BucketType
 import api
 import asyncio
 import time
@@ -42,12 +43,13 @@ class Admin(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
 
+    @commands.cooldown(1,5,BucketType.guild)
     @commands.command()
     async def topic(self,ctx):
         async with aiofiles.open("assets/starters.txt",mode='r') as f:
             content = await f.read()
 
-        print(content)
+        content = content.splitlines()
         line = random.choice(content)
 
         await ctx.send(line)
