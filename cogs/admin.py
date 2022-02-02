@@ -8,6 +8,8 @@ import api
 import asyncio
 import time
 import logging
+import aiofiles
+import random
 
 dyl = 332314562575597579
 server = 444067492013408266
@@ -31,6 +33,7 @@ class Admin(commands.Cog):
         #self.yadda.start()
 
 
+
     
     
     @checks.is_owner()
@@ -39,7 +42,44 @@ class Admin(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
 
-    
+    @commands.command()
+    async def topic(self,ctx):
+        async with aiofiles.open("assets/starters.txt",mode='r') as f:
+            content = await f.read()
+
+        print(content)
+        line = random.choice(content)
+
+        await ctx.send(line)
+
+
+
+    @commands.command()
+    @checks.is_owner()
+    async def split(self,ctx,channel : discord.TextChannel, messageid):
+        try:
+            message = await channel.fetch_message(messageid)
+            users = message.raw_mentions
+
+            string = ""
+
+            for user in users:
+                string += f"{user} "
+
+            await ctx.send(string)
+        except discord.NotFound:
+            await ctx.send("Message not found")
+
+        except discord.Forbidden:
+            await ctx.send("Not enough permissions")
+
+        except discord.HTTPException:
+            await ctx.send("HTTP Error")
+
+
+
+
+
     @checks.is_owner()
     @admin.command()
     async def forceremove(self,ctx,smmoid:int):
