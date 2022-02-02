@@ -63,7 +63,10 @@ class CommandErrorHandler(commands.Cog):
             if ctx.author.id != dyl:
                 errorembed = discord.Embed(title="Slow your roll",
                 description=f"You're on a cooldown. Please try again in {error.retry_after:.2f} Second(s)!")
-                await ctx.send(embed=errorembed)
+                message = await ctx.send(embed=errorembed)
+                await message.delete(delay=5)
+
+
             else:
                 await ctx.reinvoke()
 
