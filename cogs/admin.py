@@ -43,7 +43,7 @@ class Admin(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
 
-    @commands.cooldown(1,5,BucketType.guild)
+    @commands.cooldown(1,300,BucketType.guild)
     @commands.command()
     async def topic(self,ctx):
         async with aiofiles.open("assets/starters.txt",mode='r') as f:
