@@ -579,6 +579,10 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def quester_roles(self, ctx):
+
+        await ctx.send("Temporarily Disabled")
+        return
+        
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = await api.get_all(smmoid)
 
