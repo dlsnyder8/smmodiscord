@@ -41,8 +41,10 @@ if dev is True:
 # Set discord intents
 intents = Intents.all()
 game = discord.Game("Contact dyl#8008 with questions")
-bot = commands.Bot(command_prefix='&', intents=intents,activity=game,status=discord.Status.dnd) 
-
+if not dev:
+    bot = commands.Bot(command_prefix='&', intents=intents,activity=game,status=discord.Status.dnd) 
+else:
+    bot = commands.Bot(command_prefix='&&', intents=intents,activity=game,status=discord.Status.dnd)
 ###########################
 #     Local Variables     #
 
@@ -62,9 +64,14 @@ dyl = 332314562575597579
 server = smmo_server # Change this to which ever server the bot is mainly in
 bot.server = server
 
-for f in os.listdir('./cogs'):
-    if f.endswith('.py'):
-        bot.load_extension(f'cogs.{f[:-3]}')
+if not dev:
+
+    for f in os.listdir('./cogs'):
+        if f.endswith('.py'):
+            bot.load_extension(f'cogs.{f[:-3]}')
+
+else:
+    bot.load_extension('cogs.admin')
 
 @bot.event
 async def on_ready():
