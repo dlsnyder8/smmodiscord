@@ -207,16 +207,16 @@ class Friendly(commands.Cog):
                 if not chatter:
                     embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Close Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 else:
-                    embed.description = f"You are eligible for Close Friend with {total} roles :)"
+                    embed.description = f"You are eligible for Close Friend with {total} roles :)\nPlease run this command again in <#719944258156494998> to apply for the role"
 
             elif total < 45:
                 if not chatter:
                     embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Best Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 else:
-                    embed.description = f"You are eligible for Best Friend!! Nice job getting {total} roles."
+                    embed.description = f"You are eligible for Best Friend!! Nice job getting {total} roles.\nPlease run this command again in <#719944258156494998> to apply for the role"
             else:
                 if invite and chatter:
-                    embed.description = f"A master role gatherer has joined the ranks of BFF. Congrats on {total} roles!"
+                    embed.description = f"A master role gatherer has joined the ranks of BFF. Congrats on {total} roles!\nPlease run this command again in <#719944258156494998> to apply for the role"
                 elif not invite and not chatter:
                     embed. description = f"You have enough roles to be eligible for BFF with {total} roles, however you need to get an invite only role still and you need to reach level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 elif not chatter:
@@ -582,7 +582,7 @@ class Friendly(commands.Cog):
 
         await ctx.send("Temporarily Disabled")
         return
-        
+
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = await api.get_all(smmoid)
 
