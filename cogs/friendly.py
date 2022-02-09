@@ -580,8 +580,7 @@ class Friendly(commands.Cog):
     @commands.cooldown(1, 60, BucketType.user)
     async def quester_roles(self, ctx):
 
-        await ctx.send("Temporarily Disabled")
-        return
+        
 
         smmoid = db.get_smmoid(str(ctx.author.id))
         profile = await api.get_all(smmoid)
@@ -597,7 +596,7 @@ class Friendly(commands.Cog):
         embed = discord.Embed(title = "Role Given")
 
         # Quester
-        quests = profile["quests_complete"]
+        quests = profile["quests_performed"]
         if quests >= 2500 and quests < 10000:
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[13]))
             embed.description = "You have been given the Quester role"
@@ -1282,7 +1281,7 @@ class Friendly(commands.Cog):
                 await member.add_roles(ctx.guild.get_role(fly_roles[12]))
                 rolesadded += f"<@&{fly_roles[12]}> "
             # Quester
-            quests = profile["quests_complete"]
+            quests = profile["quests_performed"]
             if quests >= 2500 and quests < 10000:
                 await member.add_roles(ctx.guild.get_role(fly_roles[13]))
                 rolesadded += f"<@&{fly_roles[13]}> "
