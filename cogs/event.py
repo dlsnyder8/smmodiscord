@@ -219,7 +219,7 @@ class Event(commands.Cog):
         if eventinfo is not None:
             # If they've joined it before, error
             if db.has_joined(eventid,ctx.author.id):
-                await ctx.send(f"You have already joined event {eventid}")
+                await ctx.send(f"You have already joined event {eventinfo[1]}")
                 return
             
             #check if event is already ended
@@ -231,7 +231,7 @@ class Event(commands.Cog):
                 # if eventinfo[3]:
                 #     await ctx.send(f"This event has already started")
                 #     return
-                
+
                 # If for friendly only...
                 if eventinfo[7] and not ctx.author._roles.has(710315282920636506):
                     await ctx.send(f"This event is only for Friendly members.")
