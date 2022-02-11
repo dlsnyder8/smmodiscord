@@ -215,15 +215,17 @@ class Event(commands.Cog):
         eventinfo = db.event_info(eventid)
         tempid=eventid
 
+        # If they've joined it before, error
+        if db.has_joined(eventid,ctx.author.id) and eventid is not None:
+            await ctx.send(f"You have already joined event {eventinfo[1]}")
+            return
+
         # First, check event they want to join. If event exists...
         if eventinfo is not None:
-            # If they've joined it before, error
-            if db.has_joined(eventid,ctx.author.id):
-                await ctx.send(f"You have already joined event {eventinfo[1]}")
-                return
+            
             
             #check if event is already ended
-            elif not eventinfo[5]:
+            if not eventinfo[4]:
                 await ctx.send(f"This event has come and gone. You cannot join it anymore")
                 return
             try:
