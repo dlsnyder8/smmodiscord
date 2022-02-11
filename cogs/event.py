@@ -212,12 +212,54 @@ class Event(commands.Cog):
     @checks.is_verified()
     async def join(self,ctx,eventid=None):
         active_events = db.available_events()
-        tempid = eventid
-        if len(active_events) == 1:
+        eventinfo = db.event_info(eventid)
+        tempid=eventid
+
+        # First, check event they want to join. If event exists...
+        if eventinfo is not None:
+            # If they've joined it before, error
+            if db.has_joined(eventid,ctx.author.id):
+                await ctx.send(f"You have already joined event {eventid}")
+                return
+            
+            #check if event is already ended
+            elif not eventinfo[4]:
+                await ctx.send(f"This event has come and gone. You cannot join it anymore")
+                return
+            try:
+                
+                # if eventinfo[3]:
+                #     await ctx.send(f"This event has already started")
+                #     return
+                
+                # If for friendly only...
+                if eventinfo[7] and not ctx.author._roles.has(710315282920636506):
+                    await ctx.send(f"This event is only for Friendly members.")
+                    return 
+                db.join_event(eventid,ctx.author.id)
+                if eventinfo[3]:
+                    stat_convert = {"pvp" : "user_kills","step" : "steps", "npc" : "npc_kills", "level" : "level"}
+                    smmoid = db.get_smmoid(ctx.author.id)
+                    profile = await api.get_all(smmoid)
+                    info = profile[stat_convert[eventinfo[2]]]
+
+                    db.update_start_stat(eventid,ctx.author.id,info)
+
+
+
+                await ctx.author.add_roles(ctx.guild.get_role(eventinfo[8]))
+                await ctx.send(f"You have succesfully joined the {eventinfo[1]} event.")
+                return
+            except Exception as e:
+                await ctx.send(embed=Embed(title="Error", description=e))
+                raise e
+
+        elif len(active_events) == 1:
             eventid = active_events[0][0]
 
             if tempid is not None and tempid != eventid:
                 await ctx.send("The ID you entered is not valid. Please run `&e join` to join the only active event")
+                return
             try:
                 # if guild only, check if in guild
                 if active_events[0][4] and not ctx.author._roles.has(710315282920636506):
@@ -241,35 +283,7 @@ class Event(commands.Cog):
             else:
                 await ctx.send("There are no joinable events right now.")
             return
-        else:
-            if db.has_joined(eventid,ctx.author.id):
-                await ctx.send(f"You have already joined event {eventid}")
-                return
-            try:
-                
-                eventinfo = db.event_info(eventid)
-                # if eventinfo[3]:
-                #     await ctx.send(f"This event has already started")
-                #     return
-                if eventinfo[7] and not ctx.author._roles.has(710315282920636506):
-                    await ctx.send(f"This event is only for Friendly members.")
-                    return 
-                db.join_event(eventid,ctx.author.id)
-                if eventinfo[3]:
-                    stat_convert = {"pvp" : "user_kills","step" : "steps", "npc" : "npc_kills", "level" : "level"}
-                    smmoid = db.get_smmoid(ctx.author.id)
-                    profile = await api.get_all(smmoid)
-                    info = profile[stat_convert[eventinfo[2]]]
-
-                    db.update_start_stat(eventid,ctx.author.id,info)
-
-
-
-                await ctx.author.add_roles(ctx.guild.get_role(eventinfo[8]))
-                await ctx.send(f"You have succesfully joined the {eventinfo[1]} event.")
-            except Exception as e:
-                await ctx.send(embed=Embed(title="Error", description=e))
-                raise e
+       
     
 
     @event.command(aliases=['lb'])
