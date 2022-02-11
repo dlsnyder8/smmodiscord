@@ -223,7 +223,7 @@ class Event(commands.Cog):
                 return
             
             #check if event is already ended
-            elif not eventinfo[4]:
+            elif not eventinfo[5]:
                 await ctx.send(f"This event has come and gone. You cannot join it anymore")
                 return
             try:
