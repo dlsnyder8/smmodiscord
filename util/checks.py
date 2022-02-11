@@ -118,7 +118,7 @@ def is_owner():
 def is_verified():
     async def predicate(ctx):
         smmoid = str(db.get_smmoid(ctx.author.id))
-        if db.is_verified(smmoid) == False:
+        if not db.is_verified(smmoid):
             embed = discord.Embed(
                 title="Not Verified", 
                 description=f"You have not been verified. Run `{ctx.prefix}verify <smmoid>` to start the process", 
