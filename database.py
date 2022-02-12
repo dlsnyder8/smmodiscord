@@ -631,9 +631,10 @@ if __name__ == "__main__":
     #rollback()
     #warinfo_test()
     #warinfo_goldamount(723340862393942027,5000000)
-    print(is_banned(332314562575597579))
-    ban(332314562575597579,False)
-    print(is_banned(332314562575597579))
-
+    # print(is_banned(332314562575597579))
+    # ban(332314562575597579,False)
+    # print(is_banned(332314562575597579))
+    # print(is_verified(385801))
+    print(event_info(16))
 
 

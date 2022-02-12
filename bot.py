@@ -71,7 +71,7 @@ if not dev:
             bot.load_extension(f'cogs.{f[:-3]}')
 
 else:
-    bot.load_extension('cogs.admin')
+    bot.load_extension('cogs.event')
 
 @bot.event
 async def on_ready():

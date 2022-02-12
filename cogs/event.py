@@ -222,10 +222,12 @@ class Event(commands.Cog):
 
         # First, check event they want to join. If event exists...
         if eventinfo is not None:
+
             
             
             #check if event is already ended
-            if not eventinfo[4]:
+            if eventinfo[4] == True:
+                print(eventinfo[4])
                 await ctx.send(f"This event has come and gone. You cannot join it anymore")
                 return
             try:
