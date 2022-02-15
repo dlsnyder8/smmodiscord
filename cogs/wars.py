@@ -116,7 +116,7 @@ class Wars(commands.Cog):
             return
         
         if guildid not in (408, 455, 541, 482):
-            await ctx.send("It appears you did not enter a valid Friendly guild id. The options are:\n**408**\n**455**\n**541**\n")
+            await ctx.send("It appears you did not enter a valid Friendly guild id. The options are:\n**408** - Fly\n**455** - Too\n**541** - NSF\n**482** - Still\n")
             return
 
         smmoid = db.get_smmoid(ctx.author.id)
@@ -166,7 +166,7 @@ class Wars(commands.Cog):
     @checks.warinfo_linked()
     async def guild(self,ctx,guildid : int):
         if guildid not in (408, 455, 541, 482):
-            await ctx.send("It appears you did not enter a valid Friendly guild id. The options are:\n**408**\n**455**\n**541**\n")
+            await ctx.send("It appears you did not enter a valid Friendly guild id. The options are:\n**408** - Fly\n**455** - Too\n**541** - NSF\n**482** - Still\n")
             return
         
         db.warinfo_guild(ctx.author.id,guildid)
