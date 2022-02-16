@@ -44,7 +44,7 @@ class CommandErrorHandler(commands.Cog):
             return
 
         if isinstance(error, commands.DisabledCommand):
-            message = await ctx.send(f'{ctx.command} has been disabled.')
+            message = await ctx.send(f'{ctx.invoked_with} has been disabled.')
             await ctx.message.delete(delay=5)
             await message.delete(delay=5)
 
