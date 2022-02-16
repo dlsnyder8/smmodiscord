@@ -527,7 +527,7 @@ class Friendly(commands.Cog):
         await ctx.send(embed=embed)
         return
 
-    @friendly.command(aliases=['thicc'])
+    @friendly.command(aliases=['thicc'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -573,7 +573,7 @@ class Friendly(commands.Cog):
         ))
         return
 
-    @friendly.command(aliases=['stepper'])
+    @friendly.command(aliases=['stepper'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -628,7 +628,7 @@ class Friendly(commands.Cog):
 
         return
 
-    @friendly.command(aliases=['gladiator'])
+    @friendly.command(aliases=['gladiator'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -675,7 +675,7 @@ class Friendly(commands.Cog):
 
         return
 
-    @friendly.command(aliases=['monster'])
+    @friendly.command(aliases=['monster'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -726,7 +726,7 @@ class Friendly(commands.Cog):
         
         return
 
-    @friendly.command(aliases=['quester'])
+    @friendly.command(aliases=['quester'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -779,7 +779,7 @@ class Friendly(commands.Cog):
     
     
     
-    @friendly.command(aliases=['forager'])
+    @friendly.command(aliases=['forager'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -839,7 +839,7 @@ class Friendly(commands.Cog):
     
     
 
-    @friendly.command(aliases=['tasker'])
+    @friendly.command(aliases=['tasker'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -889,7 +889,7 @@ class Friendly(commands.Cog):
     
 
 
-    @friendly.command(aliases=['slayer'])
+    @friendly.command(aliases=['slayer'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -933,7 +933,7 @@ class Friendly(commands.Cog):
     
     
 
-    @friendly.command(aliases=['trader'])
+    @friendly.command(aliases=['trader'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -973,7 +973,7 @@ class Friendly(commands.Cog):
         ))
         return
 
-    @friendly.command(aliases=['celebrity'])
+    @friendly.command(aliases=['celebrity'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()
@@ -1024,8 +1024,8 @@ class Friendly(commands.Cog):
         return
     
     
-
-    @friendly.command(aliases=['veteran'])
+    @commands.DisabledCommand()
+    @friendly.command(aliases=['veteran'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
     @checks.in_fly_guild()

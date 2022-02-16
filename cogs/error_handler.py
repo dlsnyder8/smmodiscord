@@ -44,7 +44,9 @@ class CommandErrorHandler(commands.Cog):
             return
 
         if isinstance(error, commands.DisabledCommand):
-            await ctx.send(f'{ctx.command} has been disabled.')
+            message = await ctx.send(f'{ctx.command} has been disabled.')
+            await ctx.message.delete(delay=5)
+            await message.delete(delay=5)
 
         elif isinstance(error, commands.NoPrivateMessage):
             try:
@@ -65,10 +67,13 @@ class CommandErrorHandler(commands.Cog):
                 description=f"You're on a cooldown. Please try again in {error.retry_after:.2f} Second(s)!")
                 message = await ctx.send(embed=errorembed)
                 await message.delete(delay=5)
+                await ctx.message.delete(delay=5)
 
 
             else:
                 await ctx.reinvoke()
+
+       
 
 
         else:
