@@ -270,7 +270,7 @@ class Friendly(commands.Cog):
 
             await ctx.send(out)
 
-    @checks.is_fly_admin()
+    @checks.is_owner()
     @friendly.command()
     async def remove(self, ctx, member: discord.Member):
         try:
@@ -346,6 +346,160 @@ class Friendly(commands.Cog):
         else:
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
+
+
+
+
+    @checks.in_fly()
+    @checks.in_fly_guild()
+    @checks.is_verified()
+    @friendly.command(aliases=['e'])
+    async def eligibility(self,ctx):
+        smmoid = db.get_smmoid(ctx.author.id)
+        profile = await api.get_all(smmoid)
+        skills = await api.get_skills(smmoid)
+
+
+
+        embed = Embed(title = f"Role eligibility for {ctx.author.display_name}")
+        string = ""
+
+        # Thicc (Levels)
+        level = profile["level"]
+        if level >= 1000 and level < 5000:
+            string += f"**Thicc:** <@&{fly_roles[0]}>\n"
+        elif level >= 5000 and level < 10000:
+            string += f"**Thicc:** <@&{fly_roles[1]}>\n"
+        elif level >= 10000:
+            string += f"**Thicc:** <@&{fly_roles[2]}>\n"
+        else:
+            string += f"**Thicc:** Not Eligible\n"
+
+        
+        # Stepper
+        steps = profile["steps"]
+        if steps >= 7500 and steps < 50000:
+            string += f"**Stepper:** <@&{fly_roles[3]}>\n"
+            
+        elif steps >= 50000 and steps < 100000:
+            string += f"**Stepper:** <@&{fly_roles[4]}>\n"
+        elif steps >= 100000 and steps < 1000000:
+            string += f"**Stepper:** <@&{fly_roles[5]}>\n"
+        elif steps >= 1000000:
+            string += f"**Stepper:** <@&{fly_roles[6]}>\n"
+        else:
+            string += f"**Stepper:** Not Eligible\n"
+
+
+        # Gladiator (NPC)
+        npc_kills = profile["npc_kills"]
+        if npc_kills >= 1000 and npc_kills < 10000:
+            string += f"**Gladiator:** <@&{fly_roles[7]}>\n"
+        elif npc_kills >= 10000 and npc_kills < 20000:            
+            string += f"**Gladiator:** <@&{fly_roles[8]}>\n"
+        elif npc_kills >= 20000:
+            string += f"**Gladiator:** <@&{fly_roles[9]}>\n"
+        else:
+            string += f"**Gladiator:** Not Eligible\n"
+
+        # Monster (PVP)
+        pvp_kills = profile["user_kills"]
+        if pvp_kills >= 100 and pvp_kills < 2500:
+            string += f"**Monster:** <@&{fly_roles[10]}>\n"
+        elif pvp_kills >= 2500 and pvp_kills < 10000:
+            string += f"**Monster:** <@&{fly_roles[11]}>\n"
+        elif pvp_kills >= 10000:            
+            string += f"**Monster:** <@&{fly_roles[12]}>\n"
+        else:
+            string += f"**Monster:** Not Eligible\n"
+
+        # Quester
+        quests = profile["quests_performed"]
+        if quests >= 2500 and quests < 10000:
+            string += f"**Quester:** <@&{fly_roles[13]}>\n"
+        elif quests >= 10000 and quests < 30000:
+            string += f"**Quester:** <@&{fly_roles[14]}>\n"
+        elif quests >= 30000:
+            string += f"**Quester:** <@&{fly_roles[15]}>\n"
+        else:
+            string += f"**Quester:** Not Eligible\n"
+
+        # Forager
+        total_skill_level = 0
+        for skill in skills:
+   
+            if skill["skill"] == "crafting":
+                continue
+
+            else:
+                total_skill_level = total_skill_level + skill["level"]
+
+        if total_skill_level >= 150 and total_skill_level < 300:
+            string += f"**Forager:** <@&{fly_roles[16]}>\n"
+        elif total_skill_level >= 300 and total_skill_level < 500:
+            string += f"**Forager:** <@&{fly_roles[17]}>\n"
+        elif total_skill_level >= 500:
+            string += f"**Forager:** <@&{fly_roles[18]}>\n"
+        else:
+            string += f"**Forager:** Not Eligible\n"
+
+
+        # Tasker
+        nr_tasks = profile["tasks_completed"]
+        if nr_tasks >= 1000:             
+            string += f"**Tasker:** <@&{fly_roles[23]}>\n"
+        elif nr_tasks >= 500:
+            string += f"**Tasker:** <@&{fly_roles[22]}>\n"
+        elif nr_tasks >= 250:
+            string += f"**Tasker:** <@&{fly_roles[21]}>\n"
+        else:
+            string += f"**Tasker:** Not Eligible\n"
+
+        wb_kills = profile["boss_kills"]
+        if wb_kills >= 100:
+            string += f"**Slayer:** <@&{fly_roles[25]}>\n"
+        elif wb_kills >= 50:
+            string += f"**Slayer:** <@&{fly_roles[24]}>\n"
+        else:
+            string += f"**Slayer:** Not Eligible\n"
+
+         # Trader
+        trades = profile["market_trades"]
+        if trades >= 10000: 
+            string += f"**Trader:** <@&{fly_roles[27]}>\n"
+        elif trades >= 1000:
+            string += f"**Trader:** <@&{fly_roles[26]}>\n"
+        else:
+            string += f"**Trader:** Not Eligible\n"
+
+        # Celebrity
+        rep = profile["reputation"]
+        if rep >= 500:             
+           string += f"**Celebrity:** <@&{fly_roles[31]}>\n"
+        elif rep >= 200:
+            string += f"**Celebrity:** <@&{fly_roles[30]}>\n"
+        elif rep >= 30:
+            string += f"**Celebrity:** <@&{fly_roles[29]}>\n"
+        else:
+            string += f"**Celebrity:** Not Eligible\n"
+
+         # Veteran
+        creation = profile["creation_date"]
+        now = datetime.now(timezone.utc)
+        creation = parser.parse(creation)
+        difference = now - creation
+        
+        if difference.days >= 365:
+            string += f"**Veteran:** <@&{fly_roles[32]}>\n"
+        else:
+            string += f"**Veteran:** Not Eligible\n"
+
+        embed.description = string
+        await ctx.send(embed=embed)
+
+
+
+
 
     @checks.no_bot_channel()
     @friendly.command(aliases=['roles'])
