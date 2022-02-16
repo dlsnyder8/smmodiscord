@@ -502,7 +502,7 @@ class Friendly(commands.Cog):
 
 
     @checks.no_bot_channel()
-    @friendly.command(aliases=['roles'])
+    @friendly.command(aliases=['roles'],enabled=False)
     @checks.in_fly()
     async def send_role_embed(self, ctx):
 
@@ -1024,7 +1024,7 @@ class Friendly(commands.Cog):
         return
     
     
-    @commands.DisabledCommand()
+    
     @friendly.command(aliases=['veteran'],enabled=False)
     @checks.in_fly()
     @checks.is_verified()
@@ -1340,7 +1340,7 @@ class Friendly(commands.Cog):
     async def admincheck(self, message: discord.Message):
         return message.author._roles.has(719789422178205769)
 
-    @friendly.command(aliases=['check_roles', 'cr', 'checkroles'])
+    @friendly.command(aliases=['check_roles', 'cr', 'checkroles'],enabled=False)
     @checks.no_bot_channel()
     @checks.in_fly()
     @checks.in_fly_guild()
