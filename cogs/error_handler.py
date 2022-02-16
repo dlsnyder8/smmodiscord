@@ -45,8 +45,8 @@ class CommandErrorHandler(commands.Cog):
 
         if isinstance(error, commands.DisabledCommand):
             message = await ctx.send(f'{ctx.invoked_with} has been disabled.')
-            await ctx.message.delete(delay=5)
-            await message.delete(delay=5)
+            await ctx.message.delete(delay=15)
+            await message.delete(delay=1)
 
         elif isinstance(error, commands.NoPrivateMessage):
             try:
