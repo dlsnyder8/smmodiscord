@@ -295,7 +295,7 @@ class Friendly(commands.Cog):
                     return
                 db.fly_add(ctx.author.id, smmoid, guildid)
                 await ctx.send("Added to database :P")
-                await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly check_roles` to check for all available Friendly roles\nOr you can run `{ctx.prefix}fly roles` for specific roles")
+                await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly eligibility` (`{ctx.prefix}f e` for short) to check your eligibility for specific roles (more in <#710305444194680893>")
                 return
 
             await ctx.send("You've already been granted the Friendly role :)")
@@ -327,7 +327,7 @@ class Friendly(commands.Cog):
             await ctx.author.add_roles(ctx.guild.get_role(fly_roles[19]))
             await ctx.author.add_roles(ctx.guild.get_role(traveler))
             await ctx.author.remove_roles(ctx.guild.get_role(acquaintance))
-            await ctx.send(f"You now have access to guild channels.You can run `{ctx.prefix}fly check_roles` to check for all available Friendly roles\nOr you can run `{ctx.prefix}fly roles` for specific roles")
+            await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly eligibility` (`{ctx.prefix}f e` for short) to check your eligibility for specific roles (more in <#710305444194680893>")
             roles_given += f"<@&{fly_roles[19]}>"
             # if user is in NSF
             if guildid == 541:
