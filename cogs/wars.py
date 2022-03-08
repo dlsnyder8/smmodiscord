@@ -479,14 +479,14 @@ class Wars(commands.Cog):
             embed = Embed(title="No Safe Mode",description=f"{guildinfo['name']} members out of safe mode")
             attacklist = ""
             for member in members:
-                    attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
+                attacklist += f"[{member['name']}](https://web.simple-mmo.com/user/attack/{member['user_id']}) - Level {member['level']}\n"
 
-                    if len(attacklist) > 250:
-                        embed.add_field(name="\u200b",value=attacklist)
-                        attacklist = ""
-                    if len(embed) > 5600:
-                        await ctx.send(embed=embed)
-                        embed = Embed(title="No Safe Mode",description=f"{guildinfo['name']} members out of safe mode")
+                if len(attacklist) > 250:
+                    embed.add_field(name="\u200b",value=attacklist)
+                    attacklist = ""
+                if len(embed) > 5600:
+                    await ctx.send(embed=embed)
+                    embed = Embed(title="No Safe Mode",description=f"{guildinfo['name']} members out of safe mode")
                         
             if len(attacklist) > 0:
                 embed.add_field(name="Attack",value=attacklist)

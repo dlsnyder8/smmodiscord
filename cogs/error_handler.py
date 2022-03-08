@@ -38,7 +38,7 @@ class CommandErrorHandler(commands.Cog):
                 return
 
         ignored = (commands.CommandNotFound, )
-        error = getattr(error, 'original', error)
+        # error = getattr(error, 'original', error)
 
         if isinstance(error, ignored):
             return
@@ -57,6 +57,8 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.BadArgument):
             if ctx.command.qualified_name == 'tag list':
                 await ctx.send('I could not find that member. Please try again.')
+            else:
+                await ctx.send("Invalid Argument")
         
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("Missing input!")
@@ -72,16 +74,39 @@ class CommandErrorHandler(commands.Cog):
 
             else:
                 await ctx.reinvoke()
+            
+        elif isinstance(error,commands.MissingPermissions):
+            await ctx.send("Permission Denied")
 
-       
+        elif isinstance(error,commands.BotMissingPermissions):
+            await ctx.send("Bot does not have enough permissions to perform that action")
+        
+        elif isinstance(error,discord.HTTPException):
+            await ctx.send(f"HTTP Exception:\n{error.text}")
+
+        elif isinstance(error,discord.Forbidden):
+            await ctx.send(f"Discord doesn't let that happen")
+
+        elif isinstance(error, commands.CommandInvokeError):
+            logger.error(
+                f"{error.original.__class__.__name__}: {error.original} (In {ctx.command.name})\n"
+                f"Traceback:\n{''.join(traceback.format_tb(error.original.__traceback__))}"
+            )
+            try:
+                await errorlog(self.bot,embed=Embed(title=f"Something has fucked up.",description=f"{error.original}"))
+            except discord.HTTPException:
+                await errorlog(self.bot,embed=Embed(title="Big Uwu fucky", description="Description too big, but something really fucked up"))
+            await ctx.send("Something has gone pretty hecking bad. Contact Dyl asap")
 
 
         else:
             embed = discord.Embed(title="Error",description=f"Ignoring exception in command {ctx.command}. Run by {ctx.author.mention} in channel {ctx.channel.mention}")
-            embed.add_field("Status", error.status)
-            embed.add_field("Discord Code",error.code)
-            embed.add_field("Error",error.text)
-            await errorlog(self.bot,embed)
+            # embed.add_field("Status", error.status)
+            # embed.add_field("Discord Code",error.code)
+            # embed.add_field("Error",str(dir(error)))
+            print(dir(error))
+            print(error.__traceback__)
+            await errorlognoping(self.bot,embed)
 
             #await ctx.send(embed=discord.Embed(title="Error",description='Ignoring exception in command {}:'.format(ctx.command)))
             #await ctx.send(embed=discord.Embed(title="Traceback",description=traceback.format_exc()))
