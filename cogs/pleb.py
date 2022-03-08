@@ -81,7 +81,7 @@ class Pleb(commands.Cog):
             return
 
         if(db.islinked(str(ctx.author.id)) is True):
-            await ctx.send(f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord.")
+            await ctx.send(embed=Embed("Already Linked",f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord."))
             return
 
         # check if has verification key in db
