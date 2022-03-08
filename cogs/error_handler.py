@@ -77,7 +77,11 @@ class CommandErrorHandler(commands.Cog):
 
 
         else:
-            await errorlog(self.bot,embed=discord.Embed(title="Error",description=f"Ignoring exception in command {ctx.command}. Run by {ctx.author.mention} in guild {ctx.guild.name}"))
+            embed = discord.Embed(title="Error",description=f"Ignoring exception in command {ctx.command}. Run by {ctx.author.mention} in guild {ctx.guild.name}")
+            embed.add_field("Status", error.status)
+            embed.add_field("Discord Code",error.code)
+            embed.add_field("Error",error.text)
+            await errorlog(self.bot,embed)
 
             #await ctx.send(embed=discord.Embed(title="Error",description='Ignoring exception in command {}:'.format(ctx.command)))
             #await ctx.send(embed=discord.Embed(title="Traceback",description=traceback.format_exc()))
