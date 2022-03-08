@@ -75,4 +75,10 @@ async def errorlog(bot,embed):
     await channel.send("<@332314562575597579>",embed=embed)
     return
 
+async def errorlognoping(bot,embed):
+    channel = bot.get_channel(943599869795397642)
+
+    await channel.send("ERROR",embed=embed)
+    return
+
 
