@@ -80,6 +80,32 @@ class Wars(commands.Cog):
             
         await ctx.send(embed=Embed(title="Friendly Too Wars",description=warstring))
 
+    
+    @wars.command(aliases=['stl'])
+    async def still(self,ctx):
+        wars = await api.get_guild_wars(482,1)
+        if len(wars) == 0:
+            await ctx.send(embed=Embed(title="No Active Wars for Still",description="There are no active wars. They may be on hold or may have all ended."))
+            return
+        
+        warstring = ""
+        for war in wars:
+            if war['guild_1']['id'] == 482:
+                friendly = war['guild_1'] 
+                guild = war['guild_2']
+            else:
+                friendly = war['guild_2'] 
+                guild = war['guild_1']
+
+            
+            warstring += f"({guild['id']}) **{guild['name']}:** {friendly['kills']} kills. [Attack](https://web.simple-mmo.com/guilds/view/{guild['id']}/members?new_page=true&attackable=true)\n"
+            if len(warstring) > 1900:
+                embed = Embed(title="Still Wars", description=warstring)
+                await ctx.send(embed=embed)
+                warstring =""
+            
+        await ctx.send(embed=Embed(title="Still Wars",description=warstring))
+
     @wars.command()
     async def nsf(self,ctx):
         wars = await api.get_guild_wars(541,1)
