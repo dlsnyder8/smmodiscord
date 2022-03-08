@@ -77,7 +77,7 @@ class CommandErrorHandler(commands.Cog):
 
 
         else:
-            embed = discord.Embed(title="Error",description=f"Ignoring exception in command {ctx.command}. Run by {ctx.author.mention} in guild {ctx.guild.name}")
+            embed = discord.Embed(title="Error",description=f"Ignoring exception in command {ctx.command}. Run by {ctx.author.mention} in channel {ctx.channel.mention}")
             embed.add_field("Status", error.status)
             embed.add_field("Discord Code",error.code)
             embed.add_field("Error",error.text)
