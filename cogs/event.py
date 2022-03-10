@@ -101,14 +101,14 @@ class Event(commands.Cog):
             if eventinfo is None:
                 await ctx.send("That appears to be an invalid ID")
                 return
-            if eventinfo[4] is False:
+            if eventinfo.is_ended is False:
                 await ctx.send(f"You can't cleanup an active event!\n\nIf you want to end an event, run `&event end {eventid}`")
                 return
-            guildrole = ctx.guild.get_role(eventinfo[8])
+            guildrole = ctx.guild.get_role(eventinfo.event_role)
             await guildrole.delete(reason="Event ended")
             await ctx.send("Cleanup Concluded")
 
-        except AttributeError as e:
+        except AttributeError:
             await ctx.send("This event has already been cleaned up")
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
