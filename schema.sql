@@ -1,5 +1,5 @@
 CREATE TABLE "server" (
-  "serverid" int PRIMARY KEY,
+  "serverid" bigint PRIMARY KEY,
   "full_name" varchar(256),
   "pleb_role" numeric DEFAULT null,
   "leader_role" numeric DEFAULT null,
@@ -20,7 +20,7 @@ CREATE TABLE "plebs" (
 );
 
 CREATE TABLE "guilds" (
-  "discid" varchar(64) PRIMARY KEY,
+  "discid" bigint PRIMARY KEY,
   "smmoid" int,
   "leader" boolean DEFAULT false,
   "ambassador" boolean DEFAULT false,
@@ -28,7 +28,7 @@ CREATE TABLE "guilds" (
 );
 
 CREATE TABLE "friendly" (
-  "discid" varchar(64) PRIMARY KEY,
+  "discid" bigint PRIMARY KEY,
   "smmoid" int,
   "guildid" int
 );
@@ -57,7 +57,7 @@ CREATE TABLE "event_info" (
 );
 
 CREATE TABLE "warinfo" (
-  "discordid" numeric PRIMARY KEY,
+  "discordid" bigint PRIMARY KEY,
   "smmoid" int,
   "guildid" int,
   "min_level" int default 200,
@@ -78,3 +78,16 @@ CREATE TABLE "smackback" (
   "messageid" numeric
 
 );
+
+CREATE TABLE "drifters" {
+  "id" SERIAL PRIMARY KEY,
+  "discordid" numeric,
+  "npc_yesterday" numeric,
+  "npc_today" numeric,
+  "step_yesterday" numeric,
+  "step_today" numeric,
+  "pvp_yesterday" numeric,
+  "pvp_today" numeric,
+  "update_yesterday" timestamp,
+  "update_today" timestamp
+}
