@@ -65,15 +65,14 @@ class Diamond(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def diamond_check(self):
-        print("Diamond Loop starting")
         cheap_diamonds = False
         more_than_200 = False
         string = ""
         listings = await api.diamond_market()
-        embed = Embed(title="Diamonds Under 1.2m")
+        embed = Embed(title="Diamonds Under 1.3m")
 
         for listing in listings:
-            if listing["price_per_diamond"] <= 1200000: # 1.2m
+            if listing["price_per_diamond"] <= 1300000: # 1.2m
                 cheap_diamonds = True
                 string += f"There are {listing['diamonds_remaining']} diamonds left at {listing['price_per_diamond']:,} each.\n" 
                 if listing['diamonds_remaining'] >= 200:
@@ -109,8 +108,7 @@ class Diamond(commands.Cog):
                     await log.log(self.bot,"Diamond Market Fucky",f"Something went wrong with {server[0]},{server[2]},{server[1]}")
                     await log.log(self.bot,"Diamond Market Fucky",e)
                     pass
-        else:
-            print("No cheap diamonds")
+        
 
     @diamond_check.before_loop
     async def before_diamodn_check(self):
