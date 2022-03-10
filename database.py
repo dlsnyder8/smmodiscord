@@ -443,167 +443,184 @@ async def remove_guild_user(smmoid):
             raise e
 
 async def fly_add(discid,smmoid,guildid=0):
-    try:
-        session.add(Friendly(discid=str(discid), smmoid=smmoid,guildid=guildid))
-        session.commit()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            await con.execute(insert(Friendly(discid=str(discid), smmoid=smmoid,guildid=guildid)))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def fly_update(discid,smmoid,guildid=0):
-    try:
-        session.query(Friendly).filter_by(discid=str(discid)).update(
-            {Guild.discid : discid,
-            Guild.smmoid : smmoid,
-            Guild.guildid : guildid}
-        )
-        session.commit()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            await con.execute(update(Friendly).filter_by(discid=str(discid)).values(
+                {Guild.discid : discid,
+                Guild.smmoid : smmoid,
+                Guild.guildid : guildid}
+            ))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
+
 
 async def in_fly(discid):
-    try:
-        ret = session.query(Friendly.guildid).filter_by(discid=str(discid)).first()
-        if ret is None:
-            return None
-        else:
-            return ret != 0
-        
+    async with session() as con:
+        try:
+            ret = (await con.execute(select(Friendly.guildid).filter_by(discid=str(discid)))).first()
+            if ret is None:
+                return False
+            else:
+                return ret != 0
+            
 
-    except Exception as e:
-        await con.rollback()
-        raise e
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 
-async def all_fly():
-    try:
-        session.query(Friendly.discid, Friendly.smmoid,Friendly.guildid).all()
-
-    except Exception as e:
-        await con.rollback()
-        raise e
 
 async def fly_remove(discid):
-    try:
-        session.execute("DELETE FROM friendly WHERE discid=:param", {"param":str(discid)})
-        session.commit()
-        return True
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            await con.execute("DELETE FROM friendly WHERE discid=:param", {"param":str(discid)})
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 
 # Event Database Commands
 async def create_event(serverid,name,eventtype,roleid):
-    # session.add(Guild(discid=str(discid), smmoid=smmoid,leader=False,ambassador=False, guildid=0))
-    try:
-        eventtoadd = Events(serverid=serverid,name=name,type=eventtype,event_role=roleid)
-        session.add(eventtoadd)
-        session.commit()
-        return eventtoadd.id
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        # session.add(Guild(discid=str(discid), smmoid=smmoid,leader=False,ambassador=False, guildid=0))
+        try:
+            eventtoadd = Events(serverid=serverid,name=name,type=eventtype,event_role=roleid)
+            await con.execute(insert(eventtoadd))
+            await con.commit()
+            return eventtoadd.id
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def start_event(eventid):
-    try:
-        session.query(Events).filter_by(id=eventid).update({Events.is_started : True, Events.start_time : datetime.now(timezone.utc)})
-        session.commit()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            session.query(Events).filter_by(id=eventid).update({Events.is_started : True, Events.start_time : datetime.now(timezone.utc)})
+            session.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
+
+
 async def end_event(eventid):
-    try:
-        session.query(Events).filter_by(id=eventid).update({Events.is_ended : True, Events.end_time : datetime.now(timezone.utc)})
-        session.commit()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            await con.execute(update(Events).filter_by(id=eventid).values({Events.is_ended : True, Events.end_time : datetime.now(timezone.utc)}))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def active_events():
-    try:
-        return session.query(Events.id, Events.serverid, Events.name, Events.type).filter_by(is_started=True,is_ended=False).all()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            return (await con.execute(select(Events).filter_by(is_started=True,is_ended=False))).all()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def available_events():
-    try:
-         return session.query(Events.id, Events.serverid, Events.name, Events.type, Events.friendly_only,Events.event_role).filter_by(is_started=False).all()
-         
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            return (await con.execute(select(Events).filter_by(is_started=False))).all()
+            
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 
 async def participant_progress(eventid,discordid):
-    try:
-        return session.query(Event_info.starting_stat,Event_info.current_stat,Event_info.current_stat - Event_info.starting_stat,Event_info.last_updated).filter_by(id=eventid,discordid=discordid).first()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            return (await con.execute(select(Event_info.starting_stat,
+                                            Event_info.current_stat,
+                                            Event_info.current_stat - Event_info.starting_stat,
+                                            Event_info.last_updated).filter_by(id=eventid,
+                                                                                discordid=discordid))).first()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def event_info(eventid):
-    try:
-        return session.query(Events.serverid,
-                            Events.name,
-                            Events.type,
-                            Events.is_started,
-                            Events.is_ended,
-                            Events.start_time,
-                            Events.end_time,
-                            Events.friendly_only,
-                            Events.event_role).filter_by(id=eventid).first()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            return (await con.execute(select(Events).filter_by(id=eventid))).first()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def event_guild_only(eventid, boolean):
-    try:
-        session.query(Events).filter_by(id=eventid).update({Events.friendly_only : boolean})
-        session.commit()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            await con.execute(update(Events).filter_by(id=eventid).values({Events.friendly_only : boolean}))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def join_event(eventid,discordid):
-    try:
-        session.add(Event_info(id=eventid,discordid=discordid))
-        session.commit()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            await con.execute(insert(Event_info(id=eventid,discordid=discordid)))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def has_joined(eventid,discordid):
-    try:
-        return session.query(Event_info).filter_by(id=eventid,discordid=discordid).first() is not None
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            return (await con.execute(select(Event_info).filter_by(id=eventid,discordid=discordid))).first() is not None
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def get_participants(eventid):
-    try:
-        return session.query(Event_info.discordid,Event_info.starting_stat,Event_info.current_stat,Event_info.last_updated,Event_info.current_stat - Event_info.starting_stat).filter_by(id=eventid).all()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            return (await con.execute(select(Event_info.discordid,
+                                Event_info.starting_stat,
+                                Event_info.current_stat,
+                                Event_info.last_updated,
+                                Event_info.current_stat - Event_info.starting_stat).filter_by(id=eventid))).all()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def update_start_stat(eventid,discordid,stat):
-    try:
-        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.starting_stat : stat, Event_info.current_stat : stat, Event_info.last_updated : datetime.now(timezone.utc)})
-        session.commit()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            await con.execute(update(Event_info).filter_by(id=eventid,
+                                                        discordid=discordid).values({Event_info.starting_stat : stat, 
+                                                                                    Event_info.current_stat : stat, 
+                                                                                    Event_info.last_updated : datetime.now(timezone.utc)}))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 async def update_stat(eventid,discordid,stat):
-    try:
-        session.query(Event_info).filter_by(id=eventid,discordid=discordid).update({Event_info.current_stat : stat, Event_info.last_updated : datetime.now(timezone.utc)})
-        session.commit()
-    except Exception as e:
-        await con.rollback()
-        raise e
+    async with session() as con:
+        try:
+            await con.execute(update(Event_info).filter_by(id=eventid,
+                                                            discordid=discordid).values({Event_info.current_stat : stat, 
+                                                                                        Event_info.last_updated : datetime.now(timezone.utc)}))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 
 ###########################
@@ -611,84 +628,98 @@ async def update_stat(eventid,discordid,stat):
 ###########################
 
 async def warinfo_setup(discordid,smmoid,guildid):
-    session.add(Warinfo(discordid=discordid,smmoid=smmoid,guildid=guildid,last_pinged=datetime.now(timezone.utc)))
-    commit()
-    return
+    async with session() as con:
+        await con.execute(insert(Warinfo(discordid=discordid,
+                                        smmoid=smmoid,
+                                        guildid=guildid,
+                                        last_pinged=datetime.now(timezone.utc))))
+        await con.commit()
+        return
 
 async def warinfo_guild(discordid,guildid):
-    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.guildid : guildid})
-    commit()
-    return
+    async with session() as con:
+        await con.execute(update(Warinfo).filter_by(discordid=discordid).select({Warinfo.guildid : guildid}))
+        await con.commit()
+        return
 
 async def warinfo_minlevel(discordid,minlevel):
-    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.min_level : minlevel})
-    commit()
-    return
+    async with session() as con:
+        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.min_level : minlevel}))
+        await con.commit()
+        return
 
 async def warinfo_maxlevel(discordid,maxlevel):
-    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.max_level : maxlevel})
-    commit()
-    return
+    async with session() as con:
+        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.max_level : maxlevel}))
+        await con.commit()
+        return
 
 async def warinfo_goldping(discordid,ping : bool):
-    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.gold_ping : ping})
-    commit()
-    return
+    async with session() as con:
+        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.gold_ping : ping}))
+        await con.commit()
+        return
 
 async def warinfo_goldamount(discordid,amount : int):
-    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.gold_amount : amount})
-    commit()
-    return
+    async with session() as con:
+        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.gold_amount : amount}))
+        await con.commit()
+        return
 
 async def warinfo_isadded(discid):
-    return session.query(Warinfo).filter_by(discordid=discid).scalar() is not None
+    async with session() as con:
+        return (await con.execute(select(Warinfo).filter_by(discordid=discid))).scalar() is not None
 
 async def warinfo_profile(discid):
-    return session.query(Warinfo.smmoid,
-                        Warinfo.guildid,
-                        Warinfo.min_level,
-                        Warinfo.max_level,
-                        Warinfo.gold_ping,
-                        Warinfo.gold_amount).filter_by(discordid=discid).first()
+    async with session() as con:
+        return (await con.execute(select(Warinfo).filter_by(discordid=discid))).first()
+
 async def gold_ping_users():
-    return session.query(Warinfo.smmoid,
-                            Warinfo.discordid,
-                            Warinfo.gold_amount,
-                            Warinfo.last_pinged).filter_by(gold_ping=True).all()
+    async with session() as con:
+        return (await con.execute(select(Warinfo).filter_by(gold_ping=True))).all()
+
 async def warinfo_ping_update(discordid):
-    session.query(Warinfo).filter_by(discordid=discordid).update({Warinfo.last_pinged : datetime.now(timezone.utc)})
-    commit()
-    return
-
-async def warinfo_test():
-    members = session.query(Warinfo.discordid).all()
-    for member in members:
-        print(member)
-        session.query(Warinfo).filter_by(discordid=member[0]).update({Warinfo.last_pinged : datetime.now(timezone.utc)})
-        commit()
+    async with session() as con:
+        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.last_pinged : datetime.now(timezone.utc)}))
+        await con.commit()
+        return
 
 
-async def sb_create(tobesmacked : int, guildmember: int, messageid : int):
-    session.add(Smackback(tobesmacked=tobesmacked,guildmember=guildmember,posted=datetime.now(timezone.utc),messageid=messageid))
-    commit()
-    return
+async def rollback():
+    async with session() as con:
+        await con.rollback()
 
-async def sb_iscompleted(id : int):
-    return session.query(Smackback.completed).filter_by(id=id).first()[0]
+# async def warinfo_test():
+#     async with session() as con:
+    #     members = session.query(Warinfo.discordid).all()
+    #     for member in members:
+    #         print(member)
+    #         session.query(Warinfo).filter_by(discordid=member[0]).update({Warinfo.last_pinged : datetime.now(timezone.utc)})
+    #         commit()
 
-async def sb_complete(id: int):
-    session.query(Smackback).filter_by(id=id).update({Smackback.completed : True})
-    commit()
-    return
 
-async def sb_info(id: int):
-    return session.query(Smackback.tobesmacked,
-                    Smackback.guildmember,
-                    Smackback.completed_by,
-                    Smackback.completed,
-                    Smackback.messageid,
-                    Smackback.posted,
-                    Smackback.completed_at).filter_by(id=id).first()
+# async def sb_create(tobesmacked : int, guildmember: int, messageid : int):
+#     async with session() as con:
+#         await con.execute(insert(Smackback(tobesmacked=tobesmacked,guildmember=guildmember,posted=datetime.now(timezone.utc),messageid=messageid)))
+#         await con.commit()
+#         return
+
+# async def sb_iscompleted(id : int):
+#     return session.query(Smackback.completed).filter_by(id=id).first()[0]
+
+# async def sb_complete(id: int):
+#     session.query(Smackback).filter_by(id=id).update({Smackback.completed : True})
+#     commit()
+#     return
+
+# async def sb_info(id: int):
+#     return session.query(Smackback.tobesmacked,
+#                     Smackback.guildmember,
+#                     Smackback.completed_by,
+#                     Smackback.completed,
+#                     Smackback.messageid,
+#                     Smackback.posted,
+#                     Smackback.completed_at).filter_by(id=id).first()
 
 
 
@@ -707,26 +738,7 @@ async def main():
     #print(server.serverid)
 
 if __name__ == "__main__":
-    #print(is_ambassador(str(309115527962427402)))
-    # print(ambassadors(424))
-    # guild_leader_update(332314562575597579,False,0)
-    # print(ambassadors(424))
-    # print(conn_disc(587672))
-    #print(in_fly(439777465494142996))
-    # update_start_stat(2,332314562575597579,5)
-    # update_stat(2,332314562575597579,852)
-    #print(type(get_participants(80)))
-    #print(server_config(731379317182824478))
-    #update_timestamp(731379317182824478,datetime.now(timezone.utc))
-    #print(has_joined(10,332314562575597579))
-    #rollback()
-    #warinfo_test()
-    #warinfo_goldamount(723340862393942027,5000000)
-    # print(is_banned(332314562575597579))
-    # ban(332314562575597579,False)
-    # print(is_banned(332314562575597579))
-    # print(is_verified(385801))
-    #print(event_info(16))
+    pass
 
     asyncio.run(main())
 

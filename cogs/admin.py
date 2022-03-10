@@ -86,7 +86,7 @@ class Admin(commands.Cog):
     @admin.command()
     async def forceremove(self,ctx,smmoid:int):
         try:
-            val = db.remove_user(smmoid)
+            val = await db.remove_user(smmoid)
             if val:
                 await ctx.send("Success!")
             else:
@@ -100,41 +100,41 @@ class Admin(commands.Cog):
     @checks.is_owner()
     @admin.command(hidden=True)
     async def unlink(self,ctx,member:discord.Member):
-        if(db.islinked(str(member.id))):
-            smmoid = db.get_smmoid(str(member.id))
-            if(db.remove_user(str(smmoid))):
+        if(await db.islinked(str(member.id))):
+            smmoid = await db.get_smmoid(str(member.id))
+            if(await db.remove_user(str(smmoid))):
                 await ctx.send(f"User {smmoid} successfully removed")
             else:
                 await ctx.send(f"User {smmoid} was not removed")
                 return
 
-            if db.is_added(str(member.id)): # if linked to a guild
-                leaderrole = ctx.guild.get_role(int(db.leader_id(server)))
-                ambassadorrole = ctx.guild.get_role(int(db.ambassador_role(server)))
+            if await db.is_added(str(member.id)): # if linked to a guild
+                leaderrole = ctx.guild.get_role(int(await db.leader_id(server)))
+                ambassadorrole = ctx.guild.get_role(int(await db.ambassador_role(server)))
 
-                guildid, smmoid = db.ret_guild_smmoid(str(member.id))
-                if(db.is_leader(str(member.id))):
+                guildid, smmoid = await db.ret_guild_smmoid(str(member.id))
+                if(await db.is_leader(str(member.id))):
                     
-                    ambassadors = db.all_ambassadors()
+                    ambassadors = await db.all_ambassadors()
                     guildambs = [x for x in ambassadors if x[2] == guildid]
                     
                     print(f"{member.name} has been removed as a leader when unlinked")
                     # if not leader, remove role and update db
                     await member.remove_roles(leaderrole)
-                    db.remove_guild_user(smmoid)
+                    await db.remove_guild_user(smmoid)
 
                     if len(guildambs) > 0:
                         for amb in guildambs:
                             user = ctx.guild.get_member(int(amb[0]))
                             print(f"{user.name} is not an ambassador because the leader has been unlinked")
                             await user.remove_roles(ambassadorrole)
-                            db.guild_ambassador_update(amb[0], False, 0)
+                            await db.guild_ambassador_update(amb[0], False, 0)
                 else:
                     #user is an ambassador
                     
                     print(f"{member.name} is not an ambassador because they unlinked")
                     await member.remove_roles(ambassadorrole)
-                    db.remove_guild_user(smmoid)
+                    await db.remove_guild_user(smmoid)
 
 
 
@@ -149,7 +149,7 @@ class Admin(commands.Cog):
     @commands.group(aliases=['fv'], hidden=True)
     async def forceverify(self, ctx, member: discord.Member, arg:int):
         try:
-            db.add_new_pleb(arg,str(member.id),None,verified=True)
+            await db.add_new_pleb(arg,str(member.id),None,verified=True)
             await ctx.send(f"{member.name} has been linked to {arg}")
         except:
             await ctx.send(f"You messed something up or {member.name} already started the verification process. bully dyl or something to fix")
@@ -161,7 +161,7 @@ class Admin(commands.Cog):
     @checks.is_owner()
     async def remove(self,ctx,arg:int):
         try:
-            db.remove_user(arg)
+            await db.remove_user(arg)
         except Exception as e:
             await ctx.send(e)
             return
@@ -185,11 +185,11 @@ class Admin(commands.Cog):
         guild = ctx.guild
         print(guild.id)
 
-        if db.server_added(guild.id):
+        if await db.server_added(guild.id):
             await ctx.send("Server has already been initialized")
             return
         try:
-            db.add_server(guild.id, guild.name)
+            await db.add_server(guild.id, guild.name)
             await ctx.send("Server successfully initialized")
             return
         except:
@@ -200,7 +200,7 @@ class Admin(commands.Cog):
     @checks.is_owner()
     async def set_role(self, ctx, *args):
 
-        if not db.server_added(ctx.guild.id):
+        if not await db.server_added(ctx.guild.id):
             await ctx.send("Please run `^a init` before you run this command!")
             return
 
@@ -223,7 +223,7 @@ class Admin(commands.Cog):
         for role in roles:
             
             if role.id == roleid:
-                db.add_server_role(ctx.guild.id, roleid)
+                await db.add_server_role(ctx.guild.id, roleid)
                 await ctx.send("Role successfully added!")
                 return
         
@@ -234,7 +234,7 @@ class Admin(commands.Cog):
     @admin.command(aliases = ['rb'])
     @checks.is_owner()
     async def rollback(self,ctx):
-        db.rollback()
+        await db.rollback()
         await ctx.send("Database Rollback in progress")
         return
 
@@ -257,7 +257,7 @@ class Admin(commands.Cog):
     async def give(self,ctx, arg: int, members: commands.Greedy[discord.Member]):
         string = ""
         for member in members:
-            smmoid = db.get_smmoid(str(member.id))
+            smmoid = await db.get_smmoid(str(member.id))
             if(await api.pleb_status(smmoid)): # If they a pleb
                 string +=f"{member.name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>\n"
             else:
@@ -280,8 +280,8 @@ class Admin(commands.Cog):
     async def plebcheck(self,ctx=None):
         print("Pleb check starting")
         await log.log(self.bot,"Pleb Check Started","")
-        if(db.server_added(server)): # server has been initialized
-            pleb_role = db.pleb_id(server)
+        if(await db.server_added(server)): # server has been initialized
+            pleb_role = await db.pleb_id(server)
         else:
             print("Server has not been added to db")
             return
@@ -290,7 +290,7 @@ class Admin(commands.Cog):
         if ctx is not None:
             await ctx.send("Pleb check starting...")
 
-        plebs = db.get_all_plebs()
+        plebs = await db.get_all_plebs()
         guild = self.bot.get_guild(int(server))
         role = guild.get_role(int(pleb_role))
         count = 0
@@ -324,13 +324,13 @@ class Admin(commands.Cog):
                 print("THE API IS STUPID")
 
             elif isPleb is True:
-                db.update_status(smmoid, True) # they are a pleb
+                await db.update_status(smmoid, True) # they are a pleb
                 if not user._roles.has(832878414839021598):
                     await user.add_roles(role) # give user pleb role
                 #print(f'{user} with uid: {smmoid} has pleb!')
 
             elif isPleb is False: # user is not pleb
-                db.update_status(smmoid, False) # not a pleb
+                await db.update_status(smmoid, False) # not a pleb
                 if user._roles.has(832878414839021598):
                     await user.remove_roles(role) # remove pleb role
                 #print(f'{user} lost pleb!')
@@ -352,12 +352,12 @@ class Admin(commands.Cog):
             await ctx.send("Guild check starting...")
 
         guild = self.bot.get_guild(int(server))
-        leaderrole = guild.get_role(int(db.leader_id(server)))
-        ambassadorrole = guild.get_role(int(db.ambassador_role(server)))
+        leaderrole = guild.get_role(int(await db.leader_id(server)))
+        ambassadorrole = guild.get_role(int(await db.ambassador_role(server)))
         
 
-        ambassadors = db.all_ambassadors()
-        leaders = db.all_leaders()
+        ambassadors = await db.all_ambassadors()
+        leaders = await db.all_leaders()
 
         # discid, smmoid, guildid
         for leader in leaders:
@@ -385,7 +385,7 @@ class Admin(commands.Cog):
                         print(f"{user.name} is not a leader because guild {guildid} has been deleted.")
                         # if not leader, remove role and update db
                         await user.remove_roles(leaderrole)
-                    db.guild_leader_update(str(discid),False,0,0)
+                    await db.guild_leader_update(str(discid),False,0,0)
 
 
                     if len(guildambs) > 0:
@@ -394,7 +394,7 @@ class Admin(commands.Cog):
                             if user is not None:
                                 print(f"{user.name} is not an ambassador because guild {guildid} has been deleted.")
                                 await user.remove_roles(ambassadorrole)
-                            db.guild_ambassador_update(amb[0], False, 0)
+                            await db.guild_ambassador_update(amb[0], False, 0)
                     continue
 
 
@@ -405,7 +405,7 @@ class Admin(commands.Cog):
                     print(f"{user.name} is not a leader")
                     # if not leader, remove role and update db
                     await user.remove_roles(leaderrole)
-                db.guild_leader_update(str(discid),False,0,0)
+                await db.guild_leader_update(str(discid),False,0,0)
 
 
                 if len(guildambs) > 0:
@@ -414,7 +414,7 @@ class Admin(commands.Cog):
                         if user is not None:
                             print(f"{user.name} is not an ambassador")
                             await user.remove_roles(ambassadorrole)
-                        db.guild_ambassador_update(amb[0], False, 0)
+                        await db.guild_ambassador_update(amb[0], False, 0)
                 continue
             
             # if gleader is person w/ role, check ambassadors to see if they're in guild
@@ -428,7 +428,7 @@ class Admin(commands.Cog):
                                 print(f"{user.name} is not an ambassador")
 
                                 await user.remove_roles(ambassadorrole)
-                            db.guild_ambassador_update(amb[0], False, 0)
+                            await db.guild_ambassador_update(amb[0], False, 0)
 
 
         if(ctx is not None):

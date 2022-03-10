@@ -36,9 +36,9 @@ class Diamond(commands.Cog):
     @checks.is_owner()
     async def setup(self,ctx, channel: discord.TextChannel, role: discord.Role):
         try:
-            db.add_diamond_role(ctx.guild.id,role.id)
-            db.add_diamond_channel(ctx.guild.id,channel.id)
-            db.update_timestamp(ctx.guild.id,datetime.now(timezone.utc))
+            await db.add_diamond_role(ctx.guild.id,role.id)
+            await db.add_diamond_channel(ctx.guild.id,channel.id)
+            await db.update_timestamp(ctx.guild.id,datetime.now(timezone.utc))
             await ctx.send("Succesfully added the channel and role")
         except Exception as e:
             await ctx.send(e)
@@ -47,7 +47,7 @@ class Diamond(commands.Cog):
     @checks.is_owner()
     async def toggle(self,ctx, boolean : bool):
         try:
-            db.enable_diamond_ping(ctx.guild.id,boolean)
+            await db.enable_diamond_ping(ctx.guild.id,boolean)
             await ctx.send(f"Diamond pings have been set to: {boolean}")
         except Exception as e:
             await ctx.send(e)
@@ -56,7 +56,7 @@ class Diamond(commands.Cog):
     @checks.is_owner()  
     async def config(self,ctx):
        
-        config = db.server_config(ctx.guild.id)
+        config = await db.server_config(ctx.guild.id)
         print(config)
         ID, ping_bool,role,channel,timestamp = config[0]
         embed = Embed(title="Server Config",description=f"ID: {ID}\nDiamond Ping: {ping_bool}\nPinged Role: {ctx.guild.get_role(role)}\nChannel: {ctx.guild.get_channel(channel)}")
@@ -78,7 +78,7 @@ class Diamond(commands.Cog):
                 if listing['diamonds_remaining'] >= 200:
                     more_than_200 = True
         if cheap_diamonds:
-            allinfo = db.get_diamond_ping_info()
+            allinfo = await db.get_diamond_ping_info()
            
             embed.description = string
             for server in allinfo:
@@ -99,7 +99,7 @@ class Diamond(commands.Cog):
                             await channel.send(content=f"{role.mention}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
                         else:
                             await channel.send(content=f"{role.name}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
-                        db.update_timestamp(server[0],datetime.now(timezone.utc))
+                        await db.update_timestamp(server[0],datetime.now(timezone.utc))
                    
                     
 
