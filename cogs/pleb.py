@@ -38,24 +38,17 @@ class Pleb(commands.Cog):
     @pleb.command()
     @checks.is_owner()
     async def whois(self, ctx, *, member: discord.Member):
-        id = str(member.id)
-        users = db.disc_ids(id)
-        for user in users:
-            await ctx.send(f'user: {user[0]}, verified: {user[1]}')
 
-    @pleb.command()
-    @checks.is_owner()
-    async def activeplebs(self, ctx):
-        plebs = db.active_pleb()
-        for pleb in plebs:
-            await ctx.send(f'<@!{pleb[1]}>: {pleb[0]} has an active membership')
+        users = await db.disc_ids(member.id)
+        for user in users:
+            await ctx.send(f'user: {user.smmoid}, verified: {user.verified}')
 
     @commands.guild_only()
     @commands.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]")
     async def verify(self, ctx, *args):
         # needs 1 arg, smmo id
         if len(args) != 1:
-            await ctx.send(embed=Embed(title=f"Verification Process",
+            await ctx.send(embed=Embed(title="Verification Process",
                                        description="1) Please find your SMMO ID by running `+us YourNameHere` or navigating to your profile on web app and getting the 4-6 digits in the url\n2) Run `&verify SMMOID`\n3) Add the verification key to your motto, then run `&verify SMMOID` again"))
             return
 
@@ -74,16 +67,16 @@ class Pleb(commands.Cog):
             return
 
         # check if verified
-        if(db.is_verified(smmoid)):
+        if(await db.is_verified(smmoid)):
             await ctx.send("This account has already been linked to a Discord account.")
             return
 
-        if(db.islinked(str(ctx.author.id)) is True):
+        if(await db.islinked(ctx.author.id) is True):
             await ctx.send(embed=Embed(title="Already Linked", description=f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord."))
             return
 
         # check if has verification key in db
-        key = db.verif_key(smmoid, str(ctx.author.id))
+        key = await db.verif_key(smmoid, ctx.author.id)
         if(key is not None):
 
             motto = await api.get_motto(smmoid)
@@ -93,14 +86,14 @@ class Pleb(commands.Cog):
                 await ctx.send(f'Something went wrong. Please contact <@{dyl}> on Discord for help')
                 return
             if(key in motto):
-                db.update_verified(smmoid, True)
+                await db.update_verified(smmoid, True)
                 if ctx.guild.id == 710258284661178418:
-                    await ctx.send(f"You are now verified. If you're in Friendly, please run `&join` to be granted access to guild channels. You can remove the verification key from your motto.")
+                    await ctx.send("You are now verified. If you're in Friendly, please run `&join` to be granted access to guild channels. You can remove the verification key from your motto.")
                 else:
-                    await ctx.send(f'You are now verified! You can remove the verification key from your motto.')
+                    await ctx.send('You are now verified! You can remove the verification key from your motto.')
                 if ispleb:
 
-                    plebid = db.pleb_id(guild.id)
+                    plebid = await db.pleb_id(guild.id)
                     print("plebid is:", plebid)
                     await ctx.author.add_roles(guild.get_role(int(plebid)))
 
@@ -115,12 +108,12 @@ class Pleb(commands.Cog):
 
         else:
             # key in DB, but someone else tried to add it. Generate new key
-            if(db.key_init(smmoid) is not None):
+            if(await db.key_init(smmoid) is not None):
                 await ctx.send("Someone tried to verify with your ID. Resetting key....")
                 letters = string.ascii_letters
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
-                db.update_pleb(smmoid, str(ctx.author.id), key)
+                await db.update_pleb(smmoid, ctx.author.id, key)
                 await ctx.send(f'Verification Failed. Your verification key is: `{key}`')
                 await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
                 return
@@ -131,7 +124,7 @@ class Pleb(commands.Cog):
                 letters = string.ascii_letters
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
-                db.add_new_pleb(smmoid, str(ctx.author.id), key)
+                await db.add_new_pleb(smmoid, ctx.author.id, key)
                 await ctx.send(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
                 return
 
