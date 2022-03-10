@@ -2,7 +2,6 @@ import discord
 from discord.embeds import Embed
 from discord.ext import commands, tasks
 from discord.ext.commands.core import guild_only
-from discord.utils import get
 from util import checks
 import database as db
 import api
@@ -15,7 +14,7 @@ from dateutil import parser
 from dpymenus import Page, ButtonMenu
 import csv
 import os
-import aiofiles
+
 
 
 logger = logging.getLogger('__name__')
@@ -239,7 +238,7 @@ class Friendly(commands.Cog):
                 writer = csv.writer(csvfile)
                 writer.writerow(['smmoid','name','npc_kills','user_kills','quests_complete','level','tasks','boss_kills','market_trades','reputation','bounties','dailies','chests'])
                 for member in members:
-                    smmoid = db.get_smmoid(member.id)
+                    smmoid = await db.get_smmoid(member.id)
                     x = await api.get_all(smmoid)
 
                     data = [smmoid,x['name'],x['npc_kills'],x['user_kills'],x['quests_complete'],x['level'],x['tasks_completed'],x['boss_kills'],x['market_trades'],x['reputation'],x['bounties_completed'],x['dailies_unlocked'],x['chests_opened']]
@@ -259,7 +258,7 @@ class Friendly(commands.Cog):
         out = ""
         async with ctx.typing():
             for member in members:
-                smmoid = db.get_smmoid(str(member.id))
+                smmoid = await db.get_smmoid(member.id)
                 if smmoid is not None:
                     if await api.safemode_status(smmoid):
                         out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
@@ -274,7 +273,7 @@ class Friendly(commands.Cog):
     @friendly.command()
     async def remove(self, ctx, member: discord.Member):
         try:
-            db.fly_remove(member.id)
+            await db.fly_remove(member.id)
             await ctx.send("Success!")
         except Exception as e:
             await ctx.send(e)
@@ -286,14 +285,15 @@ class Friendly(commands.Cog):
     async def join(self, ctx):
         if ctx.author._roles.has(fly_roles[19]):
 
-            if not db.in_fly(ctx.author.id):
-                smmoid = db.get_smmoid(str(ctx.author.id))
+            if not await db.in_fly(ctx.author.id):
+                smmoid = await db.get_smmoid(ctx.author.id)
                 profile = await api.get_all(smmoid)
                 try:
                     guildid = profile["guild"]["id"]
-                except KeyError as e:
+                except KeyError:
+                    await ctx.send("You are not in a guild, and you are definitely not in Friendly")
                     return
-                db.fly_add(ctx.author.id, smmoid, guildid)
+                await db.fly_add(ctx.author.id, smmoid, guildid)
                 await ctx.send("Added to database :P")
                 await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly eligibility` (`{ctx.prefix}f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
                 return
@@ -301,7 +301,7 @@ class Friendly(commands.Cog):
             await ctx.send("You've already been granted the Friendly role :)")
             return
 
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
 
         # get guild from profile (get_all())
         profile = await api.get_all(smmoid)
@@ -314,8 +314,8 @@ class Friendly(commands.Cog):
         # if user is in a fly guild....
         if guildid in fly or ctx.author.id == dyl:
 
-            if not db.in_fly(ctx.author.id):
-                db.fly_add(ctx.author.id, smmoid, guildid)
+            if not await db.in_fly(ctx.author.id):
+                await db.fly_add(ctx.author.id, smmoid, guildid)
 
             roles_given = ""
             try:
@@ -355,7 +355,7 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @friendly.command(aliases=['e'])
     async def eligibility(self,ctx):
-        smmoid = db.get_smmoid(ctx.author.id)
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
         skills = await api.get_skills(smmoid)
 
@@ -534,7 +534,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def thicc_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
         if ctx.guild.get_role(fly_roles[2]) in ctx.author.roles:
@@ -580,7 +580,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def stepper_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
 
@@ -635,7 +635,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def gladiator_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
 
@@ -682,7 +682,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def monster_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
 
@@ -736,7 +736,7 @@ class Friendly(commands.Cog):
 
         
 
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
 
@@ -786,7 +786,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def forager_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
 
 
         if ctx.guild.get_role(fly_roles[18]) in ctx.author.roles:
@@ -846,7 +846,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def tasker_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
         if ctx.guild.get_role(fly_roles[23]) in ctx.author.roles:
@@ -896,7 +896,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def slayer_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
 
@@ -940,7 +940,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def trader_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
 
@@ -980,7 +980,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def celebrity_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
 
@@ -1032,7 +1032,7 @@ class Friendly(commands.Cog):
     @checks.has_joined()
     @commands.cooldown(1, 60, BucketType.user)
     async def veteran_roles(self, ctx):
-        smmoid = db.get_smmoid(str(ctx.author.id))
+        smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
 
     
@@ -1072,7 +1072,7 @@ class Friendly(commands.Cog):
     @checks.is_verified()
     @commands.cooldown(1, 30, BucketType.member)
     async def mushroom(self, ctx):
-        smmoid = db.get_smmoid(ctx.author.id)
+        smmoid = await db.get_smmoid(ctx.author.id)
         await ctx.send(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
 
     @friendly.command(aliases=['bfc'])
@@ -1210,16 +1210,16 @@ class Friendly(commands.Cog):
                         await ctx.send(f"{total} out of {len(members)} checked")
 
                     
-                    if db.islinked(member.id):
-                        smmoid = db.get_smmoid(member.id)
+                    if await db.islinked(member.id):
+                        smmoid = await db.get_smmoid(member.id)
 
 
                         if smmoid in allmembers:
                             # Add to database
                             try:
-                                db.fly_add(member.id, smmoid, 0)
+                                await db.fly_add(member.id, smmoid, 0)
                             except:
-                                db.fly_update(member.id, smmoid, 0)
+                                await db.fly_update(member.id, smmoid, 0)
 
                         # Has Friendly role, but not in Friendly.
                         else:
@@ -1265,7 +1265,7 @@ class Friendly(commands.Cog):
     async def give(self, ctx, arg: int, members: commands.Greedy[discord.Member]):
         out = ""
         for member in members:
-            smmoid = db.get_smmoid(str(member.id))
+            smmoid = await db.get_smmoid(member.id)
 
             if smmoid is not None:
                 out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>\n"
@@ -1279,7 +1279,7 @@ class Friendly(commands.Cog):
     async def trade(self, ctx, members: commands.Greedy[discord.Member]):
         out = ""
         for member in members:
-            smmoid = db.get_smmoid(str(member.id))
+            smmoid = await db.get_smmoid(member.id)
 
             if smmoid is not None:
                 out += f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
@@ -1376,7 +1376,7 @@ class Friendly(commands.Cog):
             await ctx.send(embed=embed)
             return  
         
-        smmoid = db.get_smmoid(str(member.id))
+        smmoid = await db.get_smmoid(member.id)
         profile = await api.get_all(smmoid)
         rolesadded = ""
         # Add special roles
@@ -1559,14 +1559,14 @@ class Friendly(commands.Cog):
     async def force_join(self, ctx, member: discord.Member):
         if member._roles.has(fly_roles[19]):
 
-            if not db.in_fly(member.id):
-                smmoid = db.get_smmoid(str(member.id))
+            if not await db.in_fly(member.id):
+                smmoid = await db.get_smmoid(member.id)
                 profile = await api.get_all(smmoid)
                 try:
                     guildid = profile["guild"]["id"]
                 except KeyError as e:
                     return
-                db.fly_add(member.id, smmoid, guildid)
+                await db.fly_add(member.id, smmoid, guildid)
                 await ctx.send("Added to database :P")
                 await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly check_roles` to check for all available Friendly roles\nOr you can run `{ctx.prefix}fly roles` for specific roles")
                 return
@@ -1574,7 +1574,7 @@ class Friendly(commands.Cog):
             await ctx.send("They've already been granted the Friendly role :)")
             return
 
-        smmoid = db.get_smmoid(str(member.id))
+        smmoid = await db.get_smmoid(member.id)
 
         # get guild from profile (get_all())
         profile = await api.get_all(smmoid)
@@ -1586,8 +1586,8 @@ class Friendly(commands.Cog):
 
         # if user is in a fly guild....
         if guildid in fly or member.id == dyl:
-            if not db.in_fly(member.id):
-                db.fly_add(member.id, smmoid, guildid)
+            if not await db.in_fly(member.id):
+                await db.fly_add(member.id, smmoid, guildid)
 
             # if user is in NSF
             if guildid == 541:
@@ -1725,15 +1725,15 @@ class Friendly(commands.Cog):
 
         for member in members:
             total += 1
-            if db.islinked(member.id):
-                smmoid = db.get_smmoid(member.id)
+            if await db.islinked(member.id):
+                smmoid = await db.get_smmoid(member.id)
 
                 if smmoid in allmembers:
                     # Add to database
                     try:
-                        db.fly_add(member.id, smmoid, 0)
+                        await db.fly_add(member.id, smmoid, 0)
                     except:
-                        db.fly_update(member.id, smmoid, 0)
+                        await db.fly_update(member.id, smmoid, 0)
 
                 # Has Friendly role, but not in Friendly.
                 else:
