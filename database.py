@@ -31,7 +31,7 @@ Event_info = Base.classes.event_info
 Warinfo = Base.classes.warinfo
 Smackback = Base.classes.smackback
 
-asyncengine = create_async_engine(config.ASYNC_DATABASE_URL)
+asyncengine = create_async_engine(config.ASYNC_DATABASE_URL, pool_size=10)
 session = sessionmaker(
     asyncengine, expire_on_commit=False, class_=AsyncSession
 )
