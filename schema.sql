@@ -50,7 +50,7 @@ CREATE TABLE "events" (
 CREATE TABLE "event_info" (
   "serial" SERIAL PRIMARY KEY,
   "id" int,
-  "discordid" numeric,
+  "discordid" bigint,
   "starting_stat" int,
   "current_stat" int,
   "last_updated" timestamp

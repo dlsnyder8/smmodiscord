@@ -95,7 +95,7 @@ class Guild(commands.Cog):
             if member["user_id"] == smmoid:
                 if member["position"] == "Leader":
                     # if leader, add role and add info to DB
-                    leaderid = await db.leader_id(ctx.guild.id)
+                    leaderid = (await db.server_config(ctx.guild.id)).leader_role
                     await ctx.author.add_roles(ctx.guild.get_role(leaderid))
                     await ctx.send("You have been verified as a leader.")
                     await db.guild_leader_update(ctx.author.id, True, guildid, smmoid)

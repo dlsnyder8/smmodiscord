@@ -6,7 +6,6 @@ import api
 import database as db
 
 
-
 dyl = 332314562575597579
 
 
@@ -19,10 +18,9 @@ def in_main():
     return commands.check(predicate)
 
 
-
 def has_joined():
     async def predicate(ctx):
-        if db.in_fly(ctx.author.id):
+        if await db.in_fly(ctx.author.id):
             return True
         else:
             await ctx.send(embed=Embed(
@@ -31,16 +29,18 @@ def has_joined():
             ))
             return False
 
-
     return commands.check(predicate)
+
 
 def MI6():
     async def predicate(ctx):
         if ctx.author.id == dyl or ctx.author._roles.has(749919277213155379):
             return True
-        else: return False
+        else:
+            return False
 
     return commands.check(predicate)
+
 
 def in_fly_guild():
     async def predicate(ctx):
@@ -63,9 +63,10 @@ def no_bot_channel():
 
     return commands.check(predicate)
 
+
 def warinfo_linked():
     async def predicate(ctx):
-        if db.warinfo_isadded(ctx.author.id):
+        if await db.warinfo_isadded(ctx.author.id):
             return True
         else:
             await ctx.send(f"If you're linked to the bot and in Friendly, then run `{ctx.prefix}war setup <guildid>`")
@@ -83,13 +84,13 @@ def in_fly():
         else:
             await ctx.send("This command is only available in the Friendly Server")
             return False
-    
+
     return commands.check(predicate)
 
 
 def is_fly_admin():
     async def predicate(ctx):
-        if ctx.author.id == dyl: 
+        if ctx.author.id == dyl:
             return True
         elif ctx.author._roles.has(719789422178205769):
             return True
@@ -97,44 +98,48 @@ def is_fly_admin():
             await ctx.send(f"This command can only be run by Big Friends")
     return commands.check(predicate)
 
+
 def is_owner():
     async def predicate(ctx):
         if(ctx.author.id == dyl):
             return True
-        else: 
-            await ctx.send(
+        else:
+            message = await ctx.send(
                 embed=discord.Embed(
                     title="Not an Admin",
                     description="You must be an administrator to run this command",
                     color=0xff0000
                 )
             )
-            #raise commands.NotOwner()
+
+            await message.delete(delay=10)
             return False
 
-    
     return commands.check(predicate)
+
 
 def is_verified():
     async def predicate(ctx):
-        smmoid = str(db.get_smmoid(ctx.author.id))
-        if not db.is_verified(smmoid):
+        smmoid = await db.get_smmoid(ctx.author.id)
+        if not await db.is_verified(smmoid):
             embed = discord.Embed(
-                title="Not Verified", 
-                description=f"You have not been verified. Run `{ctx.prefix}verify <smmoid>` to start the process", 
+                title="Not Verified",
+                description=f"You have not been verified. Run `{ctx.prefix}verify <smmoid>` to start the process",
                 color=0x00ff00)
 
             await ctx.send(
                 embed=embed
             )
             return False
-        else: return True
+        else:
+            return True
 
     return commands.check(predicate)
 
+
 def is_leader():
     async def predicate(ctx):
-        smmoid = (db.get_smmoid(str(ctx.author.id)))
+        smmoid = (await db.get_smmoid(ctx.author.id))
         # get guild from profile (get_all())
         profile = await api.get_all(smmoid)
         try:
@@ -147,12 +152,12 @@ def is_leader():
         for member in members:
             if member["user_id"] == smmoid:
                 if member["position"] == "Leader":
-                    if db.is_leader(ctx.author.id):
+                    if await db.is_leader(ctx.author.id):
                         return True
                     else:
                         embed = discord.Embed(
-                            title="Not Verified", 
-                            description=f"You have not been verified. Run `{ctx.prefix}g c` if you're a guild leader", 
+                            title="Not Verified",
+                            description=f"You have not been verified. Run `{ctx.prefix}g c` if you're a guild leader",
                             color=0x00ff00)
 
                         await ctx.send(
@@ -165,10 +170,9 @@ def is_leader():
 
         await ctx.send("The code is probably broken. Cry to dyl")
     return commands.check(predicate)
-    
+
+
 def is_guild_banned():
     async def predicate(ctx):
-        return not db.is_banned(ctx.author.id)
+        return not await db.is_banned(ctx.author.id)
     return commands.check(predicate)
-    
-    

@@ -82,12 +82,12 @@ class Diamond(commands.Cog):
             for server in allinfo:
                 try:
 
-                    guild = self.bot.get_guild(int(server[0]))
+                    guild = self.bot.get_guild(server.serverid)
 
-                    channel = self.bot.get_channel(server[2])
-                    role = guild.get_role(server[1])
+                    channel = self.bot.get_channel(server.diamond_channel)
+                    role = guild.get_role(server.diamond_role)
 
-                    plus30min = server[3] + timedelta(minutes=29)
+                    plus30min = server.last_pinged + timedelta(minutes=29)
                     plus30min = pytz.utc.localize(plus30min)
 
                     if plus30min < datetime.now(timezone.utc):
@@ -95,7 +95,7 @@ class Diamond(commands.Cog):
                             await channel.send(content=f"{role.mention}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
                         else:
                             await channel.send(content=f"{role.name}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
-                        await db.update_timestamp(server[0], datetime.now(timezone.utc))
+                        await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
 
                 except Exception as e:
                     await log.log(self.bot, "Diamond Market Fucky", f"Something went wrong with {server[0]},{server[2]},{server[1]}")

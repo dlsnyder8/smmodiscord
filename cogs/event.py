@@ -68,7 +68,7 @@ class Event(commands.Cog):
 
             smmoid = await db.get_smmoid(member[0])
             profile = await api.get_all(smmoid)
-            info = profile[stat_convert[eventinfo[2]]]
+            info = profile[stat_convert[eventinfo.type]]
 
             await db.update_start_stat(eventid, member[0], info)
 
@@ -82,7 +82,7 @@ class Event(commands.Cog):
             if eventinfo is None:
                 await ctx.send("That event id is not valid")
                 return
-            elif eventinfo[4] is True:
+            elif eventinfo.is_ended:
                 await ctx.send("That event has already been ended")
                 return
 

@@ -38,7 +38,6 @@ class Pleb(commands.Cog):
     @pleb.command()
     @checks.is_owner()
     async def whois(self, ctx, *, member: discord.Member):
-
         users = await db.disc_ids(member.id)
         for user in users:
             await ctx.send(f'user: {user.smmoid}, verified: {user.verified}')
@@ -61,7 +60,7 @@ class Pleb(commands.Cog):
         smmoid = args[0]
 
         try:
-            int(smmoid)
+            smmoid = int(smmoid)
         except:
             await ctx.send("Argument must be a number")
             return
@@ -93,7 +92,7 @@ class Pleb(commands.Cog):
                     await ctx.send('You are now verified! You can remove the verification key from your motto.')
                 if ispleb:
 
-                    plebid = await db.pleb_id(guild.id)
+                    plebid = (await db.server_config(guild.id)).pleb_role
                     print("plebid is:", plebid)
                     await ctx.author.add_roles(guild.get_role(int(plebid)))
 

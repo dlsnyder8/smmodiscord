@@ -71,7 +71,7 @@ class CommandErrorHandler(commands.Cog):
                 errorembed = discord.Embed(title="Slow your roll",
                                            description=f"You're on a cooldown. Please try again in {error.retry_after:.2f} Second(s)!")
                 message = await ctx.send(embed=errorembed)
-                await message.delete(delay=5)
+                await message.delete(delay=error.retry_after)
                 await ctx.message.delete(delay=5)
 
             else:
@@ -83,19 +83,26 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.send("Bot does not have enough permissions to perform that action")
 
-        elif isinstance(error, discord.HTTPException):
-            await ctx.send(f"HTTP Exception:\n{error.text}")
-
-        elif isinstance(error, discord.Forbidden):
-            await ctx.send(f"Discord doesn't let that happen")
-
         elif isinstance(error, commands.CommandInvokeError):
-            logger.error(
-                f"{error.original.__class__.__name__}: {error.original} (In {ctx.command.name})\n"
-                f"Traceback:\n{''.join(traceback.format_tb(error.original.__traceback__))}"
-            )
+            error = error.original
+
+            if isinstance(error, discord.Forbidden):
+
+                await ctx.send(f"Discord doesn't let that happen")
+                return
+
+            if isinstance(error, discord.HTTPException):
+                await ctx.send(f"HTTP Exception:\n{error.text}")
+                return
             try:
-                await errorlog(self.bot, embed=Embed(title=f"Something has fucked up.", description=f"{error.original}"))
+                logger.error(
+                    f"{error.__class__.__name__}: {error} (In {ctx.command.name})\n"
+                    f"Traceback:\n{''.join(traceback.format_tb(error.__traceback__))}"
+                )
+            except:
+                pass
+            try:
+                await errorlog(self.bot, embed=Embed(title=f"Something has fucked up.", description=f"Run by {ctx.author.mention} in channel {ctx.channel.mention}:\n{error}"))
             except discord.HTTPException:
                 await errorlog(self.bot, embed=Embed(title="Big Uwu fucky", description="Description too big, but something really fucked up"))
             await ctx.send("Something has gone pretty hecking bad. Contact Dyl asap")
@@ -106,14 +113,12 @@ class CommandErrorHandler(commands.Cog):
             # embed.add_field("Status", error.status)
             # embed.add_field("Discord Code",error.code)
             # embed.add_field("Error",str(dir(error)))
-            print(dir(error))
-            print(error.__traceback__)
             await errorlognoping(self.bot, embed)
 
             # await ctx.send(embed=discord.Embed(title="Error",description='Ignoring exception in command {}:'.format(ctx.command)))
             # await ctx.send(embed=discord.Embed(title="Traceback",description=traceback.format_exc()))
-            traceback.print_exception(
-                type(error), error, error.__traceback__, file=sys.stderr)
+            # traceback.print_exception(
+            #     type(error), error, error.__traceback__, file=sys.stderr)
 
 
 def setup(bot):
