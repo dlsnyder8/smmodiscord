@@ -58,9 +58,12 @@ class Admin(commands.Cog):
         await ctx.send(line)
 
     @commands.command()
-    async def supporters(self, ctx):
+    async def supporters(self, ctx, delete: bool = True):
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
 
-        await ctx.message.delete()
         async with aiofiles.open("assets/supporters.txt", mode='r') as f:
             content = await f.read()
 
@@ -79,7 +82,9 @@ class Admin(commands.Cog):
 
         if desc != "":
             embed.add_field(name="⠀", value=desc)
-            await ctx.send(embed=embed)
+            msg = await ctx.send(embed=embed)
+            if delete:
+                await msg.delete(delay=15)
 
     @commands.command()
     @checks.is_owner()
