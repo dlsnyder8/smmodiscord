@@ -41,6 +41,8 @@ class Pleb(commands.Cog):
         users = await db.disc_ids(member.id)
         for user in users:
             await ctx.send(f'user: {user.smmoid}, verified: {user.verified}')
+            return
+        await ctx.send("No account connected")
 
     @commands.guild_only()
     @commands.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]")
@@ -78,8 +80,11 @@ class Pleb(commands.Cog):
         key = await db.verif_key(smmoid, ctx.author.id)
         if(key is not None):
 
-            motto = await api.get_motto(smmoid)
-            ispleb = await api.pleb_status(smmoid)
+            profile = await api.get_all(smmoid)
+            motto = profile['motto']
+            ispleb = profile['membership'] == 1
+            # motto = await api.get_motto(smmoid)
+            # ispleb = await api.pleb_status(smmoid)
 
             if motto is None:
                 await ctx.send(f'Something went wrong. Please contact <@{dyl}> on Discord for help')
@@ -101,7 +106,7 @@ class Pleb(commands.Cog):
 
                 return
 
-            await ctx.send(f'Verification Failed. Your verification key is: `{key}`')
+            await ctx.reply(f"Verification Failed. You are trying to connect your account to {profile['name']}. Your verification key is: `{key}`")
             await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
             return
 
@@ -113,7 +118,7 @@ class Pleb(commands.Cog):
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
                 await db.update_pleb(smmoid, ctx.author.id, key)
-                await ctx.send(f'Verification Failed. Your verification key is: `{key}`')
+                await ctx.reply(f'Your new verification key is: `{key}`')
                 await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
                 return
 
@@ -124,7 +129,7 @@ class Pleb(commands.Cog):
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
                 await db.add_new_pleb(smmoid, ctx.author.id, key)
-                await ctx.send(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                await ctx.reply(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
                 return
 
 
