@@ -1,3 +1,3 @@
-[submodule "smmo-lib"]
-	path = smmo-lib
-	url = git@github.com:dlsnyder8/smmo-lib.git
+[submodule "smmolib"]
+	path = smmolib
+	url = git@github.com:dlsnyder8/smmolib.git
