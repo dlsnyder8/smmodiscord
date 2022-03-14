@@ -13,7 +13,6 @@ certifi==2020.12.5
 chardet==3.0.4
 charset-normalizer==2.0.12
 croniter==1.0.15
-discord.py==1.7.3
 dpymenus==2.1.5
 emoji==1.6.1
 flake8==4.0.1
