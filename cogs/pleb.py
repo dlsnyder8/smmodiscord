@@ -2,11 +2,11 @@ import discord
 from discord.ext import commands, tasks
 from discord import Embed
 from discord.utils import get
-from util import checks
-import database as db
+from smmolib import checks
+from smmolib import database as db
 import random
 import string
-import api
+from smmolib import api
 import logging
 
 logger = logging.getLogger('discord')

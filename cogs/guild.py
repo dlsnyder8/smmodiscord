@@ -1,11 +1,7 @@
 import discord
-from discord.ext import commands, tasks
-from discord.utils import get
-from util import checks
-import database as db
-import random
-import string
-import api
+from discord.ext import commands
+from smmolib import checks, api
+from smmolib import database as db
 import logging
 
 logger = logging.getLogger('__name__')

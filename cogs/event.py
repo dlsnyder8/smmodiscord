@@ -1,10 +1,10 @@
 import discord
 from discord import Embed
 from discord.ext import commands, tasks
-from util import checks, log
-import api
 import logging
-import database as db
+from smmolib import checks, log, api
+from smmolib import database as db
+
 
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.INFO)
