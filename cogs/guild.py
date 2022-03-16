@@ -1,8 +1,9 @@
 import discord
-from discord.ext import commands
-from smmolib import checks, api
+from discord.ext import commands, tasks
+from smmolib import checks, api, log
 from smmolib import database as db
 import logging
+import asyncio
 
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.INFO)
@@ -12,10 +13,13 @@ handler.setFormatter(logging.Formatter(
     '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+server = 444067492013408266
+
 
 class Guild(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.update_all_guilds.start()
 
     @checks.is_verified()
     @checks.in_main()
@@ -268,6 +272,104 @@ class Guild(commands.Cog):
 
         await ctx.send(f'It looks like `{roleid}` is not in this server. Please try again')
         return
+
+    @commands.command(hidden=True)
+    @checks.is_owner()
+    async def guildcheck(self, ctx=None):
+
+        await log.log(self.bot, "Guild Check Started", "")
+
+        if(ctx is not None):
+            await ctx.send("Guild check starting...")
+
+        guild = self.bot.get_guild(int(server))
+        config = await db.server_config(server)
+        leaderrole = guild.get_role(config.leader_role)
+        ambassadorrole = guild.get_role(config.ambassador_role)
+
+        ambassadors = await db.all_ambassadors()
+        leaders = await db.all_leaders()
+
+        # discid, smmoid, guildid
+        for leader in leaders:
+            await asyncio.sleep(0.5)
+            discid = int(leader[0])
+            lsmmoid = int(leader[1])
+            guildid = int(leader[2])
+
+            # get any guild ambassadors in that guild
+            guildambs = [x for x in ambassadors if x[2] == guildid]
+
+            # check leader in guild
+            members = await api.guild_members(guildid)
+
+            # get leader from member list
+            try:
+                gLeader = [x for x in members if x["position"] == "Leader"]
+            except Exception as e:
+                print("members:", members)
+                # if the guild has been disbanded, remove leader + any guild ambassadors
+                if(members["error"] == "guild not found"):
+                    user = guild.get_member(discid)
+                    if user is not None:
+                        print(
+                            f"{user.name} is not a leader because guild {guildid} has been deleted.")
+                        # if not leader, remove role and update db
+                        await user.remove_roles(leaderrole)
+                    await db.guild_leader_update(discid, False, 0, 0)
+
+                    if len(guildambs) > 0:
+                        for amb in guildambs:
+                            user = guild.get_member(amb.discid)
+                            if user is not None:
+                                print(
+                                    f"{user.name} is not an ambassador because guild {guildid} has been deleted.")
+                                await user.remove_roles(ambassadorrole)
+                            await db.guild_ambassador_update(amb.disc, False, 0)
+                    continue
+
+            # if current leader is not one w/ role, remove leader + ambassadors
+            if int(gLeader[0]["user_id"]) != lsmmoid:
+                user = guild.get_member(discid)
+                if user is not None:
+                    print(f"{user.name} is not a leader")
+                    # if not leader, remove role and update db
+                    await user.remove_roles(leaderrole)
+                await db.guild_leader_update(discid, False, 0, 0)
+
+                if len(guildambs) > 0:
+                    for amb in guildambs:
+                        user = guild.get_member(int(amb.discid))
+                        if user is not None:
+                            print(f"{user.name} is not an ambassador")
+                            await user.remove_roles(ambassadorrole)
+                        await db.guild_ambassador_update(amb.discid, False, 0)
+                continue
+
+            # if gleader is person w/ role, check ambassadors to see if they're in guild
+            else:
+                if len(guildambs) > 0:
+                    for amb in guildambs:
+                        # if ambassador is not in members list
+                        if len([x for x in members if int(x["user_id"]) == int(amb[1])]) == 0:
+                            user = guild.get_member(int(amb[0]))
+                            if user is not None:
+                                print(f"{user.name} is not an ambassador")
+
+                                await user.remove_roles(ambassadorrole)
+                            await db.guild_ambassador_update(amb[0], False, 0)
+
+        if(ctx is not None):
+            await ctx.send("Guild Check has finished.")
+
+    @tasks.loop(hours=4)
+    async def update_all_guilds(self):
+        await self.guildcheck()
+        return
+
+    @update_all_guilds.before_loop
+    async def before_guilds(self):
+        await self.bot.wait_until_ready()
 
 
 def setup(bot):
