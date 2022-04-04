@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 from discord import Embed
 from discord.utils import get
-from smmolib import checks
+from smmolib import checks, log
 from smmolib import database as db
 import random
 import string
