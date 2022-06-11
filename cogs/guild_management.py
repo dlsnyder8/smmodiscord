@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands, tasks
-from smmolib import checks, api, log
-from smmolib import database as db
+import api
+from util import checks, log
+import database as db
 import logging
 import asyncio
 
@@ -329,7 +330,7 @@ class Guild(commands.Cog):
                     continue
 
             # if current leader is not one w/ role, remove leader + ambassadors
-            if int(gLeader[0]["user_id"]) != lsmmoid:
+            if int(gLeader["user_id"]) != lsmmoid:
                 user = guild.get_member(discid)
                 if user is not None:
                     print(f"{user.name} is not a leader")
