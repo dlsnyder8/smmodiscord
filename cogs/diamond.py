@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands, tasks
 from discord import Embed
-from smmolib import checks, log, api
-from smmolib import database as db
+import api
+import database as db
+from util import checks, log
 import logging
 from datetime import datetime, timezone, timedelta
 from dateutil import parser
