@@ -2,11 +2,11 @@ import discord
 from discord.ext import commands, tasks
 from discord import Embed
 from discord.utils import get
-from smmolib import checks, log
-from smmolib import database as db
+from util import checks, log
+import database as db
 import random
 import string
-from smmolib import api
+import api
 import logging
 
 logger = logging.getLogger('discord')
@@ -47,8 +47,8 @@ class Pleb(commands.Cog):
         await ctx.send("No account connected")
 
     @commands.guild_only()
-    @commands.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]")
-    async def verify(self, ctx, *args):
+    @commands.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]", hidden=True)
+    async def verify_dep(self, ctx, *args):
         # needs 1 arg, smmo id
         if len(args) != 1:
             await ctx.send(embed=Embed(title="Verification Process",
