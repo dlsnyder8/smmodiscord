@@ -2,8 +2,9 @@ import discord
 from discord import Embed
 from discord.ext import commands, tasks
 import logging
-from smmolib import checks, log, api
-from smmolib import database as db
+import api
+import database as db
+from util import checks, log
 
 
 logger = logging.getLogger('__name__')
@@ -27,7 +28,7 @@ class Event(commands.Cog):
             pass
 
     @event.command()
-    @checks.MI6()
+    @checks.is_admin()
     async def create(self, ctx, name: str, eventtype: str):
         if eventtype not in self.event_types:
             await ctx.send(embed=Embed(title="Invalid event type", description="Events must be one of the following:\n`step`,`level`,`npc`,`pvp`"))
@@ -43,7 +44,7 @@ class Event(commands.Cog):
             raise e
 
     @event.command()
-    @checks.MI6()
+    @checks.is_admin()
     async def start(self, ctx, eventid):
         stat_convert = {"pvp": "user_kills", "step": "steps",
                         "npc": "npc_kills", "level": "level"}
@@ -75,7 +76,7 @@ class Event(commands.Cog):
         await ctx.send(f"Event {eventid} has started!")
 
     @event.command()
-    @checks.MI6()
+    @checks.is_admin()
     async def end(self, ctx, eventid):
         try:
             eventinfo = await db.event_info(eventid)
@@ -94,12 +95,12 @@ class Event(commands.Cog):
             raise e
 
     @event.command()
-    @checks.is_owner()
+    @checks.is_admin()
     async def cleanup(self, ctx, eventid: int):
         try:
-            eventinfo = await db.event_info(eventid)
+            eventinfo = await db.event_info(eventid, ctx.guild.id)
             if eventinfo is None:
-                await ctx.send("That appears to be an invalid ID")
+                await ctx.send(f"To see a list of events to cleanup, run {ctx.prefix}e finished ")
                 return
             if eventinfo.is_ended is False:
                 await ctx.send(f"You can't cleanup an active event!\n\nIf you want to end an event, run `&event end {eventid}`")
@@ -115,7 +116,7 @@ class Event(commands.Cog):
             raise e
 
     @event.command()
-    @checks.MI6()
+    @checks.is_admin()
     async def results(self, ctx, eventid: int):
         translation = {"pvp": "PvP Kills", "step": "Steps",
                        "npc": "NPC Kills", "level": "Levels"}
@@ -137,7 +138,7 @@ class Event(commands.Cog):
         await ctx.send(embed=embed)
 
     @event.command()
-    @checks.MI6()
+    @checks.is_admin()
     async def guild_only(self, ctx, eventid: int, boolean: bool):
         try:
             await db.event_guild_only(eventid, boolean)
@@ -150,14 +151,13 @@ class Event(commands.Cog):
             raise e
 
     @event.command()
-    @checks.in_fly()
     @checks.is_verified()
     async def stat(self, ctx, eventid=None):
 
         translation = {"pvp": "PvP Kills", "step": "Steps",
                        "npc": "NPC Kills", "level": "Levels"}
 
-        active_events = await db.active_events()
+        active_events = await db.active_events(ctx.guild.id)
         if len(active_events) == 1:
             eventid = active_events[0].id
 
@@ -188,26 +188,32 @@ class Event(commands.Cog):
         await ctx.send(embed=embed)
 
     @event.command()
-    @checks.MI6()
+    @checks.is_admin()
     async def participants(self, ctx, eventid=None):
         if eventid is None:
             await ctx.send("You must specify an event ID.")
             return
         else:
-            participants = await db.get_participants(eventid)
+            participants = await db.get_participants(eventid, ctx.guild.id)
+            if participants is None:
+                await ctx.send(embed=Embed(
+                    title="Not a valid eventid",
+                    description=f"To see a list of events for this server, you can run {ctx.prefix}e joinable_events"
+                ))
+                return
             await ctx.send(embed=Embed(title="Number of Participants", description=f"There are {len(participants)} people particpating in this event."))
             return
 
-    @event.command()
+    @event.command(aliases=['signup'])
     @checks.in_fly()
     @checks.is_verified()
     async def join(self, ctx, eventid=None):
-        active_events = await db.available_events()
-        eventinfo = await db.event_info(eventid)
+        active_events = await db.available_events(ctx.guild.id)
+        eventinfo = await db.event_info(eventid, ctx.guild.id)
         tempid = eventid
 
         # If they've joined it before, error
-        if await db.has_joined(eventid, ctx.author.id) and eventid is not None:
+        if await db.has_joined(eventid, ctx.guild.id, ctx.author.id) and eventid is not None:
             await ctx.send(f"You have already joined event {eventinfo.name}")
             return
 
@@ -219,16 +225,11 @@ class Event(commands.Cog):
                 await ctx.send(f"This event has come and gone. You cannot join it anymore")
                 return
             try:
-
-                # if eventinfo[3]:
-                #     await ctx.send(f"This event has already started")
-                #     return
-
-                # If for friendly only...
-                if eventinfo.friendly_only and not ctx.author._roles.has(710315282920636506):
+                data = await db.server_config(ctx.guild.id)
+                if eventinfo.guild_only and not ctx.author._roles.has(data.guild_role):
                     await ctx.send(f"This event is only for Friendly members.")
                     return
-                await db.join_event(eventid, ctx.author.id)
+                await db.join_event(eventid, ctx.guild.id, ctx.author.id)
                 if eventinfo.is_started:
                     stat_convert = {
                         "pvp": "user_kills", "step": "steps", "npc": "npc_kills", "level": "level"}
@@ -304,11 +305,25 @@ class Event(commands.Cog):
         embed.description = string
         await ctx.send(embed=embed)
 
+    @event.command(aliases=['finished'])
+    @checks.is_admin()
+    async def finished_events(self, ctx):
+
+        events = await db.finished_events(ctx.guild.id)
+        if events is None:
+            await ctx.reply("There are no events to clean up")
+            return
+        string = ""
+        for event in events:
+            string += f"**{event.name}:** {event.type} event with id: {event.id}\n"
+
+        await ctx.send(embed=Embed(title="Events to clean up", description=string))
+
     @event.command(aliases=['active'])
-    @checks.in_fly()
+    @checks.is_verified()
     async def active_events(self, ctx):
 
-        events = await db.active_events()
+        events = await db.active_events(ctx.guild.id)
         string = ""
         for event in events:
             string += f"**{event.name}:** {event.type} event with id: {event.id}\n"
@@ -319,7 +334,7 @@ class Event(commands.Cog):
             await ctx.send(embed=Embed(title="Active Events", description=string))
 
     @event.command(aliases=['joinable'])
-    @checks.in_fly()
+    @checks.is_verified()
     async def joinable_events(self, ctx):
 
         events = await db.available_events()
