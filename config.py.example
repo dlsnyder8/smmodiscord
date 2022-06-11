@@ -1,2 +1,17 @@
 TOKEN = ""
 DEV_TOKEN = ""
+
+API_KEY = ""
+
+
+DATABASE_URL = "postgresql://<Fill in Here>"
+ASYNC_DATABASE_URL = "postgresql+asyncpg://<Fill In Here>"
+
+API_KEYS = ["",
+            "",
+            "",
+            "",
+            "",
+            ""]
+
+special_cogs= ["","",""]
