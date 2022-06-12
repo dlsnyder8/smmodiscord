@@ -115,7 +115,7 @@ def is_fly_admin():
 
 def server_configured():
     async def predicate(ctx):
-        if db.server_added(ctx.guild.id):
+        if await db.server_added(ctx.guild.id):
             return True
 
         message = await ctx.send(f"This server is not initialized. Contact a server admin about this or run `{ctx.prefix}config init` to setup the server if you are an admin")
