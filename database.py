@@ -772,14 +772,24 @@ async def has_joined(eventid: int, discordid):
             await con.rollback()
             raise e
 
+
+async def valid_event(eventid: int, server: int):
+    async with session() as con:
+        try:
+            valid = (await con.execute(select(Events).filter_by(id=int(eventid)))).fetchone()
+            return False if valid is None else True
+        except Exception as e:
+            await con.rollback()
+            raise e
+
 # Returns a list of Event_info objects
 # If eventid is not valid, returns an empty list
 
 
-async def get_participants(eventid: int, server: int):
+async def get_participants(eventid: int):
     async with session() as con:
         try:
-            valid = (await con.execute(select(Events).filter_by(id=int(eventid), serverid=server))).fetchone()
+            valid = (await con.execute(select(Events).filter_by(id=int(eventid)))).fetchone()
             if not valid:
                 return None
         except Exception as e:

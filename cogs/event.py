@@ -49,11 +49,15 @@ class Event(commands.Cog):
     async def start(self, ctx, eventid):
         stat_convert = {"pvp": "user_kills", "step": "steps",
                         "npc": "npc_kills", "level": "level"}
+        valid = await db.valid_event(eventid, ctx.guild.id)
+        if valid is False:
+            await ctx.send("Invalid event ID")
+            return
         try:
             await db.start_event(eventid, ctx.guild.id)
             eventinfo = await db.event_info(eventid, ctx.guild.id)
 
-            members = await db.get_participants(eventid, ctx.guild.id)
+            members = await db.get_participants(eventid)
             if members is None:
                 await ctx.send("That is not a valid ID")
                 return
@@ -122,10 +126,15 @@ class Event(commands.Cog):
     @event.command()
     @checks.is_admin()
     async def results(self, ctx, eventid: int):
+        valid = await db.valid_event(eventid, ctx.guild.id)
+        if valid is False:
+            await ctx.send("Invalid event ID")
+            return
+
         translation = {"pvp": "PvP Kills", "step": "Steps",
                        "npc": "NPC Kills", "level": "Levels"}
 
-        participants = await db.get_participants(eventid, ctx.guild.id)
+        participants = await db.get_participants(eventid)
         if len(participants) == 0 or participants is None:
             await ctx.send("That doesn't appear to be a valid event id")
             return
@@ -195,19 +204,25 @@ class Event(commands.Cog):
     @event.command()
     @checks.is_admin()
     async def participants(self, ctx, eventid=None):
+
         if eventid is None:
             await ctx.send("You must specify an event ID.")
             return
-        else:
-            participants = await db.get_participants(eventid, ctx.guild.id)
-            if participants is None:
-                await ctx.send(embed=Embed(
-                    title="Not a valid eventid",
-                    description=f"To see a list of events for this server, you can run {ctx.prefix}e joinable_events"
-                ))
-                return
-            await ctx.send(embed=Embed(title="Number of Participants", description=f"There are {len(participants)} people particpating in this event."))
+
+        valid = await db.valid_event(eventid, ctx.guild.id)
+        if valid is False:
+            await ctx.send("Invalid event ID")
             return
+
+        participants = await db.get_participants(eventid)
+        if participants is None:
+            await ctx.send(embed=Embed(
+                title="Not a valid eventid",
+                description=f"To see a list of events for this server, you can run {ctx.prefix}e joinable_events"
+            ))
+            return
+        await ctx.send(embed=Embed(title="Number of Participants", description=f"There are {len(participants)} people particpating in this event."))
+        return
 
     @event.command(aliases=['signup'])
     @checks.is_verified()
@@ -284,6 +299,11 @@ class Event(commands.Cog):
     @event.command(aliases=['lb'])
     @checks.is_verified()
     async def leaderboard(self, ctx, eventid: int):
+        valid = await db.valid_event(eventid, ctx.guild.id)
+        if valid is False:
+            await ctx.send("Invalid event ID")
+            return
+
         translation = {"pvp": "PvP Kills", "step": "Steps",
                        "npc": "NPC Kills", "level": "Levels"}
 
@@ -374,7 +394,7 @@ class Event(commands.Cog):
 
         for event in all_events:
 
-            participants = await db.get_participants(event.id, server)
+            participants = await db.get_participants(event.id)
 
             for participant in participants:
 
