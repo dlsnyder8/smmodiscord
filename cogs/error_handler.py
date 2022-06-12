@@ -112,7 +112,7 @@ class CommandErrorHandler(commands.Cog):
                 await errorlog(self.bot, embed=Embed(title=f"Something has fucked up.", description=f"Run by {ctx.author.mention} in channel {ctx.channel.mention}:\n{error}"))
             except discord.HTTPException:
                 await errorlog(self.bot, embed=Embed(title="Big Uwu fucky", description="Description too big, but something really fucked up"))
-            await ctx.send("Something has gone pretty hecking bad. Contact Dyl asap")
+            # await ctx.send("Something has gone pretty hecking bad. Contact Dyl asap")
             raise error
 
         else:
