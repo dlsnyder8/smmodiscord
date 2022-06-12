@@ -124,6 +124,16 @@ def server_configured():
     return commands.check(predicate)
 
 
+def premium_server():
+    async def predicate(ctx):
+        if await db.premium_server(ctx.guild.id):
+            return True
+        else:
+            await ctx.send(f"This is a premium only command. Interested in learning more? -> `{ctx.prefix}premium`")
+            return False
+    return commands.check(predicate)
+
+
 def is_owner():
     async def predicate(ctx):
         if(ctx.author.id == dyl):

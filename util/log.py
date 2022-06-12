@@ -1,6 +1,7 @@
 import discord
 import logging
 from datetime import datetime, timezone
+import database as db
 
 
 logger = logging.getLogger('__name__')
@@ -56,6 +57,32 @@ async def flylog(bot, title: str, desc: str, userid):
     )
     embed.set_footer(text=f"ID: {userid}")
     await channel.send(embed=embed)
+
+
+async def server_log(bot, guildid, title: str, desc: str, id=None):
+    config = await db.server_config(guildid)
+    channel = bot.get_channel(config.log_channel)
+
+    embed = discord.Embed(title=title, description=desc,
+                          timestamp=datetime.now(timezone.utc), color=0xff84ef)
+
+    if id is not None:
+        embed.set_footer(text=f"ID: {id}")
+
+    try:
+        await channel.send(embed=embed)
+    except discord.HTTPException:
+        pass
+
+
+async def server_log_embed(bot, guildid, embed):
+    config = await db.server_config(guildid)
+    channel = bot.get_channel(config.log_channel)
+
+    try:
+        await channel.send(embed=embed)
+    except discord.HTTPException:
+        pass
 
 
 async def errorlog(bot, embed):

@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import Embed
 from util import checks, log
 import api
@@ -159,10 +159,10 @@ class Guilds(commands.Cog):
     async def join(self, ctx):
         config = await db.server_config(ctx.guild.id)
         if config.guild_role is None:
-            await ctx.send("The guild role for this server has not been set up")
+            await ctx.send("The guild role for this server has not been set up. Please contact an administrator on this server")
         if ctx.author._roles.has(config.guild_role):
 
-            await ctx.send("You've already been granted the Friendly role :)")
+            await ctx.send(f"You've already been granted the {config.guild_name} role :)")
             return
 
         smmoid = await db.get_smmoid(ctx.author.id)
@@ -176,37 +176,75 @@ class Guilds(commands.Cog):
             return
 
         # if user is in a fly guild....
-        if guildid in fly or ctx.author.id == dyl:
+        if guildid in config.guilds or ctx.author.id == dyl:
 
             roles_given = ""
-            try:
-                ingamename = profile["name"]
-            except Exception as e:
-                await ctx.send(e)
 
             # add fly role
-            await ctx.author.add_roles(ctx.guild.get_role(fly_roles[19]))
-            await ctx.author.add_roles(ctx.guild.get_role(traveler))
-            await ctx.author.remove_roles(ctx.guild.get_role(acquaintance))
-            await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly eligibility` (`{ctx.prefix}f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
-            roles_given += f"<@&{fly_roles[19]}>"
-            # if user is in NSF
-            if guildid == 541:
-                nsf_role = ctx.guild.get_role(783930500732551219)
-                await ctx.author.add_roles(nsf_role)
-                roles_given += f" ,<@&783930500732551219>"
+            await ctx.author.add_roles(ctx.guild.get_role(config.guild_role))
+            await ctx.author.remove_roles(ctx.guild.get_role(config.non_guild_role))
+            roles_given += f"<@&{config.guild_role}>"
 
-            await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {ctx.author.mention}\n{roles_given}", ctx.author.id)
-            await self.bot.get_channel(934284308112375808).send(embed=Embed(title="Beginning of year stats", description=f'{profile}'))
-            channel = self.bot.get_channel(728355657283141735)
+            await log.server_log(self.bot, ctx, title="User has joined the guild", desc=f"**Roles given to** {ctx.author.mention}\n{roles_given}", id=ctx.author.id)
+            channel = self.bot.get_channel(config.welcome_channel)
             if ctx.author.id != dyl:
-                await channel.send(f"Welcome {ctx.author.mention} to the Friendliest guild in SimpleMMO!")
-
-            await ctx.send(f"{self.bot.get_user(581061608357363712).mention}\n ;adminlink {ctx.author.id} {smmoid}")
+                try:
+                    await channel.send(f"Welcome {ctx.author.mention} to the {config.guild_name} guild!")
+                except discord.HTTPException:
+                    pass
 
         else:
-            await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
+            await ctx.send("You are not in the guild. If you think this is a mistake, try contacting your guild leader")
             return
+
+    @tasks.loop(hours=4)
+    async def guild_member_check(self):
+        ignored_servers = [710258284661178418]
+        await log.log(self.bot, "Guild Member Check Started", " ")
+
+        allservers = await db.all_servers()
+        filtered = [x for x in allservers if x.guild_role is not None]
+
+        for server in filtered:
+            if server.serverid in ignored_servers:
+                continue
+
+            guilds = server.guilds
+            allmembers = []
+
+            
+            for x in guilds:
+                allmembers.append(x['user_id'] for x in (await api.guild_members(x, server.api_token)))
+
+            guild = self.bot.get_guild(server.serverid)
+            guild_role = guild.get_role(server.guild_role)
+            non_guild_role = guild.get_role(server.non_guild_role)
+
+            if guild_role is None:
+                log.server_log(self.bot, server.serverid, title="Guild Member Check Failed",
+                               desc="It appears that my config is wrong and I cannot find the guild role")
+                continue
+
+            removed = []
+            for member in guild_role.members:
+                if await db.islinked(member.id):
+                    smmoid = await db.get_smmoid(member.id)
+                    if smmoid not in allmembers:
+                        removed.append(f"{member.mention}")
+                        await member.remove_roles(guild_role, reason="User has left the guild")
+                        if non_guild_role is not None:
+                            await member.add_roles(non_guild_role)
+            if len(removed) > 0:
+                embed = Embed(
+                    title="Users with the guild role removed"
+                )
+                splitUsers = [removed[i:i+33]
+                              for i in range(0, len(removed), 33)]
+
+                for split in splitUsers:
+                    embed.add_field(name="Users", value=' '.join(split))
+
+                await log.server_log_embed(self.bot, server.serverid, embed)
 
 
 def setup(bot):

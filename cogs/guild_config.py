@@ -41,7 +41,8 @@ class Config(commands.Cog):
                                 Guild Name: {data.guild_name}
                                 Premium: {data.premium}
                                 Guilds: {data.guilds}
-                                Logging Channel: <#{data.log_channel}>"""
+                                Logging Channel: <#{data.log_channel}>
+                                Welcome Channel: <#{data.welcome_channel}>"""
 
             embed.add_field(name="Want to change these?",
                             value=f"Run `{ctx.prefix}config options` to see a list of commands to change these values")
@@ -87,6 +88,7 @@ class Config(commands.Cog):
     @checks.is_admin()
     @checks.is_verified()
     @checks.server_configured()
+    @checks.premium_server()
     async def diamonds(self, ctx, active: bool = False, role: discord.Role = None, channel: discord.TextChannel = None):
         if active is False:
             await db.enable_diamond_ping(ctx.guild.id)
@@ -101,7 +103,7 @@ class Config(commands.Cog):
             await db.add_diamond_channel(ctx.guild.id, channel.id)
             await db.add_diamond_role(ctx.guild.id, role.id)
 
-            await ctx.send(embed=Embed("Updated", f"Channel: {channel.mention}\nRole: {role.mention}"))
+            await ctx.send(embed=Embed(title="Updated", description=f"Channel: {channel.mention}\nRole: {role.mention}"))
 
     @config.command()
     @checks.is_admin()
@@ -123,7 +125,11 @@ class Config(commands.Cog):
     @checks.is_admin()
     @checks.is_verified()
     @checks.server_configured()
-    async def api_token(self, ctx, token: str):
+    async def api_token(self, ctx, token: str = None):
+        if token is None:
+            await db.update_token(ctx.guild.id, None)
+            await ctx.send("Token deleted")
+            return
         token_id = await api.me(token)
         if token_id is None:
             await ctx.reply("This is not a valid API Token")
@@ -154,7 +160,7 @@ class Config(commands.Cog):
     @checks.is_verified()
     @checks.server_configured()
     async def guilds(self, ctx, guilds: commands.Greedy[int]):
-        if len(guilds < 1):
+        if len(guilds) < 1:
             await ctx.send("You must specify at least 1 guild. If you're having issues, you may need to remove any punctuation between numbers")
             return
 
@@ -162,8 +168,11 @@ class Config(commands.Cog):
             if guild < 1:
                 await ctx.send(f"{guild} is an invalid ID")
                 return
+        if not all([isinstance(item, int) for item in guilds]):
+            await ctx.send("One of the supplied guilds is not a valid number")
+            return
 
-        await db.update_guilds(guilds)
+        await db.update_guilds(ctx.guild.id, guilds)
         await ctx.send(f"{guilds} have been added to your config")
 
     @config.command()
@@ -182,7 +191,7 @@ class Config(commands.Cog):
     async def welcome(self, ctx, channel: discord.TextChannel):
         await db.update_welcome(ctx.guild.id, channel.id)
 
-        await ctx.send(f"logs will now be sent to {channel.mention}")
+        await ctx.send(f"Welcome messages will now be sent to {channel.mention}")
 
 
 def setup(bot):
