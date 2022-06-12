@@ -23,6 +23,7 @@ class Event(commands.Cog):
         self.stat_update.start()
 
     @commands.group(aliases=['e'], hidden=True)
+    @checks.server_configured()
     async def event(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
@@ -49,13 +50,16 @@ class Event(commands.Cog):
         stat_convert = {"pvp": "user_kills", "step": "steps",
                         "npc": "npc_kills", "level": "level"}
         try:
-            await db.start_event(eventid)
-            eventinfo = await db.event_info(eventid)
+            await db.start_event(eventid, ctx.guild.id)
+            eventinfo = await db.event_info(eventid, ctx.guild.id)
 
-            members = await db.get_participants(eventid)
+            members = await db.get_participants(eventid, ctx.guild.id)
+            if members is None:
+                await ctx.send("That is not a valid ID")
+                return
             if len(members) == 0:
                 await ctx.send("There are no participants for that event. It has been ended automatically")
-                await db.end_event(eventid)
+                await db.end_event(eventid, ctx.guild.id)
                 return
             elif members is None:
                 await ctx.send("The event ID might be incorrect or something brokey")
@@ -67,11 +71,11 @@ class Event(commands.Cog):
 
         for member in members:
 
-            smmoid = await db.get_smmoid(member[0])
+            smmoid = await db.get_smmoid(member.discordid)
             profile = await api.get_all(smmoid)
             info = profile[stat_convert[eventinfo.type]]
 
-            await db.update_start_stat(eventid, member[0], info)
+            await db.update_start_stat(eventid, member.discordid, info)
 
         await ctx.send(f"Event {eventid} has started!")
 
@@ -79,7 +83,7 @@ class Event(commands.Cog):
     @checks.is_admin()
     async def end(self, ctx, eventid):
         try:
-            eventinfo = await db.event_info(eventid)
+            eventinfo = await db.event_info(eventid, ctx.guild.id)
             if eventinfo is None:
                 await ctx.send("That event id is not valid")
                 return
@@ -87,8 +91,8 @@ class Event(commands.Cog):
                 await ctx.send("That event has already been ended")
                 return
 
-            await self.stat_update()
-            await db.end_event(eventid)
+            await self.stat_update(ctx.guild.id)
+            await db.end_event(eventid, ctx.guild.id)
             await ctx.send(f"Event {eventid} has concluded.")
         except Exception as e:
             await ctx.send(embed=Embed(title="Error", description=e))
@@ -121,11 +125,11 @@ class Event(commands.Cog):
         translation = {"pvp": "PvP Kills", "step": "Steps",
                        "npc": "NPC Kills", "level": "Levels"}
 
-        participants = await db.get_participants(eventid)
+        participants = await db.get_participants(eventid, ctx.guild.id)
         if len(participants) == 0 or participants is None:
             await ctx.send("That doesn't appear to be a valid event id")
             return
-        eventinfo = await db.event_info(eventid)
+        eventinfo = await db.event_info(eventid, ctx.guild.id)
         participants.sort(reverse=True, key=lambda x: x[4])
 
         embed = Embed(title=f"Results for {eventinfo[1]}")
@@ -139,9 +143,10 @@ class Event(commands.Cog):
 
     @event.command()
     @checks.is_admin()
+    @checks.server_configured()
     async def guild_only(self, ctx, eventid: int, boolean: bool):
         try:
-            await db.event_guild_only(eventid, boolean)
+            await db.event_guild_only(eventid, ctx.guild.id, boolean)
             if boolean:
                 await ctx.send(f"Event {eventid} has been set to `guild only`")
             else:
@@ -205,15 +210,15 @@ class Event(commands.Cog):
             return
 
     @event.command(aliases=['signup'])
-    @checks.in_fly()
     @checks.is_verified()
+    @checks.server_configured()
     async def join(self, ctx, eventid=None):
         active_events = await db.available_events(ctx.guild.id)
         eventinfo = await db.event_info(eventid, ctx.guild.id)
         tempid = eventid
 
         # If they've joined it before, error
-        if await db.has_joined(eventid, ctx.guild.id, ctx.author.id) and eventid is not None:
+        if eventid is not None and await db.has_joined(eventid, ctx.author.id):
             await ctx.send(f"You have already joined event {eventinfo.name}")
             return
 
@@ -227,9 +232,9 @@ class Event(commands.Cog):
             try:
                 data = await db.server_config(ctx.guild.id)
                 if eventinfo.guild_only and not ctx.author._roles.has(data.guild_role):
-                    await ctx.send(f"This event is only for Friendly members.")
+                    await ctx.send(f"This event is only for Guild members.")
                     return
-                await db.join_event(eventid, ctx.guild.id, ctx.author.id)
+                await db.join_event(eventid, ctx.author.id)
                 if eventinfo.is_started:
                     stat_convert = {
                         "pvp": "user_kills", "step": "steps", "npc": "npc_kills", "level": "level"}
@@ -254,8 +259,8 @@ class Event(commands.Cog):
                 return
             try:
                 # if guild only, check if in guild
-                if active_events[0].friendly_only and not ctx.author._roles.has(710315282920636506):
-                    await ctx.send(f"This event is only for Friendly members.")
+                if active_events[0].guild_only and not ctx.author._roles.has(710315282920636506):
+                    await ctx.send(f"This event is only for Guild members.")
                     return
                 elif await db.has_joined(eventid, ctx.author.id):
                     await ctx.send(f"You've already joined the only active event.")
@@ -277,7 +282,7 @@ class Event(commands.Cog):
             return
 
     @event.command(aliases=['lb'])
-    @checks.in_fly()
+    @checks.is_verified()
     async def leaderboard(self, ctx, eventid: int):
         translation = {"pvp": "PvP Kills", "step": "Steps",
                        "npc": "NPC Kills", "level": "Levels"}
@@ -337,22 +342,22 @@ class Event(commands.Cog):
     @checks.is_verified()
     async def joinable_events(self, ctx):
 
-        events = await db.available_events()
-        flyonly = ""
+        events = await db.available_events(ctx.guild.id)
+        guildonly = ""
         otherevents = ""
 
         for event in events:
-            if event.friendly_only:
-                flyonly += f"**{event.name}:** {event.type} event with id: **{event.id}**\n"
+            if event.guild_only:
+                guildonly += f"**{event.name}:** {event.type} event with id: **{event.id}**\n"
             else:
                 otherevents += f"**{event.name}:** {event.type} event with id: **{event.id}**\n"
 
         embed = Embed(title="Joinable Events",
                       description="Below are events that you can join")
-        if len(flyonly) > 0 or len(otherevents) > 0:
-            if len(flyonly) > 0:
+        if len(guildonly) > 0 or len(otherevents) > 0:
+            if len(guildonly) > 0:
                 embed = embed.add_field(
-                    name="Fly Only Events", value=flyonly, inline=True)
+                    name="Guild Only Events", value=guildonly, inline=True)
             if len(otherevents) > 0:
                 embed = embed.add_field(
                     name="Open Events", value=otherevents, inline=True)
@@ -361,15 +366,15 @@ class Event(commands.Cog):
             await ctx.send(embed=Embed(title="No Joinable Events"))
 
     @tasks.loop(hours=1)
-    async def stat_update(self):
+    async def stat_update(self, server=None):
         await log.log(self.bot, "Task Started", "Events Stats are being updated")
         stat_convert = {"pvp": "user_kills", "step": "steps",
                         "npc": "npc_kills", "level": "level"}
-        all_events = await db.active_events()
+        all_events = await db.active_events(server)
 
         for event in all_events:
 
-            participants = await db.get_participants(event.id)
+            participants = await db.get_participants(event.id, server)
 
             for participant in participants:
 

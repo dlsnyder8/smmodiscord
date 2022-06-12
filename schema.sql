@@ -48,9 +48,9 @@ CREATE TABLE "events" (
   "type" varchar(16),
   "is_started" boolean DEFAULT false,
   "is_ended" boolean default false,
-  "start_time" timestamp,
-  "end_time" timestamp,
-  "guild_only" bool default true,
+  "start_time" timestamp with time zone,
+  "end_time" timestamp with time zone,
+  "guild_only" bool default false,
   "event_role" numeric
 );
 
@@ -72,7 +72,7 @@ CREATE TABLE "warinfo" (
   "max_level" int default 10000,
   "gold_ping" bool default false,
   "gold_amount" numeric default 5000000,
-  "last_pinged" timestamp default null
+  "last_pinged" timestamptz default null
 );
 
 CREATE TABLE "smackback" (

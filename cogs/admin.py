@@ -191,8 +191,6 @@ class Admin(commands.Cog):
         duration = (end - start) * 1000
         await message.edit(content='Pong! {:.2f}ms'.format(duration))
 
-    
-
     @admin.command(hidden=True)
     @checks.is_owner()
     async def set_role(self, ctx, *args):

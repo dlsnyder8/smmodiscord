@@ -666,8 +666,8 @@ async def create_event(serverid: int, name: str, eventtype: str, roleid: int):
 async def start_event(eventid: int, server: int):
     async with session() as con:
         try:
-            await con.execute(update(Events).filter_by(id=eventid, serverid=server).values(
-                {Events.is_started: True, Events.start_time: datetime.now(timezone.utc)}))
+            await con.execute(update(Events).filter_by(id=int(eventid), serverid=server).values(
+                {Events.is_started: True, Events.start_time: datetime.utcnow()}))
             await con.commit()
         except Exception as e:
             await con.rollback()
@@ -677,7 +677,7 @@ async def start_event(eventid: int, server: int):
 async def end_event(eventid: int, server: int):
     async with session() as con:
         try:
-            await con.execute(update(Events).filter_by(id=eventid, serverid=server).values({Events.is_ended: True, Events.end_time: datetime.now(timezone.utc)}))
+            await con.execute(update(Events).filter_by(id=int(eventid), serverid=server).values({Events.is_ended: True, Events.end_time: datetime.utcnow()}))
             await con.commit()
         except Exception as e:
             await con.rollback()
@@ -735,7 +735,7 @@ async def participant_progress(eventid: int, discordid: int, server: int):
 async def event_info(eventid: int, server: int):
     async with session() as con:
         try:
-            return (await con.execute(select(Events).filter_by(id=eventid, serverid=server))).first()[0]
+            return (await con.execute(select(Events).filter_by(id=int(eventid), serverid=server))).first()[0]
 
         except TypeError:
             return None
@@ -747,27 +747,27 @@ async def event_info(eventid: int, server: int):
 async def event_guild_only(eventid: int, server: int, boolean: bool):
     async with session() as con:
         try:
-            await con.execute(update(Events).filter_by(id=eventid, serverid=server).values({Events.friendly_only: boolean}))
+            await con.execute(update(Events).filter_by(id=eventid, serverid=server).values({Events.guild_only: boolean}))
             await con.commit()
         except Exception as e:
             await con.rollback()
             raise e
 
 
-async def join_event(eventid: int, server: int, discordid):
+async def join_event(eventid: int, discordid):
     async with session() as con:
         try:
-            await con.execute(insert(Event_info).values(id=eventid, serverid=server, discordid=discordid))
+            await con.execute(insert(Event_info).values(id=int(eventid), discordid=discordid))
             await con.commit()
         except Exception as e:
             await con.rollback()
             raise e
 
 
-async def has_joined(eventid: int, server: int, discordid):
+async def has_joined(eventid: int, discordid):
     async with session() as con:
         try:
-            return (await con.execute(select(Event_info).filter_by(id=int(eventid), serverid=server, discordid=discordid))).first() is not None
+            return (await con.execute(select(Event_info).filter_by(id=int(eventid), discordid=discordid))).first() is not None
         except Exception as e:
             await con.rollback()
             raise e
@@ -931,7 +931,7 @@ async def rollback():
 async def main():
     # async with engine.begin() as conn:
     # print(await is_verified(3853801))
-    print(await server_config(444067492013408266))
+    print(await has_joined(28, 332314562575597579))
 
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)

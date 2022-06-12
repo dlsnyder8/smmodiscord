@@ -179,7 +179,7 @@ class Config(commands.Cog):
     @checks.is_admin()
     @checks.is_verified()
     @checks.server_configured()
-    async def logging(self, ctx, channel: discord.TextChannel):
+    async def welcome(self, ctx, channel: discord.TextChannel):
         await db.update_welcome(ctx.guild.id, channel.id)
 
         await ctx.send(f"logs will now be sent to {channel.mention}")

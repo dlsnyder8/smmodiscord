@@ -113,6 +113,7 @@ class CommandErrorHandler(commands.Cog):
             except discord.HTTPException:
                 await errorlog(self.bot, embed=Embed(title="Big Uwu fucky", description="Description too big, but something really fucked up"))
             await ctx.send("Something has gone pretty hecking bad. Contact Dyl asap")
+            raise error
 
         else:
             embed = discord.Embed(
