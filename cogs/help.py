@@ -14,8 +14,14 @@ class MyHelp(commands.HelpCommand):
         for cog, commands in mapping.items():
 
             filtered = await self.filter_commands(commands, sort=True)
-            command_signatures = [
-                self.get_command_signature(c) for c in filtered]
+            print(cog)
+            command_signatures = None
+            try:
+                command_signatures = [
+                    self.get_command_signature(c) for c in filtered]
+            except ValueError:
+                print(c)
+                pass
             if command_signatures:
                 cog_name = getattr(cog, "qualified_name", "No Category")
                 embed.add_field(name=cog_name, value="\n".join(
@@ -64,6 +70,5 @@ class Help(commands.Cog):
 
 
 def setup(bot):
-    pass
-    # bot.add_cog(Help(bot))
-    # print("Help Cog Loaded")
+    bot.add_cog(Help(bot))
+    print("Help Cog Loaded")

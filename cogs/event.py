@@ -114,6 +114,7 @@ class Event(commands.Cog):
                 await ctx.send(f"You can't cleanup an active event!\n\nIf you want to end an event, run `&event end {eventid}`")
                 return
             guildrole = ctx.guild.get_role(eventinfo.event_role)
+            await db.cleanup_event(eventid, ctx.guild.id)
             await guildrole.delete(reason="Event ended")
             await ctx.send("Cleanup Concluded")
 
@@ -139,14 +140,17 @@ class Event(commands.Cog):
             await ctx.send("That doesn't appear to be a valid event id")
             return
         eventinfo = await db.event_info(eventid, ctx.guild.id)
-        participants.sort(reverse=True, key=lambda x: x[4])
+        participants.sort(
+            reverse=True, key=lambda x: x.current_stat-x.starting_stat)
 
-        embed = Embed(title=f"Results for {eventinfo[1]}")
+        embed = Embed(title=f"Results for {eventinfo.name}")
         string = ""
         i = 1
         for particpant in participants:
-            string += f"**{i}.** <@{particpant[0]}> - {particpant[4]} {translation[eventinfo[2]]}\n"
+            string += f"**{i}.** <@{particpant.discordid}> - {particpant.current_stat-particpant.starting_stat} {translation[eventinfo.type]}\n"
             i += 1
+
+        # TODO: Deal with string overflow
         embed.description = string
         await ctx.send(embed=embed)
 
@@ -311,7 +315,7 @@ class Event(commands.Cog):
         if participants == []:
             await ctx.send("That doesn't appear to be a valid event id")
             return
-        eventinfo = await db.event_info(eventid)
+        eventinfo = await db.event_info(eventid, ctx.guild.id)
         participants.sort(
             reverse=True, key=lambda x: x.current_stat-x.starting_stat)
 
