@@ -118,6 +118,10 @@ class Admin(commands.Cog):
             await ctx.send("Uh oh")
             raise e
 
+    @commands.command()
+    async def premium(self, ctx):
+        await ctx.send("TODO")
+
     @checks.is_owner()
     @admin.command(hidden=True)
     async def unlink(self, ctx, member: discord.Member):
@@ -184,7 +188,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @checks.is_owner()
-    async def ping(ctx):
+    async def ping(self, ctx):
         start = time.perf_counter()
         message = await ctx.send("Ping...")
         end = time.perf_counter()
