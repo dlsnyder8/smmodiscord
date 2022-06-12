@@ -63,10 +63,12 @@ class Diamond(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def diamond_check(self):
+        print('starting diamond check')
         cheap_diamonds = False
         more_than_200 = False
         string = ""
         listings = await api.diamond_market()
+        listings = [{"price_per_diamond": 1, "diamonds_remaining": 5}]
         embed = Embed(title="Diamonds Under 1.3m")
 
         for listing in listings:
@@ -98,7 +100,7 @@ class Diamond(commands.Cog):
                         await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
 
                 except Exception as e:
-                    await log.log(self.bot, "Diamond Market Fucky", f"Something went wrong with {server[0]},{server[2]},{server[1]}")
+                    await log.log(self.bot, "Diamond Market Fucky", f"Something went wrong with {server.serverid}")
                     await log.log(self.bot, "Diamond Market Fucky", e)
                     pass
 
@@ -108,5 +110,5 @@ class Diamond(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Diamond(bot))
+    # bot.add_cog(Diamond(bot))
     print("Diamond Cog Loaded")
