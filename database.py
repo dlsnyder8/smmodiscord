@@ -123,6 +123,18 @@ async def enable_diamond_ping(serverid, bool=False):
             raise e
 
 
+async def premium_server(serverid):
+    async with session() as con:
+        try:
+            stmt = select(Server).filter_by(serverid=serverid)
+            data = await con.execute(stmt)
+            data = data.fetchone()[0]
+            return data.premium
+        except Exception as e:
+            await con.rollback()
+            raise e
+
+
 async def add_diamond_role(serverid, roleid):
     async with session() as con:
         try:
@@ -186,6 +198,21 @@ async def update_token(serverid, api_token):
 
             stmt = update(Server).filter_by(serverid=serverid).values(
                 {Server.api_token: api_token})
+
+            await con.execute(stmt)
+            await con.commit()
+
+        except Exception as e:
+            await con.rollback()
+            raise e
+
+
+async def update_guilds(serverid, guilds):
+    async with session() as con:
+        try:
+
+            stmt = update(Server).filter_by(serverid=serverid).values(
+                {Server.guilds: guilds})
 
             await con.execute(stmt)
             await con.commit()
@@ -449,7 +476,14 @@ async def ServerInfo(serverid):
 
 
 async def all_servers():
-    return session.query(Server.serverid).all()
+    async with session() as con:
+        try:
+            stmt = select(Server)
+            data = await con.execute(stmt)
+            return [r[0] for r in data.fetchall()]
+        except Exception as e:
+            await con.rollback()
+            raise e
 
 
 async def is_banned(discid):
@@ -684,6 +718,16 @@ async def end_event(eventid: int, server: int):
             raise e
 
 
+async def cleanup_event(eventid: int, server: int):
+    async with session() as con:
+        try:
+            await con.execute(update(Events).filter_by(id=int(eventid), serverid=server).values({Events.event_role: None}))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
+
+
 async def active_events(server: int = None):
     async with session() as con:
         try:
@@ -711,8 +755,13 @@ async def available_events(server: int):
 async def finished_events(server: int):
     async with session() as con:
         try:
-            data = await con.execute(select(Events).filter(Events.is_started == True, Events.is_ended == True, Events.event_role != None, Events.serverid == server))
+            stmt = select(Events).filter(Events.is_started == True, Events.is_ended ==
+                                         True, Events.event_role != None, Events.serverid == server)
+
+            data = await con.execute(stmt)
+
             data = [r[0] for r in data.fetchall()]
+            return data
 
         except Exception as e:
             await con.rollback()
@@ -941,7 +990,7 @@ async def rollback():
 async def main():
     # async with engine.begin() as conn:
     # print(await is_verified(3853801))
-    print(await has_joined(28, 332314562575597579))
+    print(await get_diamond_ping_info())
 
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)

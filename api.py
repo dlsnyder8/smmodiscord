@@ -16,7 +16,7 @@ API_KEY = config.API_KEY
 # Returns SMMO ID of token or None
 
 
-async def me(api_token) -> int:
+async def me(api_token):
     key = {'api_key': api_token}
     url = 'https://api.simple-mmo.com/v1/player/me'
     async with aiohttp.ClientSession() as session:
@@ -227,8 +227,12 @@ async def guild_info(guildid):
                 return None
 
 
-async def guild_members(guildid):
-    key = {"api_key": next(tokens)}
+async def guild_members(guildid, token=None):
+    if token is None:
+        key = {"api_key": next(tokens)}
+    else:
+        key = {"api_key": token}
+
     url = "https://api.simple-mmo.com/v1/guilds/members/" + str(guildid)
     async with aiohttp.ClientSession() as session:
         async with session.post(url, data=key) as ret:
@@ -251,7 +255,7 @@ async def guild_members(guildid):
 
             else:
                 print("Guild Members failed")
-                return None
+                return []
 
 
 def item_info(itemid):
