@@ -2,11 +2,12 @@ import discord
 from discord.embeds import Embed
 from discord.ext import commands, tasks
 from discord.ext.commands.core import guild_only
-from smmolib import checks, log, api
-from smmolib import database as db
+import api
+from util import checks,log
+import database as db
 from discord.ext.commands.cooldowns import BucketType
 import logging
-from smmolib.log import flylog, log, flylog2, flylog3
+from util.log import flylog, log, flylog2, flylog3
 import traceback
 from datetime import datetime, timezone
 from dateutil import parser
@@ -88,10 +89,6 @@ class Friendly(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
 
-    @friendly.command()
-    @checks.is_owner()
-    async def nofly(self, ctx):
-        await ctx.author.remove_roles(ctx.guild.get_role(fly_roles[19]))
 
     @commands.command()
     @checks.in_fly_guild()
@@ -249,19 +246,13 @@ class Friendly(commands.Cog):
             await ctx.send("Here are the guild stats", file=file_csv)
             os.remove('friendly.csv')
 
-    @checks.is_owner()
-    @friendly.command()
-    async def remove(self, ctx, member: discord.Member):
-        try:
-            await db.fly_remove(member.id)
-            await ctx.send("Success!")
-        except Exception as e:
-            await ctx.send(e)
+
 
     @checks.is_verified()
     @commands.command()
     @guild_only()
     @commands.cooldown(1, 60, BucketType.user)
+    @checks.server_configured()
     async def join(self, ctx):
         if ctx.author._roles.has(fly_roles[19]):
 
