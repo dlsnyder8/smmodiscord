@@ -185,7 +185,7 @@ class Guilds(commands.Cog):
             await ctx.author.remove_roles(ctx.guild.get_role(config.non_guild_role))
             roles_given += f"<@&{config.guild_role}>"
 
-            await log.server_log(self.bot, ctx, title="User has joined the guild", desc=f"**Roles given to** {ctx.author.mention}\n{roles_given}", id=ctx.author.id)
+            await log.server_log(self.bot, ctx.guild.id, title="User has joined the guild", desc=f"**Roles given to** {ctx.author.mention}\n{roles_given}", id=ctx.author.id)
             channel = self.bot.get_channel(config.welcome_channel)
             if ctx.author.id != dyl:
                 try:
@@ -212,7 +212,6 @@ class Guilds(commands.Cog):
             guilds = server.guilds
             allmembers = []
 
-            
             for x in guilds:
                 allmembers.append(x['user_id'] for x in (await api.guild_members(x, server.api_token)))
 

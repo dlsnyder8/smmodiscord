@@ -65,7 +65,7 @@ class Diamond(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def diamond_check(self):
-        print('starting diamond check')
+        # print('starting diamond check')
         cheap_diamonds = False
         more_than_200 = False
         string = ""
