@@ -250,7 +250,7 @@ class Event(commands.Cog):
                 return
             try:
                 data = await db.server_config(ctx.guild.id)
-                if eventinfo.guild_only and not ctx.author._roles.has(data.guild_role):
+                if data.guild_role is not None and eventinfo.guild_only and not ctx.author._roles.has(data.guild_role):
                     await ctx.send(f"This event is only for Guild members.")
                     return
                 await db.join_event(eventid, ctx.author.id)
