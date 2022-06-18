@@ -6,6 +6,7 @@ util/__pycache__/*
 output.txt
 cogs/__pycache__/*
 config.py
+guildcogs/__pycache__/*
 
 discord.log
 friendly.csv
