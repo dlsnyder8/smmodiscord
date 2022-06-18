@@ -29,20 +29,23 @@ class Config(commands.Cog):
             # List current config
 
             data = await db.server_config(ctx.guild.id)
+            if data is None:
+                await ctx.send(f"To view the configuration, you first need to run `{ctx.prefix}config init` to setup the server")
+                return
 
             embed = Embed(title="Current Server Config")
             embed.description = f"""Serverid: {data.serverid}
                                 Diamond Ping: {data.diamond_ping}
-                                Diamond Role: <@&{data.diamond_role}>
-                                Diamond Channel: <#{data.diamond_channel}>
-                                Guild Role: <@&{data.guild_role}>
-                                Non-Guild Role: <@&{data.non_guild_role}>
-                                API token: {'set' if data.api_token is not None else 'not set'}
-                                Guild Name: {data.guild_name}
+                                Diamond Role: {f'<@&{data.diamond_role}>' if data.diamond_role is not None else 'Not set'}
+                                Diamond Channel: {f'<#{data.diamond_channel}>' if data.diamond_channel is not None else 'Not set'}
+                                Guild Role: {f'<@&{data.guild_role}>' if data.guild_role is not None else 'Not set'}
+                                Non-Guild Role: {f'<@&{data.non_guild_role}>' if data.non_guild_role is not None else 'Not set'}
+                                API token: {'Set' if data.api_token is not None else 'Not Set'}
+                                Guild Name: {data.guild_name if data.guild_name is not None else 'Not Set'}
                                 Premium: {data.premium}
                                 Guilds: {data.guilds}
-                                Logging Channel: <#{data.log_channel}>
-                                Welcome Channel: <#{data.welcome_channel}>"""
+                                Logging Channel: {f'<#{data.log_channel}>' if data.log_channel is not None else 'Not set'}
+                                Welcome Channel: {f'<#{data.welcome_channel}>' if data.welcome_channel is not None else 'Not Set'}"""
 
             embed.add_field(name="Want to change these?",
                             value=f"Run `{ctx.prefix}config options` to see a list of commands to change these values")
