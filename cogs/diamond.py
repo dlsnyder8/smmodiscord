@@ -36,10 +36,11 @@ class Diamond(commands.Cog):
         try:
             await db.add_diamond_role(ctx.guild.id, role.id)
             await db.add_diamond_channel(ctx.guild.id, channel.id)
-            await db.update_timestamp(ctx.guild.id, datetime.now(timezone.utc))
+            await db.update_timestamp(ctx.guild.id, datetime.utcnow())
             await ctx.send("Succesfully added the channel and role")
         except Exception as e:
             await ctx.send(e)
+            raise e
 
     @diamond.command()
     @checks.is_owner()
@@ -49,6 +50,7 @@ class Diamond(commands.Cog):
             await ctx.send(f"Diamond pings have been set to: {boolean}")
         except Exception as e:
             await ctx.send(e)
+            raise e
 
     @diamond.command()
     @checks.is_owner()
@@ -68,7 +70,7 @@ class Diamond(commands.Cog):
         more_than_200 = False
         string = ""
         listings = await api.diamond_market()
-        listings = [{"price_per_diamond": 1, "diamonds_remaining": 5}]
+        # listings = [{"price_per_diamond": 1, "diamonds_remaining": 5}]
         embed = Embed(title="Diamonds Under 1.3m")
 
         for listing in listings:
@@ -110,5 +112,5 @@ class Diamond(commands.Cog):
 
 
 def setup(bot):
-    # bot.add_cog(Diamond(bot))
+    bot.add_cog(Diamond(bot))
     print("Diamond Cog Loaded")

@@ -595,7 +595,7 @@ async def is_ambassador(discid):
 async def ambassadors(guildid):
     async with session() as con:
         try:
-            data = (await con.execute(select(Guild.discid).filter_by(guildid=guildid, ambassador=True)))
+            data = (await con.execute(select(Guild).filter_by(guildid=guildid, ambassador=True)))
 
             return [r[0] for r in data.fetchall()]
         except Exception as e:
@@ -990,7 +990,7 @@ async def rollback():
 async def main():
     # async with engine.begin() as conn:
     # print(await is_verified(3853801))
-    print(await get_diamond_ping_info())
+    await update_timestamp(538144211866746883, datetime.utcnow())
 
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)
