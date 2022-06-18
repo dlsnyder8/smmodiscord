@@ -203,7 +203,7 @@ class Guild(commands.Cog):
         x = 1
         for ambassador in ambassadors:
             embed.add_field(
-                name=f"Ambassador {x}:", value=f"<@{ambassador[0]}>")
+                name=f"Ambassador {x}:", value=f"<@{ambassador.discid}>")
             x += 1
 
         await ctx.send(embed=embed)
@@ -326,11 +326,12 @@ class Guild(commands.Cog):
                                 print(
                                     f"{user.name} is not an ambassador because guild {guildid} has been deleted.")
                                 await user.remove_roles(ambassadorrole)
-                            await db.guild_ambassador_update(amb.disc, False, 0)
+                            await db.guild_ambassador_update(amb.discid, False, 0)
                     continue
 
             # if current leader is not one w/ role, remove leader + ambassadors
-            if int(gLeader["user_id"]) != lsmmoid:
+
+            if len(gLeader) > 0 and int(gLeader[0]["user_id"]) != lsmmoid:
                 user = guild.get_member(discid)
                 if user is not None:
                     print(f"{user.name} is not a leader")
