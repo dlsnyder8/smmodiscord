@@ -1,5 +1,6 @@
 from sys import exit
-from sqlalchemy import create_engine, select, update, insert, null
+from sqlalchemy import create_engine, select, update, insert
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.automap import automap_base
@@ -30,7 +31,8 @@ Event_info = Base.classes.event_info
 Warinfo = Base.classes.warinfo
 Smackback = Base.classes.smackback
 
-asyncengine = create_async_engine(config.ASYNC_DATABASE_URL, pool_size=1)
+asyncengine = create_async_engine(
+    config.ASYNC_DATABASE_URL, pool_pre_ping=True)
 session = sessionmaker(
     asyncengine, expire_on_commit=False, class_=AsyncSession
 )
@@ -46,6 +48,8 @@ async def execute(command: str):
         except Exception as e:
             await con.rollback()
             return e
+        finally:
+            await con.close()
 
 
 async def add_server(serverid, name):
@@ -57,6 +61,8 @@ async def add_server(serverid, name):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 """Returns tuple of Plebs objects"""
 
@@ -72,6 +78,8 @@ async def disc_ids(discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def add_server_role(serverid, roleid):
@@ -85,6 +93,8 @@ async def add_server_role(serverid, roleid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def add_leader_role(serverid, roleid):
@@ -97,6 +107,8 @@ async def add_leader_role(serverid, roleid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def add_ambassador_role(serverid, roleid):
@@ -109,6 +121,8 @@ async def add_ambassador_role(serverid, roleid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def enable_diamond_ping(serverid, bool=False):
@@ -121,6 +135,8 @@ async def enable_diamond_ping(serverid, bool=False):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def premium_server(serverid):
@@ -133,6 +149,8 @@ async def premium_server(serverid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def add_diamond_role(serverid, roleid):
@@ -145,6 +163,8 @@ async def add_diamond_role(serverid, roleid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def add_diamond_channel(serverid, channelid):
@@ -160,6 +180,8 @@ async def add_diamond_channel(serverid, channelid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def change_guild_role(serverid, roleid):
@@ -175,6 +197,8 @@ async def change_guild_role(serverid, roleid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def change_non_guild_role(serverid, roleid):
@@ -190,6 +214,8 @@ async def change_non_guild_role(serverid, roleid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_token(serverid, api_token):
@@ -205,6 +231,8 @@ async def update_token(serverid, api_token):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_guilds(serverid, guilds):
@@ -220,6 +248,8 @@ async def update_guilds(serverid, guilds):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_logging(serverid, channel):
@@ -235,6 +265,8 @@ async def update_logging(serverid, channel):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_welcome(serverid, channel):
@@ -250,6 +282,8 @@ async def update_welcome(serverid, channel):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_guild_name(serverid, name):
@@ -265,6 +299,8 @@ async def update_guild_name(serverid, name):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def get_diamond_ping_info():
@@ -276,6 +312,8 @@ async def get_diamond_ping_info():
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def server_config(serverid):
@@ -290,6 +328,8 @@ async def server_config(serverid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_timestamp(serverid, timestamp: datetime):
@@ -302,6 +342,8 @@ async def update_timestamp(serverid, timestamp: datetime):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def add_new_pleb(smmoid, discid, verification, verified=False, active=False):
@@ -314,6 +356,8 @@ async def add_new_pleb(smmoid, discid, verification, verified=False, active=Fals
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_pleb(smmoid, discid, verification, verified=False, active=False):
@@ -330,6 +374,8 @@ async def update_pleb(smmoid, discid, verification, verified=False, active=False
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 # returns tuple of plebs
 
@@ -342,17 +388,23 @@ async def get_all_plebs():
             return [r[0] for r in data.fetchall()]
         except Exception as e:
             raise e
+        finally:
+            await con.close()
 
 
 async def islinked(discid):
     async with session() as con:
-        stmt = select(Plebs.verified).filter_by(discid=discid, verified=True)
-        ret = await con.execute(stmt)
+        try:
+            stmt = select(Plebs.verified).filter_by(
+                discid=discid, verified=True)
+            ret = await con.execute(stmt)
 
-        if ret.fetchall() == []:
-            return False
-        else:
-            return True
+            if ret.fetchall() == []:
+                return False
+            else:
+                return True
+        finally:
+            await con.close()
 
 
 async def conn_disc(smmoid):
@@ -364,6 +416,8 @@ async def conn_disc(smmoid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_verified(smmoid, verified):
@@ -376,6 +430,8 @@ async def update_verified(smmoid, verified):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def active_pleb():
@@ -388,6 +444,8 @@ async def active_pleb():
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_status(smmoid, active):
@@ -400,6 +458,8 @@ async def update_status(smmoid, active):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def remove_user(smmoid):
@@ -411,6 +471,8 @@ async def remove_user(smmoid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def is_verified(smmoid):
@@ -430,6 +492,8 @@ async def is_verified(smmoid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def verif_key(smmoid, discid):
@@ -446,6 +510,8 @@ async def verif_key(smmoid, discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def key_init(smmoid):
@@ -460,21 +526,29 @@ async def key_init(smmoid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def server_added(serverid):
     async with session() as con:
-        return (await con.execute(select(Server).filter(Server.serverid == serverid))).scalar() is not None
+        try:
+            return (await con.execute(select(Server).filter(Server.serverid == serverid))).scalar() is not None
+        finally:
+            await con.close()
 
 
 async def ServerInfo(serverid):
     async with session() as con:
-        stmt = select(Server).filter(Server.serverid == serverid)
-        ret = (await con.execute(stmt)).first()
-        if ret is not None:
-            return ret[0]
-        else:
-            return None
+        try:
+            stmt = select(Server).filter(Server.serverid == serverid)
+            ret = (await con.execute(stmt)).first()
+            if ret is not None:
+                return ret[0]
+            else:
+                return None
+        finally:
+            await con.close()
 
 
 async def all_servers():
@@ -486,18 +560,26 @@ async def all_servers():
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def is_banned(discid):
     async with session() as con:
-        return (await con.execute(select(Plebs.guild_ban).filter_by(discid=discid))).first()[0]
+        try:
+            return (await con.execute(select(Plebs.guild_ban).filter_by(discid=discid))).first()[0]
+        finally:
+            await con.close()
 
 
 async def ban(discid, boolean: bool):
     async with session() as con:
-        await con.execute(update(Plebs).filter_by(discid=discid).values({Plebs.guild_ban: boolean}))
-        await con.commit()
-        return
+        try:
+            await con.execute(update(Plebs).filter_by(discid=discid).values({Plebs.guild_ban: boolean}))
+            await con.commit()
+            return
+        finally:
+            await con.close()
 
 
 async def get_smmoid(discid):
@@ -510,6 +592,8 @@ async def get_smmoid(discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 ####################
@@ -518,7 +602,10 @@ async def get_smmoid(discid):
 
 async def is_added(discid):
     async with session() as con:
-        return (await con.execute(select(Guild).filter(Guild.discid == discid))).scalar() is not None
+        try:
+            return (await con.execute(select(Guild).filter(Guild.discid == discid))).scalar() is not None
+        finally:
+            await con.close()
 
 
 async def add_guild_person(discid, smmoid):
@@ -529,6 +616,8 @@ async def add_guild_person(discid, smmoid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def guild_leader_update(discid, bLeader, guildid, smmoid):
@@ -539,6 +628,8 @@ async def guild_leader_update(discid, bLeader, guildid, smmoid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def guild_ambassador_update(discid, bAmbassador, guildid):
@@ -549,6 +640,8 @@ async def guild_ambassador_update(discid, bAmbassador, guildid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def ret_guild_smmoid(discid):
@@ -560,6 +653,8 @@ async def ret_guild_smmoid(discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 # Returns True/False
 
@@ -576,6 +671,8 @@ async def is_leader(discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 # Returns True/False
 
@@ -592,6 +689,8 @@ async def is_ambassador(discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def ambassadors(guildid):
@@ -603,6 +702,8 @@ async def ambassadors(guildid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def all_ambassadors():
@@ -613,6 +714,8 @@ async def all_ambassadors():
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def all_leaders():
@@ -623,6 +726,8 @@ async def all_leaders():
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def remove_guild_user(smmoid):
@@ -634,6 +739,8 @@ async def remove_guild_user(smmoid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def fly_add(discid, smmoid, guildid=0):
@@ -644,6 +751,8 @@ async def fly_add(discid, smmoid, guildid=0):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def fly_update(discid, smmoid, guildid=0):
@@ -658,6 +767,8 @@ async def fly_update(discid, smmoid, guildid=0):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def in_fly(discid):
@@ -672,6 +783,8 @@ async def in_fly(discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def fly_remove(discid):
@@ -682,6 +795,8 @@ async def fly_remove(discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 # Event Database Commands
@@ -697,6 +812,8 @@ async def create_event(serverid: int, name: str, eventtype: str, roleid: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def start_event(eventid: int, server: int):
@@ -708,6 +825,8 @@ async def start_event(eventid: int, server: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def end_event(eventid: int, server: int):
@@ -718,6 +837,8 @@ async def end_event(eventid: int, server: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def cleanup_event(eventid: int, server: int):
@@ -728,6 +849,8 @@ async def cleanup_event(eventid: int, server: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def active_events(server: int = None):
@@ -741,6 +864,8 @@ async def active_events(server: int = None):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def available_events(server: int):
@@ -752,6 +877,8 @@ async def available_events(server: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def finished_events(server: int):
@@ -768,6 +895,8 @@ async def finished_events(server: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def participant_progress(eventid: int, discordid: int, server: int):
@@ -781,6 +910,8 @@ async def participant_progress(eventid: int, discordid: int, server: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def event_info(eventid: int, server: int):
@@ -793,6 +924,8 @@ async def event_info(eventid: int, server: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def event_guild_only(eventid: int, server: int, boolean: bool):
@@ -803,6 +936,8 @@ async def event_guild_only(eventid: int, server: int, boolean: bool):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def join_event(eventid: int, discordid):
@@ -813,6 +948,8 @@ async def join_event(eventid: int, discordid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def has_joined(eventid: int, discordid):
@@ -822,6 +959,8 @@ async def has_joined(eventid: int, discordid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def valid_event(eventid: int, server: int):
@@ -832,6 +971,8 @@ async def valid_event(eventid: int, server: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 # Returns a list of Event_info objects
 # If eventid is not valid, returns an empty list
@@ -846,13 +987,18 @@ async def get_participants(eventid: int):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
+    async with session() as con:
         try:
             data = await con.execute(select(Event_info).filter_by(id=int(eventid)))
             return [r[0] for r in data.fetchall()]
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_start_stat(eventid, discordid, stat):
@@ -866,6 +1012,8 @@ async def update_start_stat(eventid, discordid, stat):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 async def update_stat(eventid, discordid, stat):
@@ -878,6 +1026,8 @@ async def update_stat(eventid, discordid, stat):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
 
 
 ###########################
@@ -886,70 +1036,100 @@ async def update_stat(eventid, discordid, stat):
 
 async def warinfo_setup(discordid, smmoid, guildid):
     async with session() as con:
-        await con.execute(insert(Warinfo).values(discordid=discordid,
-                                                 smmoid=smmoid,
-                                                 guildid=guildid,
-                                                 last_pinged=datetime.now(timezone.utc)))
-        await con.commit()
-        return
+        try:
+            await con.execute(insert(Warinfo).values(discordid=discordid,
+                                                     smmoid=smmoid,
+                                                     guildid=guildid,
+                                                     last_pinged=datetime.now(timezone.utc)))
+            await con.commit()
+            return
+        finally:
+            await con.close()
 
 
 async def warinfo_guild(discordid, guildid):
     async with session() as con:
-        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.guildid: guildid}))
-        await con.commit()
-        return
+        try:
+            await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.guildid: guildid}))
+            await con.commit()
+            return
+        finally:
+            await con.close()
 
 
 async def warinfo_minlevel(discordid, minlevel):
     async with session() as con:
-        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.min_level: minlevel}))
-        await con.commit()
-        return
+        try:
+            await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.min_level: minlevel}))
+            await con.commit()
+            return
+        finally:
+            await con.close()
 
 
 async def warinfo_maxlevel(discordid, maxlevel):
     async with session() as con:
-        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.max_level: maxlevel}))
-        await con.commit()
-        return
+        try:
+            await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.max_level: maxlevel}))
+            await con.commit()
+            return
+        finally:
+            await con.close()
 
 
 async def warinfo_goldping(discordid, ping: bool):
     async with session() as con:
-        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.gold_ping: ping}))
-        await con.commit()
-        return
+        try:
+            await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.gold_ping: ping}))
+            await con.commit()
+            return
+        finally:
+            await con.close()
 
 
 async def warinfo_goldamount(discordid, amount: int):
     async with session() as con:
-        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.gold_amount: amount}))
-        await con.commit()
-        return
+        try:
+            await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.gold_amount: amount}))
+            await con.commit()
+            return
+        finally:
+            await con.close()
 
 
 async def warinfo_isadded(discid):
     async with session() as con:
-        return (await con.execute(select(Warinfo).filter_by(discordid=discid))).scalar() is not None
+        try:
+            return (await con.execute(select(Warinfo).filter_by(discordid=discid))).scalar() is not None
+        finally:
+            await con.close()
 
 
 async def warinfo_profile(discid):
     async with session() as con:
-        return (await con.execute(select(Warinfo).filter_by(discordid=discid))).first()[0]
+        try:
+            return (await con.execute(select(Warinfo).filter_by(discordid=discid))).first()[0]
+        finally:
+            await con.close()
 
 
 async def gold_ping_users():
     async with session() as con:
-        data = (await con.execute(select(Warinfo).filter_by(gold_ping=True)))
-        return [r[0] for r in data.fetchall()]
+        try:
+            data = (await con.execute(select(Warinfo).filter_by(gold_ping=True)))
+            return [r[0] for r in data.fetchall()]
+        finally:
+            await con.close()
 
 
 async def warinfo_ping_update(discordid):
     async with session() as con:
-        await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.last_pinged: datetime.now(timezone.utc)}))
-        await con.commit()
-        return
+        try:
+            await con.execute(update(Warinfo).filter_by(discordid=discordid).values({Warinfo.last_pinged: datetime.now(timezone.utc)}))
+            await con.commit()
+            return
+        finally:
+            await con.close()
 
 
 async def rollback():
@@ -991,8 +1171,8 @@ async def rollback():
 
 async def main():
     # async with engine.begin() as conn:
-    # print(await is_verified(3853801))
-    await update_timestamp(538144211866746883, datetime.utcnow())
+    print(await is_verified(3853801))
+    # await update_timestamp(538144211866746883, datetime.utcnow())
 
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)
