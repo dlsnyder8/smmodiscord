@@ -15,7 +15,7 @@ handler.setFormatter(logging.Formatter(
     '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-dev = True
+dev = False
 
 TOKEN = config.TOKEN
 DEV_TOKEN = config.DEV_TOKEN
@@ -44,14 +44,14 @@ if not dev:
         if f.endswith('.py'):
             bot.load_extension(f'cogs.{f[:-3]}')
     for mod in extra_cogs:
-        bot.load_extension(f'cogs.{mod}')
+        bot.load_extension(f'guildcogs.{mod}')
 
 else:
     for f in os.listdir('./cogs'):
         if f.endswith('.py'):
             bot.load_extension(f'cogs.{f[:-3]}')
     for mod in extra_cogs:
-        bot.load_extension(f'smmolib.{mod}')
+        bot.load_extension(f'guildcogs.{mod}')
 
 
 @bot.event
