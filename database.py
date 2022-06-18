@@ -285,6 +285,8 @@ async def server_config(serverid):
             data = await con.execute(stmt)
 
             return [r[0] for r in data.fetchall()][0]
+        except IndexError:
+            return None
         except Exception as e:
             await con.rollback()
             raise e
