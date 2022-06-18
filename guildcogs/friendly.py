@@ -249,7 +249,7 @@ class Friendly(commands.Cog):
 
 
     @checks.is_verified()
-    @commands.command()
+    @friendly.command()
     @guild_only()
     @commands.cooldown(1, 60, BucketType.user)
     @checks.server_configured()
