@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
-from smmolib import checks, log, api
-from smmolib import database as db
+import api
+from util import checks, log
+import database as db
 import logging
 
 

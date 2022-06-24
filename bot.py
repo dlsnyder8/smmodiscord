@@ -2,11 +2,11 @@ import os
 from discord.ext import commands
 import discord
 from discord import Intents
-from smmolib import checks, log
 import config
 import logging
+from util import checks, log
 
-# Logging setup?
+# Logging setup
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
@@ -15,15 +15,13 @@ handler.setFormatter(logging.Formatter(
     '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-
 dev = False
-
 
 TOKEN = config.TOKEN
 DEV_TOKEN = config.DEV_TOKEN
 
 if TOKEN is None or DEV_TOKEN is None:
-    print("Bot Token not found in .env folder")
+    print("Bot Token not found in config file")
     quit()
 
 if dev is True:
@@ -39,35 +37,21 @@ if not dev:
 else:
     bot = commands.Bot(command_prefix='&&', intents=intents,
                        activity=game)
-###########################
-#     Local Variables     #
 
-smmo_server = 444067492013408266
-test_server = 538144211866746883
-fly_server = 710258284661178418
-
-server = smmo_server  # Change this to which ever server the bot is mainly in
-bot.server = server
-lib_cogs = ['admin', 'help', 'error_handler']
-
-
+extra_cogs = config.special_cogs
 if not dev:
     for f in os.listdir('./cogs'):
         if f.endswith('.py'):
             bot.load_extension(f'cogs.{f[:-3]}')
-
-    lib_cogs = ['admin', 'help', 'error_handler']
-    for mod in lib_cogs:
-        bot.load_extension(f'smmolib.{mod}')
+    for mod in extra_cogs:
+        bot.load_extension(f'guildcogs.{mod}')
 
 else:
-    # bot.load_extension('cogs.event')
     for f in os.listdir('./cogs'):
         if f.endswith('.py'):
             bot.load_extension(f'cogs.{f[:-3]}')
-
-    for mod in lib_cogs:
-        bot.load_extension(f'smmolib.{mod}')
+    for mod in extra_cogs:
+        bot.load_extension(f'guildcogs.{mod}')
 
 
 @bot.event

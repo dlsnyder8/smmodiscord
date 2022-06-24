@@ -2,11 +2,14 @@ import discord
 from discord.embeds import Embed
 from discord.ext import commands, tasks
 from discord.ext.commands.core import guild_only
-from smmolib import checks, log, api
-from smmolib import database as db
+import api
+import string
+import random
+from util import checks, log
+import database as db
 from discord.ext.commands.cooldowns import BucketType
 import logging
-from smmolib.log import flylog, log, flylog2, flylog3
+from util.log import flylog, log, flylog2, flylog3
 import traceback
 from datetime import datetime, timezone
 from dateutil import parser
@@ -87,11 +90,6 @@ class Friendly(commands.Cog):
     async def friendly(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
-
-    @friendly.command()
-    @checks.is_owner()
-    async def nofly(self, ctx):
-        await ctx.author.remove_roles(ctx.guild.get_role(fly_roles[19]))
 
     @commands.command()
     @checks.in_fly_guild()
@@ -249,54 +247,86 @@ class Friendly(commands.Cog):
             await ctx.send("Here are the guild stats", file=file_csv)
             os.remove('friendly.csv')
 
-    @checks.no_bot_channel()
-    @checks.in_fly()
-    @friendly.command(aliases=['sg', 'gold'])
-    @checks.in_fly_guild()
-    @commands.cooldown(1, 30, BucketType.guild)
-    async def sendgold(self, ctx, members: commands.Greedy[discord.Member]):
-        out = ""
-        async with ctx.typing():
-            for member in members:
-                smmoid = await db.get_smmoid(member.id)
-                if smmoid is not None:
-                    if await api.safemode_status(smmoid):
-                        out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
-                    else:
-                        out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
-                else:
-                    out += f"{member.display_name} is not linked. No gold for them\n"
+    @commands.guild_only()
+    @friendly.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]", hidden=True)
+    async def verify(self, ctx, *args):
+        # needs 1 arg, smmo id
+        if len(args) != 1:
+            await ctx.send(embed=Embed(title="Verification Process",
+                                       description="1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page\n2) Run `&f verify SMMOID`\n3) Add the verification key to your motto, then run `&f verify SMMOID` again"))
+            return
 
-            await ctx.send(out)
+        smmoid = args[0]
 
-    @checks.is_owner()
-    @friendly.command()
-    async def remove(self, ctx, member: discord.Member):
         try:
-            await db.fly_remove(member.id)
-            await ctx.send("Success!")
-        except Exception as e:
-            await ctx.send(e)
+            smmoid = int(smmoid)
+        except:
+            await ctx.send("Argument must be a number")
+            return
+
+        # check if verified
+        if(await db.is_verified(smmoid)):
+            await ctx.send("This account has already been linked to a Discord account.")
+            return
+
+        if(await db.islinked(ctx.author.id) is True):
+            await ctx.send(embed=Embed(title="Already Linked", description=f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord."))
+            return
+
+        # check if has verification key in db
+        key = await db.verif_key(smmoid, ctx.author.id)
+        if(key is not None):
+
+            profile = await api.get_all(smmoid)
+            motto = profile['motto']
+            ispleb = profile['membership'] == 1
+            # motto = await api.get_motto(smmoid)
+            # ispleb = await api.pleb_status(smmoid)
+
+            if motto is None:
+                await ctx.send(f'Something went wrong. Please contact <@{dyl}> on Discord for help')
+                return
+            if(key in motto):
+                await db.update_verified(smmoid, True)
+                if ctx.guild.id == 710258284661178418:
+                    await ctx.send("You are now verified. If you're in Friendly, please run `&f join` to be granted access to guild channels. You can remove the verification key from your motto.")
+                else:
+                    await ctx.send('You are now verified! You can remove the verification key from your motto.')
+                return
+
+            await ctx.reply(f"Verification Failed. You are trying to connect your account to {profile['name']}. Your verification key is: `{key}`")
+            await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+            return
+
+        else:
+            # key in DB, but someone else tried to add it. Generate new key
+            if(await db.key_init(smmoid) is not None):
+                await ctx.send("Someone tried to verify with your ID. Resetting key....")
+                letters = string.ascii_letters
+                key = "SMMO-" + ''.join(random.choice(letters)
+                                        for i in range(8))
+                await db.update_pleb(smmoid, ctx.author.id, key)
+                await ctx.reply(f'Your new verification key is: `{key}`')
+                await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                return
+
+            # no key in db, generate and add
+            # generate verification key, add to db, tell user to add to profile and run command again
+            else:
+                letters = string.ascii_letters
+                key = "SMMO-" + ''.join(random.choice(letters)
+                                        for i in range(8))
+                await db.add_new_pleb(smmoid, ctx.author.id, key)
+                await ctx.reply(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                return
 
     @checks.is_verified()
-    @commands.command()
+    @friendly.command()
     @guild_only()
     @commands.cooldown(1, 60, BucketType.user)
+    @checks.server_configured()
     async def join(self, ctx):
         if ctx.author._roles.has(fly_roles[19]):
-
-            if not await db.in_fly(ctx.author.id):
-                smmoid = await db.get_smmoid(ctx.author.id)
-                profile = await api.get_all(smmoid)
-                try:
-                    guildid = profile["guild"]["id"]
-                except KeyError:
-                    await ctx.send("You are not in a guild, and you are definitely not in Friendly")
-                    return
-                await db.fly_add(ctx.author.id, smmoid, guildid)
-                await ctx.send("Added to database :P")
-                await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly eligibility` (`{ctx.prefix}f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
-                return
 
             await ctx.send("You've already been granted the Friendly role :)")
             return
@@ -313,9 +343,6 @@ class Friendly(commands.Cog):
 
         # if user is in a fly guild....
         if guildid in fly or ctx.author.id == dyl:
-
-            if not await db.in_fly(ctx.author.id):
-                await db.fly_add(ctx.author.id, smmoid, guildid)
 
             roles_given = ""
             try:
@@ -1007,15 +1034,6 @@ class Friendly(commands.Cog):
 
         return
 
-    @friendly.command(aliases=['mush', 'm'])
-    @checks.in_fly()
-    @checks.in_fly_guild()
-    @checks.is_verified()
-    @commands.cooldown(1, 30, BucketType.member)
-    async def mushroom(self, ctx):
-        smmoid = await db.get_smmoid(ctx.author.id)
-        await ctx.send(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
-
     @friendly.command(aliases=['bfc'])
     @checks.is_fly_admin()
     @checks.in_fly()
@@ -1198,34 +1216,6 @@ class Friendly(commands.Cog):
             await ctx.send(embed=Embed(title="Error", description=e))
             raise e
 
-    @friendly.command(aliases=['g'])
-    @commands.cooldown(1, 30, BucketType.guild)
-    @checks.in_fly()
-    @checks.in_fly_guild()
-    async def give(self, ctx, arg: int, members: commands.Greedy[discord.Member]):
-        out = ""
-        for member in members:
-            smmoid = await db.get_smmoid(member.id)
-
-            if smmoid is not None:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>\n"
-
-        await ctx.send(out)
-
-    @friendly.command(aliases=['t'])
-    @commands.cooldown(1, 30, BucketType.guild)
-    @checks.in_fly()
-    @checks.in_fly_guild()
-    async def trade(self, ctx, members: commands.Greedy[discord.Member]):
-        out = ""
-        for member in members:
-            smmoid = await db.get_smmoid(member.id)
-
-            if smmoid is not None:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
-
-        await ctx.send(out)
-
     @friendly.command(aliases=['log'])
     @checks.in_fly()
     @checks.is_owner()
@@ -1245,40 +1235,6 @@ class Friendly(commands.Cog):
     @checks.is_owner()
     async def bring_dyl(self, ctx):
         await ctx.author.add_roles(ctx.guild.get_role(710315282920636506))
-
-    @friendly.command()
-    @checks.is_owner()
-    async def test(self, ctx):
-        good = '☑️'
-        stop = '🛑'
-        page1 = Page(title="Testing", description="we worky")
-        page1.add_field(name="test3", value="test4")
-        page1.buttons([good, stop]).on_next(self.modcheck)
-
-        menu = ButtonMenu(ctx).add_pages([page1])
-        menu2 = menu.set_custom_check(checks.is_fly_admin())
-
-        await menu2.open()
-
-        return
-
-    @staticmethod
-    async def modcheck(menu):
-        good = '☑️'
-        stop = '🛑'
-
-        print(menu.__dict__)
-        # if menu.ctx.author._roles.has(719789422178205769):
-        #     if menu.button_pressed(good):
-        #         await menu.ctx.send(f"allowed: {menu.ctx.author.display_name}")
-        #     elif menu.button_pressed(stop):
-        #         await menu.close()
-        # else:
-        #     message = await menu.ctx.send(f"Not allowed: {menu.ctx.author.display_name}")
-
-    @staticmethod
-    async def admincheck(self, message: discord.Message):
-        return message.author._roles.has(719789422178205769)
 
     @friendly.command(aliases=['check_roles', 'cr', 'checkroles'], enabled=False)
     @checks.no_bot_channel()
@@ -1543,7 +1499,7 @@ class Friendly(commands.Cog):
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
-    @tasks.loop(hours=3)
+    @tasks.loop(hours=3, reconnect=True)
     async def flycheck(self):
         await log(self.bot, "Fly Check Started", "Friendly guild members are being checked")
         await flylog2(self.bot, "Fly Check Started", "Friendly guild members are being checked")
@@ -1707,7 +1663,7 @@ class Friendly(commands.Cog):
             for split in splitUsers:
                 embed.add_field(name="Users", value=' '.join(split))
 
-            flylog3(self.bot, embed)
+            await flylog3(self.bot, embed)
 
     @flycheck.before_loop
     async def before_flycheck(self):

@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands, tasks
 from discord import Embed
-from smmolib import checks, log, api
-from smmolib import database as db
+import api
+import database as db
+from util import checks, log
 import logging
 from datetime import datetime, timezone, timedelta
 from dateutil import parser
@@ -35,10 +36,11 @@ class Diamond(commands.Cog):
         try:
             await db.add_diamond_role(ctx.guild.id, role.id)
             await db.add_diamond_channel(ctx.guild.id, channel.id)
-            await db.update_timestamp(ctx.guild.id, datetime.now(timezone.utc))
+            await db.update_timestamp(ctx.guild.id, datetime.utcnow())
             await ctx.send("Succesfully added the channel and role")
         except Exception as e:
             await ctx.send(e)
+            raise e
 
     @diamond.command()
     @checks.is_owner()
@@ -48,6 +50,7 @@ class Diamond(commands.Cog):
             await ctx.send(f"Diamond pings have been set to: {boolean}")
         except Exception as e:
             await ctx.send(e)
+            raise e
 
     @diamond.command()
     @checks.is_owner()
@@ -60,12 +63,14 @@ class Diamond(commands.Cog):
                       description=f"ID: {ID}\nDiamond Ping: {ping_bool}\nPinged Role: {ctx.guild.get_role(role)}\nChannel: {ctx.guild.get_channel(channel)}")
         await ctx.send(embed=embed)
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=1, reconnect=True)
     async def diamond_check(self):
+        # print('starting diamond check')
         cheap_diamonds = False
         more_than_200 = False
         string = ""
         listings = await api.diamond_market()
+        # listings = [{"price_per_diamond": 1, "diamonds_remaining": 5}]
         embed = Embed(title="Diamonds Under 1.3m")
 
         for listing in listings:
@@ -97,7 +102,7 @@ class Diamond(commands.Cog):
                         await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
 
                 except Exception as e:
-                    await log.log(self.bot, "Diamond Market Fucky", f"Something went wrong with {server[0]},{server[2]},{server[1]}")
+                    await log.log(self.bot, "Diamond Market Fucky", f"Something went wrong with {server.serverid}")
                     await log.log(self.bot, "Diamond Market Fucky", e)
                     pass
 

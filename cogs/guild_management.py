@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands, tasks
-from smmolib import checks, api, log
-from smmolib import database as db
+import api
+from util import checks, log
+import database as db
 import logging
 import asyncio
 
@@ -33,42 +34,42 @@ class Guild(commands.Cog):
     async def forceremoveleader(self, ctx, dmem: discord.Member):
         pass
 
-    @guild.command(aliases=['fc'], hidden=True)
-    @checks.is_owner()
-    async def forceconnect(self, ctx, dmem: discord.Member):
-        # get smmo id
-        if(await db.islinked(dmem.id)):
-            smmoid = await db.get_smmoid(dmem.id)
-        else:
-            await ctx.send("They are not linked")
-            return
+    # @guild.command(aliases=['fc'], hidden=True)
+    # @checks.is_owner()
+    # async def forceconnect(self, ctx, dmem: discord.Member):
+    #     # get smmo id
+    #     if(await db.islinked(dmem.id)):
+    #         smmoid = await db.get_smmoid(dmem.id)
+    #     else:
+    #         await ctx.send("They are not linked")
+    #         return
 
-        # add to database
-        if not await db.is_added(dmem.id):
-            await db.add_guild_person(dmem.id, smmoid)
+    #     # add to database
+    #     if not await db.is_added(dmem.id):
+    #         await db.add_guild_person(dmem.id, smmoid)
 
-        # get guild from profile (get_all())
-        profile = await api.get_all(smmoid)
-        try:
-            guildid = profile["guild"]["id"]
-        except KeyError as e:
-            await ctx.send("They are not in a guild")
-            return
-        # check if leader of guild
-        members = await api.guild_members(guildid)
-        for member in members:
+    #     # get guild from profile (get_all())
+    #     profile = await api.get_all(smmoid)
+    #     try:
+    #         guildid = profile["guild"]["id"]
+    #     except KeyError as e:
+    #         await ctx.send("They are not in a guild")
+    #         return
+    #     # check if leader of guild
+    #     members = await api.guild_members(guildid)
+    #     for member in members:
 
-            if member["user_id"] == smmoid:
-                if member["position"] == "Leader":
-                    # if leader, add role and add info to DB
-                    leaderid = await db.leader_id(ctx.guild.id)
-                    await dmem.add_roles(ctx.guild.get_role(int(leaderid)))
-                    await ctx.send("They have been verified as a leader")
-                    await db.guild_leader_update(dmem.id, True, guildid, smmoid)
-                    return
-                else:
-                    await ctx.send(f"They are only a member of your guild. If they want the Ambassador role, their guild leader will need to connect and run `{ctx.prefix}g aa <ID/@mention>`")
-                    return
+    #         if member["user_id"] == smmoid:
+    #             if member["position"] == "Leader":
+    #                 # if leader, add role and add info to DB
+    #                 leaderid = await db.leader_id(ctx.guild.id)
+    #                 await dmem.add_roles(ctx.guild.get_role(int(leaderid)))
+    #                 await ctx.send("They have been verified as a leader")
+    #                 await db.guild_leader_update(dmem.id, True, guildid, smmoid)
+    #                 return
+    #             else:
+    #                 await ctx.send(f"They are only a member of your guild. If they want the Ambassador role, their guild leader will need to connect and run `{ctx.prefix}g aa <ID/@mention>`")
+    #                 return
 
     @checks.is_guild_banned()
     @guild.command(aliases=['c'], usage="", description="Gives you the leader role if you're the leader of a guild. You must verify with the bot first.")
@@ -202,7 +203,7 @@ class Guild(commands.Cog):
         x = 1
         for ambassador in ambassadors:
             embed.add_field(
-                name=f"Ambassador {x}:", value=f"<@{ambassador[0]}>")
+                name=f"Ambassador {x}:", value=f"<@{ambassador.discid}>")
             x += 1
 
         await ctx.send(embed=embed)
@@ -325,11 +326,12 @@ class Guild(commands.Cog):
                                 print(
                                     f"{user.name} is not an ambassador because guild {guildid} has been deleted.")
                                 await user.remove_roles(ambassadorrole)
-                            await db.guild_ambassador_update(amb.disc, False, 0)
+                            await db.guild_ambassador_update(amb.discid, False, 0)
                     continue
 
             # if current leader is not one w/ role, remove leader + ambassadors
-            if int(gLeader[0]["user_id"]) != lsmmoid:
+
+            if len(gLeader) > 0 and int(gLeader[0]["user_id"]) != lsmmoid:
                 user = guild.get_member(discid)
                 if user is not None:
                     print(f"{user.name} is not a leader")
@@ -362,7 +364,7 @@ class Guild(commands.Cog):
         if(ctx is not None):
             await ctx.send("Guild Check has finished.")
 
-    @tasks.loop(hours=4)
+    @tasks.loop(hours=4, reconnect=True)
     async def update_all_guilds(self):
         await self.guildcheck()
         return
