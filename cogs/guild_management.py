@@ -34,42 +34,42 @@ class Guild(commands.Cog):
     async def forceremoveleader(self, ctx, dmem: discord.Member):
         pass
 
-    @guild.command(aliases=['fc'], hidden=True)
-    @checks.is_owner()
-    async def forceconnect(self, ctx, dmem: discord.Member):
-        # get smmo id
-        if(await db.islinked(dmem.id)):
-            smmoid = await db.get_smmoid(dmem.id)
-        else:
-            await ctx.send("They are not linked")
-            return
+    # @guild.command(aliases=['fc'], hidden=True)
+    # @checks.is_owner()
+    # async def forceconnect(self, ctx, dmem: discord.Member):
+    #     # get smmo id
+    #     if(await db.islinked(dmem.id)):
+    #         smmoid = await db.get_smmoid(dmem.id)
+    #     else:
+    #         await ctx.send("They are not linked")
+    #         return
 
-        # add to database
-        if not await db.is_added(dmem.id):
-            await db.add_guild_person(dmem.id, smmoid)
+    #     # add to database
+    #     if not await db.is_added(dmem.id):
+    #         await db.add_guild_person(dmem.id, smmoid)
 
-        # get guild from profile (get_all())
-        profile = await api.get_all(smmoid)
-        try:
-            guildid = profile["guild"]["id"]
-        except KeyError as e:
-            await ctx.send("They are not in a guild")
-            return
-        # check if leader of guild
-        members = await api.guild_members(guildid)
-        for member in members:
+    #     # get guild from profile (get_all())
+    #     profile = await api.get_all(smmoid)
+    #     try:
+    #         guildid = profile["guild"]["id"]
+    #     except KeyError as e:
+    #         await ctx.send("They are not in a guild")
+    #         return
+    #     # check if leader of guild
+    #     members = await api.guild_members(guildid)
+    #     for member in members:
 
-            if member["user_id"] == smmoid:
-                if member["position"] == "Leader":
-                    # if leader, add role and add info to DB
-                    leaderid = await db.leader_id(ctx.guild.id)
-                    await dmem.add_roles(ctx.guild.get_role(int(leaderid)))
-                    await ctx.send("They have been verified as a leader")
-                    await db.guild_leader_update(dmem.id, True, guildid, smmoid)
-                    return
-                else:
-                    await ctx.send(f"They are only a member of your guild. If they want the Ambassador role, their guild leader will need to connect and run `{ctx.prefix}g aa <ID/@mention>`")
-                    return
+    #         if member["user_id"] == smmoid:
+    #             if member["position"] == "Leader":
+    #                 # if leader, add role and add info to DB
+    #                 leaderid = await db.leader_id(ctx.guild.id)
+    #                 await dmem.add_roles(ctx.guild.get_role(int(leaderid)))
+    #                 await ctx.send("They have been verified as a leader")
+    #                 await db.guild_leader_update(dmem.id, True, guildid, smmoid)
+    #                 return
+    #             else:
+    #                 await ctx.send(f"They are only a member of your guild. If they want the Ambassador role, their guild leader will need to connect and run `{ctx.prefix}g aa <ID/@mention>`")
+    #                 return
 
     @checks.is_guild_banned()
     @guild.command(aliases=['c'], usage="", description="Gives you the leader role if you're the leader of a guild. You must verify with the bot first.")
