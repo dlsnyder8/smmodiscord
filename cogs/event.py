@@ -180,8 +180,8 @@ class Event(commands.Cog):
             eventid = active_events[0].id
 
             progress = await db.participant_progress(eventid, ctx.author.id)
-            eventinfo = await db.event_info(eventid)
-            if progress is None:
+            eventinfo = await db.event_info(eventid, ctx.guild.id)
+            if progress is None or eventinfo is None:
                 await ctx.send("You are not particpating in the current event")
                 return
 
@@ -191,10 +191,12 @@ class Event(commands.Cog):
                 return
             else:
                 progress = await db.participant_progress(eventid, ctx.author.id)
-                eventinfo = await db.event_info(eventid)
+                eventinfo = await db.event_info(eventid, ctx.guild.id)
                 if progress is None:
                     await ctx.send("You are not a participant in that event or that event does not exist.")
                     return
+                elif eventinfo is None:
+                    await ctx.send("That event does not exist or is not being hosted in this server.")
 
         else:
             await ctx.send("There are no active events right now. Please wait for someone to start one.")
@@ -202,7 +204,7 @@ class Event(commands.Cog):
 
         embed = Embed(title=f"Your {translation[eventinfo.type]} for the **{eventinfo.name}** Event",
                       description=f"**Starting amount:** {progress[0]}\n**Last Updated Amount:** {progress[1]}\n**Difference:** {progress[2]}")
-        embed = embed.set_footer(text=f"Last Updated: {progress[3]}")
+        embed = embed.set_footer(text=f"Last Updated: {progress[3]} UTC")
         await ctx.send(embed=embed)
 
     @event.command()
@@ -389,7 +391,7 @@ class Event(commands.Cog):
         else:
             await ctx.send(embed=Embed(title="No Joinable Events"))
 
-    @tasks.loop(hours=1)
+    @tasks.loop(hours=1, reconnect=True)
     async def stat_update(self, server=None):
         await log.log(self.bot, "Task Started", "Events Stats are being updated")
         stat_convert = {"pvp": "user_kills", "step": "steps",

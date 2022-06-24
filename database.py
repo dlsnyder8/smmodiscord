@@ -899,14 +899,14 @@ async def finished_events(server: int):
             await con.close()
 
 
-async def participant_progress(eventid: int, discordid: int, server: int):
+async def participant_progress(eventid: int, discordid: int):
     async with session() as con:
         try:
             return (await con.execute(select(Event_info.starting_stat,
                                              Event_info.current_stat,
                                              Event_info.current_stat - Event_info.starting_stat,
                                              Event_info.last_updated).filter_by(id=eventid,
-                                                                                discordid=discordid, serverid=server))).first()
+                                                                                discordid=discordid))).first()
         except Exception as e:
             await con.rollback()
             raise e

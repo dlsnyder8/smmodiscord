@@ -197,7 +197,7 @@ class Guilds(commands.Cog):
             await ctx.send("You are not in the guild. If you think this is a mistake, try contacting your guild leader")
             return
 
-    @tasks.loop(hours=4)
+    @tasks.loop(hours=4, reconnect=True)
     async def guild_member_check(self):
         ignored_servers = [710258284661178418]
         await log.log(self.bot, "Guild Member Check Started", " ")

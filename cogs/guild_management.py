@@ -364,7 +364,7 @@ class Guild(commands.Cog):
         if(ctx is not None):
             await ctx.send("Guild Check has finished.")
 
-    @tasks.loop(hours=4)
+    @tasks.loop(hours=4, reconnect=True)
     async def update_all_guilds(self):
         await self.guildcheck()
         return

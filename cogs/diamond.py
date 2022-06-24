@@ -63,7 +63,7 @@ class Diamond(commands.Cog):
                       description=f"ID: {ID}\nDiamond Ping: {ping_bool}\nPinged Role: {ctx.guild.get_role(role)}\nChannel: {ctx.guild.get_channel(channel)}")
         await ctx.send(embed=embed)
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=1, reconnect=True)
     async def diamond_check(self):
         # print('starting diamond check')
         cheap_diamonds = False

@@ -250,6 +250,18 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     @checks.is_owner()
+    async def guildreload(self, ctx, *, cog: str):
+        string = f"guildcogs.{cog}"
+        try:
+            self.bot.reload_extension(string)
+        except Exception as e:
+            await ctx.send(f'**ERROR:** {type(e).__name__} -{e}')
+
+        else:
+            await ctx.send('**SUCCESS!**')
+
+    @commands.command(hidden=True)
+    @checks.is_owner()
     async def item(self, ctx, arg: int, members: commands.Greedy[discord.Member]):
         string = ""
         for member in members:

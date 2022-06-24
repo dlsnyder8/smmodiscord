@@ -483,7 +483,7 @@ class Wars(commands.Cog):
             await ctx.send(embed=embed)
             return
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(minutes=5, reconnect=True)
     async def gold_ping(self):
         try:
             await log.log(self.bot, "Gold Ping", "Checking for friendly members with gold out....")
