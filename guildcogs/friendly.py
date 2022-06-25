@@ -295,7 +295,7 @@ class Friendly(commands.Cog):
                 return
 
             await ctx.reply(f"Verification Failed. You are trying to connect your account to {profile['name']}. Your verification key is: `{key}`")
-            await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+            await ctx.send(f'Please add this to your motto and run `{ctx.prefix}f verify {smmoid}` again!\n<https://web.simple-mmo.com/changemotto>')
             return
 
         else:
@@ -307,7 +307,7 @@ class Friendly(commands.Cog):
                                         for i in range(8))
                 await db.update_pleb(smmoid, ctx.author.id, key)
                 await ctx.reply(f'Your new verification key is: `{key}`')
-                await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                await ctx.send(f'Please add this to your motto and run `{ctx.prefix}f verify {smmoid}` again!\n<https://web.simple-mmo.com/changemotto>')
                 return
 
             # no key in db, generate and add
