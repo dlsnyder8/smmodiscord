@@ -318,6 +318,9 @@ class Event(commands.Cog):
             await ctx.send("That doesn't appear to be a valid event id")
             return
         eventinfo = await db.event_info(eventid, ctx.guild.id)
+        if eventinfo.is_started is False:
+            await ctx.reply("The event has not started yet")
+            return
         participants.sort(
             reverse=True, key=lambda x: x.current_stat-x.starting_stat)
 
