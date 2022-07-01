@@ -317,7 +317,7 @@ class Friendly(commands.Cog):
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
                 await db.add_new_pleb(smmoid, ctx.author.id, key)
-                await ctx.reply(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                await ctx.reply(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}f verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
                 return
 
     @checks.is_verified()
