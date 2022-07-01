@@ -278,8 +278,12 @@ class Friendly(commands.Cog):
         if(key is not None):
 
             profile = await api.get_all(smmoid)
-            motto = profile['motto']
-            ispleb = profile['membership'] == 1
+            try:
+                motto = profile['motto']
+            except KeyError:
+                await ctx.send(f"A motto cannot be found for this account. This usually means you are trying to link to a deleted account")
+                return
+
             # motto = await api.get_motto(smmoid)
             # ispleb = await api.pleb_status(smmoid)
 
