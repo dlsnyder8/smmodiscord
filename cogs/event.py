@@ -334,7 +334,7 @@ class Event(commands.Cog):
                 break
             discord_user = self.bot.get_user(user.discordid)
 
-            string += f"**{i+1}.** {discord_user.mention} - {user.current_stat - user.starting_stat} {translation[eventinfo.type]}\n"
+            string += f"**{i+1}.** {discord_user.mention if discord_user is not None else f'<@{user.discordid}>'} - {user.current_stat - user.starting_stat} {translation[eventinfo.type]}\n"
 
         embed.description = string
         await ctx.send(embed=embed)
