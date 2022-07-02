@@ -279,6 +279,13 @@ class Admin(commands.Cog):
 
         await ctx.send(string)
 
+    @commands.Cog.listener()
+    async def on_guild_join(guild):
+        for channel in guild.text_channels:
+            if channel.permissions_for(guild.me).send_messages:
+                await channel.send("Thanks for inviting me! To start using my features, please run `&config init` to add your server to my database")
+                return
+
 
 def setup(bot):
     bot.add_cog(Admin(bot))
