@@ -5,6 +5,7 @@ from util import checks, log
 import database as db
 import logging
 import asyncio
+import config
 
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.INFO)
@@ -375,5 +376,6 @@ class Guild(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Guild(bot))
-    print("Guild Cog Loaded")
+    if config.main_acct:
+        bot.add_cog(Guild(bot))
+        print("Guild Cog Loaded")

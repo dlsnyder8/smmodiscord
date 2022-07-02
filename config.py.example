@@ -14,4 +14,7 @@ API_KEYS = ["",
             "",
             ""]
 
+# Keep this set to false. It's just for some hyper specific server setup
+main_acct = False
+
 special_cogs= ["","",""]

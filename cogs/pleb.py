@@ -8,6 +8,7 @@ import random
 import string
 import api
 import logging
+import config
 
 logger = logging.getLogger('discord')
 
@@ -45,8 +46,6 @@ class Pleb(commands.Cog):
             await ctx.send(f'user: {user.smmoid}, verified: {user.verified}')
             return
         await ctx.send("No account connected")
-
-   
 
     @commands.command(hidden=True)
     @checks.is_owner()
@@ -119,5 +118,6 @@ class Pleb(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Pleb(bot))
-    print("Pleb Cog Loaded")
+    if config.main_acct:
+        bot.add_cog(Pleb(bot))
+        print("Pleb Cog Loaded")
