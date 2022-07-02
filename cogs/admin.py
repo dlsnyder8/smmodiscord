@@ -125,7 +125,7 @@ class Admin(commands.Cog):
     @commands.command()
     async def invite(self, ctx):
         embed = Embed(
-            title="Invite Me!", description="You can invite me by click [here](https://discord.com/api/oauth2/authorize?client_id=787258388752236565&permissions=8&scope=bot}")
+            title="Invite Me!", description="You can invite me by click [here](https://discord.com/api/oauth2/authorize?client_id=787258388752236565&permissions=8&scope=bot)")
         await ctx.send(embed=embed)
 
     @checks.is_owner()
