@@ -5,6 +5,7 @@ from util import checks, log
 import database as db
 import logging
 from datetime import datetime, timezone, timedelta
+import config
 
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.INFO)
