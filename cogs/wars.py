@@ -526,5 +526,6 @@ class Wars(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Wars(bot))
-    print("Wars Cog Loaded")
+    if config.main_acct:
+        bot.add_cog(Wars(bot))
+        print("Wars Cog Loaded")
