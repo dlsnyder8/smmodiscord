@@ -122,6 +122,12 @@ class Admin(commands.Cog):
     async def premium(self, ctx):
         await ctx.send("TODO")
 
+    @commands.command()
+    async def invite(self, ctx):
+        embed = Embed(
+            "Invite Me!", "You can invite me by click [here](https://discord.com/api/oauth2/authorize?client_id=787258388752236565&permissions=8&scope=bot}")
+        await ctx.send(embed=embed)
+
     @checks.is_owner()
     @admin.command(hidden=True)
     async def unlink(self, ctx, member: discord.Member):
