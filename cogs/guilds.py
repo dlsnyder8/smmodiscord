@@ -216,7 +216,12 @@ class Guilds(commands.Cog):
                 allmembers.append(x['user_id'] for x in (await api.guild_members(x, server.api_token)))
 
             guild = self.bot.get_guild(server.serverid)
-            guild_role = guild.get_role(server.guild_role)
+            if guild is None:
+                pass
+            if server.guild_role is not None:
+                guild_role = guild.get_role(server.guild_role)
+            else:
+                pass
             non_guild_role = guild.get_role(server.non_guild_role)
 
             if guild_role is None:
