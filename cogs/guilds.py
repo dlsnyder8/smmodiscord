@@ -186,8 +186,8 @@ class Guilds(commands.Cog):
 
             if config.non_guild_role is not None:
                 await ctx.author.remove_roles(ctx.guild.get_role(config.non_guild_role))
-
-            await log.server_log(self.bot, ctx.guild.id, title="User has joined the guild", desc=f"**Roles given to** {ctx.author.mention}\n{roles_given}", id=ctx.author.id)
+            if config.logging is not None:
+                await log.server_log(self.bot, ctx.guild.id, title="User has joined the guild", desc=f"**Roles given to** {ctx.author.mention}\n{roles_given}", id=ctx.author.id)
             channel = self.bot.get_channel(config.welcome_channel)
             if ctx.author.id != dyl:
                 try:
