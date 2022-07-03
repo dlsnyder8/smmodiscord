@@ -149,9 +149,9 @@ class Event(commands.Cog):
         async with ctx.typing():
             for particpant in participants:
                 string += f"**{i}.** <@{particpant.discordid}> - {particpant.current_stat-particpant.starting_stat} {translation[eventinfo.type]}\n"
-                if i % 10 == 0:
+                if i % 20 == 0:
                     last = i
-                    embed.add_field(name=f'Users {i-10} - {i}', value=string)
+                    embed.add_field(name=f'Users {i-20} - {i}', value=string)
                     string = ''
 
                 if len(embed) > 5500:
@@ -161,7 +161,7 @@ class Event(commands.Cog):
                 i += 1
 
             if len(string) > 0:
-                embed.add_field(name=f'Users {last} - {i}', value=string)
+                embed.add_field(name=f'Users {last} - {i-1}', value=string)
                 await ctx.send(embed=embed)
 
     @event.command()
