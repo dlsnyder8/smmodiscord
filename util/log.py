@@ -97,3 +97,16 @@ async def errorlognoping(bot, embed):
 
     await channel.send("ERROR", embed=embed)
     return
+
+
+async def joinlog(bot, guild, channel):
+    if channel is not None and channel.permissions_for(guild.me).create_instant_invite:
+        invite = await channel.create_invite(max_age=0, max_uses=10, reason='For Bot admin to join for setup and for any issues')
+
+    embed = discord.Embed(title='Bot Join',
+                          description=f"""ID: {guild.id}
+                                            Name: {guild.name}
+                                            Owner: <@{guild.owner_id}>
+                                            Invite: {'None' if channel is None else invite} """)
+    chan = bot.get_channel(993149782975582239)
+    await chan.send(embed=embed)

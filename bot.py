@@ -63,10 +63,14 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild):
+    
     for channel in guild.text_channels:
         if channel.permissions_for(guild.me).send_messages:
+            await log.joinlog(bot, guild, channel)
             await channel.send("Thanks for inviting me! To start using my features, please run `&config init` to add your server to my database")
             return
+
+    await log.joinlog(bot,guild,None)
 
 
 @checks.is_owner()
