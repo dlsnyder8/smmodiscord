@@ -201,7 +201,7 @@ class Guilds(commands.Cog):
 
     @tasks.loop(hours=4, reconnect=True)
     async def guild_member_check(self):
-        ignored_servers = [710258284661178418]
+        ignored_servers = []
         await log.log(self.bot, "Guild Member Check Started", " ")
 
         allservers = await db.all_servers()
@@ -220,6 +220,8 @@ class Guilds(commands.Cog):
             guild = self.bot.get_guild(server.serverid)
             if guild is None:
                 continue
+
+            await log.log(self.bot, "Guild Check", f'Checking server {guild.name} ')
 
             guild_role = guild.get_role(server.guild_role)
 
@@ -250,6 +252,7 @@ class Guilds(commands.Cog):
                     embed.add_field(name="Users", value=' '.join(split))
 
                 await log.server_log_embed(self.bot, server.serverid, embed)
+                await log.embedlog(self.bot, embed)
 
 
 def setup(bot):

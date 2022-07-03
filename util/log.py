@@ -17,6 +17,13 @@ async def test(self, ctx, desc: str):
     await self.genlog(ctx, title="testing", desc=desc)
 
 
+async def embedlog(bot, embed, id=None):
+    channel = bot.get_channel(790666439673643028)
+    if id is not None:
+        embed.set_footer = f'Guild ID: {id}'
+    await channel.send(embed=embed)
+
+
 async def log(bot, title: str, desc: str):
     channel = bot.get_channel(790666439673643028)
     embed = discord.Embed(
