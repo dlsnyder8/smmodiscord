@@ -148,11 +148,20 @@ class Event(commands.Cog):
         i = 1
         for particpant in participants:
             string += f"**{i}.** <@{particpant.discordid}> - {particpant.current_stat-particpant.starting_stat} {translation[eventinfo.type]}\n"
+            if i % 10 == 0:
+                last = i
+                embed.add_field(name=f'Users {i-10} - {i}', value=string)
+                string = ''
+
+            if len(embed > 5500):
+                await ctx.send(embed=embed)
+                embed = Embed(title=f"Results for {eventinfo.name}")
+
             i += 1
 
-        # TODO: Deal with string overflow
-        embed.description = string
-        await ctx.send(embed=embed)
+        if len(string) > 0:
+            embed.add_field(name=f'Users {last} - {i}')
+            await ctx.send(embed=embed)
 
     @event.command()
     @checks.is_admin()
