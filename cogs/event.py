@@ -161,7 +161,7 @@ class Event(commands.Cog):
                 i += 1
 
             if len(string) > 0:
-                embed.add_field(name=f'Users {last} - {i}')
+                embed.add_field(name=f'Users {last} - {i}', value=string)
                 await ctx.send(embed=embed)
 
     @event.command()
