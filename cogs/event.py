@@ -153,7 +153,7 @@ class Event(commands.Cog):
                 embed.add_field(name=f'Users {i-10} - {i}', value=string)
                 string = ''
 
-            if len(embed > 5500):
+            if len(embed) > 5500:
                 await ctx.send(embed=embed)
                 embed = Embed(title=f"Results for {eventinfo.name}")
 
