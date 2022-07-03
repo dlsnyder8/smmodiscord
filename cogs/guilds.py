@@ -182,8 +182,10 @@ class Guilds(commands.Cog):
 
             # add fly role
             await ctx.author.add_roles(ctx.guild.get_role(config.guild_role))
-            await ctx.author.remove_roles(ctx.guild.get_role(config.non_guild_role))
             roles_given += f"<@&{config.guild_role}>"
+
+            if config.non_guild_role is not None:
+                await ctx.author.remove_roles(ctx.guild.get_role(config.non_guild_role))
 
             await log.server_log(self.bot, ctx.guild.id, title="User has joined the guild", desc=f"**Roles given to** {ctx.author.mention}\n{roles_given}", id=ctx.author.id)
             channel = self.bot.get_channel(config.welcome_channel)
@@ -217,11 +219,10 @@ class Guilds(commands.Cog):
 
             guild = self.bot.get_guild(server.serverid)
             if guild is None:
-                pass
-            if server.guild_role is not None:
-                guild_role = guild.get_role(server.guild_role)
-            else:
-                pass
+                continue
+
+            guild_role = guild.get_role(server.guild_role)
+
             non_guild_role = guild.get_role(server.non_guild_role)
 
             if guild_role is None:
