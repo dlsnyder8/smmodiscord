@@ -160,6 +160,7 @@ class Guilds(commands.Cog):
         config = await db.server_config(ctx.guild.id)
         if config.guild_role is None:
             await ctx.send("The guild role for this server has not been set up. Please contact an administrator on this server")
+            return
         if ctx.author._roles.has(config.guild_role):
 
             await ctx.send(f"You've already been granted the {config.guild_name} role :)")
