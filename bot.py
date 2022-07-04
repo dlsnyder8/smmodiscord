@@ -41,7 +41,7 @@ else:
 extra_cogs = config.special_cogs
 if not dev:
     for f in os.listdir('./cogs'):
-        if f.endswith('.py'):
+        if f.endswith('.py') and f[:-3] not in config.ignored_cogs:
             bot.load_extension(f'cogs.{f[:-3]}')
     for mod in extra_cogs:
         bot.load_extension(f'guildcogs.{mod}')

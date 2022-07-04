@@ -20,3 +20,4 @@ main_acct = False
 prefix='&'
 
 special_cogs= ["","",""]
+ignored_cogs = []
