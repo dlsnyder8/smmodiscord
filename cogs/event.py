@@ -312,6 +312,33 @@ class Event(commands.Cog):
                 await ctx.send("There are no joinable events right now.")
             return
 
+    @event.command()
+    @checks.is_verified()
+    @checks.is_owner()
+    async def ids(self, ctx, eventid: int, num: int):
+
+        participants = await db.get_participants(eventid)
+        if participants == []:
+            await ctx.send("That doesn't appear to be a valid event id")
+            return
+
+        participants.sort(
+            reverse=True, key=lambda x: x.current_stat-x.starting_stat)
+
+        embed = Embed(title=f"List of IDs of top {num} users")
+        string = ""
+
+        for i in range(num):
+            try:
+                user = participants[i]
+            except IndexError:
+                break
+
+            string += f"{user.discordid}\n"
+
+        embed.description = string
+        await ctx.send(embed=embed)
+
     @event.command(aliases=['lb'])
     @checks.is_verified()
     async def leaderboard(self, ctx, eventid: int):
