@@ -378,4 +378,4 @@ class Guild(commands.Cog):
 def setup(bot):
     if config.main_acct:
         bot.add_cog(Guild(bot))
-        print("Guild Cog Loaded")
+        print("Guild management Cog Loaded")

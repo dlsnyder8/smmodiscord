@@ -24,6 +24,7 @@ dyl = 332314562575597579
 class Guilds(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.guild_member_check.start()
 
     @checks.server_configured()
     @commands.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]")
@@ -207,8 +208,10 @@ class Guilds(commands.Cog):
 
         allservers = await db.all_servers()
         filtered = [x for x in allservers if x.guild_role is not None]
+        print(filtered)
 
         for server in filtered:
+            print(server.serverid)
             if server.serverid in ignored_servers:
                 continue
 
@@ -253,7 +256,12 @@ class Guilds(commands.Cog):
                     embed.add_field(name="Users", value=' '.join(split))
 
                 await log.server_log_embed(self.bot, server.serverid, embed)
+                embed.title = f"Users with guild role removed for id: {server.serverid}"
                 await log.embedlog(self.bot, embed)
+
+    @guild_member_check.before_loop
+    async def before_guild_member_check(self):
+        await self.bot.wait_until_ready()
 
 
 def setup(bot):

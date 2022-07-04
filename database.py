@@ -1171,7 +1171,7 @@ async def rollback():
 
 async def main():
     # async with engine.begin() as conn:
-    print(await is_verified(3853801))
+    print(await all_servers())
     # await update_timestamp(538144211866746883, datetime.utcnow())
 
     # await server_config(731379317182824478)
