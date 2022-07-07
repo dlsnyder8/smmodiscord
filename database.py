@@ -8,6 +8,7 @@ from sqlalchemy.exc import *
 from datetime import datetime, timezone
 import asyncio
 import config
+import api
 
 
 # DATABASE_URL
@@ -1171,8 +1172,13 @@ async def rollback():
 
 async def main():
     # async with engine.begin() as conn:
-    print(await all_servers())
-    # await update_timestamp(538144211866746883, datetime.utcnow())
+    server = await server_config(991710903403806810)
+    allmembers = [0]
+    members = [x['user_id'] for x in (await api.guild_members(server.guilds[0], server.api_token))]
+    print(members)
+
+    allmembers.extend(members)
+    print(allmembers)
 
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)
