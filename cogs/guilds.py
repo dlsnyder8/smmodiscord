@@ -129,12 +129,12 @@ class Guilds(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 30, BucketType.member)
-    async def give(self, ctx, arg: int, members: commands.Greedy[discord.Member]):
+    async def give(self, ctx, itemid: int, members: commands.Greedy[discord.Member]):
         out = ""
         for member in members:
             smmoid = await db.get_smmoid(member.id)
             if smmoid is not None:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{arg}>\n"
+                out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{itemid}>\n"
             else:
                 out += f"{member.display_name} is not linked\n"
         await ctx.send(out)
