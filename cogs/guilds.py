@@ -196,6 +196,10 @@ class Guilds(commands.Cog):
                     await channel.send(f"Welcome {ctx.author.mention} to the {config.guild_name} guild!")
                 except discord.HTTPException:
                     pass
+                except AttributeError:
+                    await ctx.reply(f'Welcome to the guild!')
+                    message = await ctx.send(f"This message can be moved to another channel by using `{ctx.prefix}config update_welcome")
+                    await message.delete(delay=5)
 
         else:
             await ctx.send("You are not in the guild. If you think this is a mistake, try contacting your guild leader")
