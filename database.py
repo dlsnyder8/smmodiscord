@@ -16,7 +16,7 @@ import api
 DATABASE_URL = config.DATABASE_URL
 
 # create engine (db object basically)
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_size=1, max_overflow=0)
 # print(engine.table_names())
 # start automap and create session with automap
 Base = automap_base()
@@ -31,9 +31,10 @@ Events = Base.classes.events
 Event_info = Base.classes.event_info
 Warinfo = Base.classes.warinfo
 Smackback = Base.classes.smackback
+engine.dispose()
 
 asyncengine = create_async_engine(
-    config.ASYNC_DATABASE_URL, pool_pre_ping=True, pool_size=2)
+    config.ASYNC_DATABASE_URL, pool_pre_ping=True, pool_size=1, max_overflow=0)
 session = sessionmaker(
     asyncengine, expire_on_commit=False, class_=AsyncSession
 )
@@ -593,6 +594,55 @@ async def get_smmoid(discid):
         except Exception as e:
             await con.rollback()
             raise e
+        finally:
+            await con.close()
+
+
+async def user_info(discid):
+    async with session() as con:
+        try:
+            stmt = select(Plebs).filter_by(discid=discid, verified=True)
+            data = await con.execute(stmt)
+            data = data.first()
+            return None if data == [] else data[0]
+        except TypeError:
+            return None
+        except Exception as e:
+            await con.rollback()
+            raise e
+        finally:
+            await con.close()
+
+
+async def update_arcade_tokens(discid, tokens) -> int:
+    async with session() as con:
+        try:
+            stmt = select(Plebs).filter_by(discid=discid, verified=True)
+            user = (await con.execute(stmt)).first()[0]
+
+            user.tokens += tokens
+            await con.commit()
+
+            return user.tokens
+
+        except:
+            pass
+        finally:
+            await con.close()
+
+
+async def update_arcade_tickets(discid, tickets) -> int:
+    async with session() as con:
+        try:
+            stmt = select(Plebs).filter_by(discid=discid, verified=True)
+            user = (await con.execute(stmt)).first()[0]
+
+            user.tickets += tickets
+            await con.commit()
+            return user.tickets
+
+        except:
+            pass
         finally:
             await con.close()
 
@@ -1172,13 +1222,15 @@ async def rollback():
 
 async def main():
     # async with engine.begin() as conn:
-    server = await server_config(991710903403806810)
-    allmembers = [0]
-    members = [x['user_id'] for x in (await api.guild_members(server.guilds[0], server.api_token))]
-    print(members)
+    user = await user_info(332314562575597579)
 
-    allmembers.extend(members)
-    print(allmembers)
+    print(user.tokens)
+    await update_arcade_tokens(332314562575597579, 10)
+    user = await user_info(332314562575597579)
+    print(user.tokens)
+    await update_arcade_tokens(332314562575597579, -10)
+    user = await user_info(332314562575597579)
+    print(user.tokens)
 
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)
