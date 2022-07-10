@@ -214,9 +214,56 @@ class Guilds(commands.Cog):
             await ctx.send("You are not in the guild. If you think this is a mistake, try contacting your guild leader")
             return
 
+    @commands.command()
+    @checks.is_admin()
+    async def softcheck(self, ctx):
+
+        server = await db.ServerInfo(ctx.guild.id)
+
+        guilds = server.guilds
+        allmembers = []
+
+        for x in guilds:
+            allmembers.extend([x['user_id'] for x in (await api.guild_members(x, server.api_token))])
+
+        guild = self.bot.get_guild(server.serverid)
+        if guild is None:
+            return
+
+        guild_role = guild.get_role(server.guild_role)
+
+        if guild_role is None:
+            embed = discord.Embed(title="Guild Member Check Failed",
+                                  desc="It appears that my config is wrong and I cannot find the guild role")
+            await ctx.send(embed=embed)
+            return
+
+        removed = []
+        for member in guild_role.members:
+            if await db.islinked(member.id):
+                smmoid = await db.get_smmoid(member.id)
+                if smmoid not in allmembers:
+                    removed.append(f"{member.mention}")
+            else:
+                removed.append(f'{member.mention}')
+
+        if len(removed) > 0:
+            embed = Embed(
+                title="Users not in guild"
+            )
+            splitUsers = [removed[i:i+33]
+                          for i in range(0, len(removed), 33)]
+
+            for split in splitUsers:
+                embed.add_field(name="Users", value=' '.join(split))
+            await ctx.send(embed=embed)
+
+        else:
+            await ctx.send("Every is linked and in the guild")
+
     @tasks.loop(hours=4, reconnect=True)
     async def guild_member_check(self):
-        ignored_servers = []
+        ignored_servers = [710258284661178418]
         await log.log(self.bot, "Guild Member Check Started", " ")
 
         allservers = await db.all_servers()
@@ -258,6 +305,11 @@ class Guilds(commands.Cog):
                         await member.remove_roles(guild_role, reason="User has left the guild")
                         if non_guild_role is not None:
                             await member.add_roles(non_guild_role)
+                else:
+                    await member.remove_roles(guild_role, reason="User has not linked")
+                    removed.append(f'{member.mention}')
+                    if non_guild_role is not None:
+                        await member.add_roles(non_guild_role)
             if len(removed) > 0:
                 embed = Embed(
                     title="Users with the guild role removed"
