@@ -32,7 +32,9 @@ class Guilds(commands.Cog):
         # needs 1 arg, smmo id
         if len(args) != 1:
             await ctx.send(embed=Embed(title="Verification Process",
-                                       description="1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page\n2) Run `&verify SMMOID`\n3) Add the verification key to your motto, then run `&verify SMMOID` again"))
+                                       description=f"""1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page
+                                                        2) Run `{ctx.prefix}verify SMMOID`
+                                                        3) Add the verification key to your motto, then run `{ctx.prefix}verify SMMOID` again"""))
             return
 
         smmoid = args[0]
@@ -40,7 +42,7 @@ class Guilds(commands.Cog):
         try:
             smmoid = int(smmoid)
         except ValueError:
-            await ctx.send("Argument must be a number")
+            await ctx.send("Argument must be a number. If you typed `<123456>` literally, remove the `< >` and try again.")
             return
 
         # check if verified
@@ -60,7 +62,7 @@ class Guilds(commands.Cog):
             try:
                 motto = profile['motto']
             except KeyError:
-                await ctx.send(f"A motto cannot be found for this account. This usually means you are trying to link to a deleted account")
+                await ctx.send(f"A motto cannot be found for this account. This usually means you are trying to link to a deleted account. Ask someone for help to find your SMMO ID")
                 return
 
             if motto is None:
@@ -183,11 +185,18 @@ class Guilds(commands.Cog):
             roles_given = ""
 
             # add fly role
-            await ctx.author.add_roles(ctx.guild.get_role(config.guild_role))
+            try:
+                await ctx.author.add_roles(ctx.guild.get_role(config.guild_role))
+            except discord.Forbidden:
+                await ctx.send("I am unable to add roles to this user because either I do not have proper permissions, or my role is not high enough.")
+                return
             roles_given += f"<@&{config.guild_role}>"
 
             if config.non_guild_role is not None:
-                await ctx.author.remove_roles(ctx.guild.get_role(config.non_guild_role))
+                try:
+                    await ctx.author.remove_roles(ctx.guild.get_role(config.non_guild_role))
+                except discord.Forbidden:
+                    pass
             if config.log_channel is not None:
                 await log.server_log(self.bot, ctx.guild.id, title="User has joined the guild", desc=f"**Roles given to** {ctx.author.mention}\n{roles_given}", id=ctx.author.id)
             channel = self.bot.get_channel(config.welcome_channel)
@@ -198,7 +207,7 @@ class Guilds(commands.Cog):
                     pass
                 except AttributeError:
                     await ctx.reply(f'Welcome to the guild!')
-                    message = await ctx.send(f"This message can be moved to another channel by using `{ctx.prefix}config update_welcome")
+                    message = await ctx.send(f"This message can be moved to another channel by using `{ctx.prefix}config update_welcome #channel`")
                     await message.delete(delay=5)
 
         else:
