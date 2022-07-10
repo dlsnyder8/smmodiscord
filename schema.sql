@@ -24,7 +24,9 @@ CREATE TABLE "plebs" (
   "verification" varchar(32),
   "verified" boolean DEFAULT false,
   "pleb_active" boolean DEFAULT false,
-  "guild_ban" boolean default false
+  "guild_ban" boolean default false,
+  "tokens" int default 0,
+  "tickets" int default 0
 );
 
 CREATE TABLE "guilds" (
