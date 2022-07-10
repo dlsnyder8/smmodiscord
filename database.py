@@ -33,7 +33,7 @@ Warinfo = Base.classes.warinfo
 Smackback = Base.classes.smackback
 
 asyncengine = create_async_engine(
-    config.ASYNC_DATABASE_URL, pool_pre_ping=True)
+    config.ASYNC_DATABASE_URL, pool_pre_ping=True, pool_size=2)
 session = sessionmaker(
     asyncengine, expire_on_commit=False, class_=AsyncSession
 )
