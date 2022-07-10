@@ -120,7 +120,9 @@ class Admin(commands.Cog):
 
     @commands.command()
     async def premium(self, ctx):
-        await ctx.send("TODO")
+        embed = Embed(title="Premium Information")
+        string = f"""Are you interested in premium? You can find more information [here](https://patreon.com/smmodyl)
+                    """
 
     @commands.command()
     async def invite(self, ctx):
