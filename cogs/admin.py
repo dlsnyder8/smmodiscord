@@ -84,8 +84,8 @@ class Admin(commands.Cog):
                 await msg.delete(delay=15)
 
     @commands.command()
-    @checks.is_owner()
-    async def split(self, ctx, channel: discord.TextChannel, messageid):
+    @checks.is_verified()
+    async def findmentions(self, ctx, channel: discord.TextChannel, messageid):
         try:
             message = await channel.fetch_message(messageid)
             users = message.raw_mentions
