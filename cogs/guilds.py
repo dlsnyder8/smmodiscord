@@ -216,7 +216,7 @@ class Guilds(commands.Cog):
 
     @commands.command()
     @checks.is_admin()
-    async def softcheck(self, ctx):
+    async def softcheck(self, ctx, guildrole: discord.Role = None):
 
         server = await db.ServerInfo(ctx.guild.id)
 
@@ -230,11 +230,14 @@ class Guilds(commands.Cog):
         if guild is None:
             return
 
-        guild_role = guild.get_role(server.guild_role)
+        if guildrole is None:
+            guild_role = guild.get_role(server.guild_role)
+        else:
+            guild_role = guildrole
 
         if guild_role is None:
             embed = discord.Embed(title="Guild Member Check Failed",
-                                  desc="It appears that my config is wrong and I cannot find the guild role")
+                                  description="It appears that my config is wrong and I cannot find the guild role")
             await ctx.send(embed=embed)
             return
 
