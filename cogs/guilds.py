@@ -270,7 +270,8 @@ class Guilds(commands.Cog):
         await log.log(self.bot, "Guild Member Check Started", " ")
 
         allservers = await db.all_servers()
-        filtered = [x for x in allservers if x.guild_role is not None]
+        filtered = [
+            x for x in allservers if x.guild_role is not None and x.guilds is not None]
         print(filtered)
 
         for server in filtered:
@@ -279,6 +280,7 @@ class Guilds(commands.Cog):
                 continue
 
             guilds = server.guilds
+
             allmembers = []
 
             for x in guilds:
