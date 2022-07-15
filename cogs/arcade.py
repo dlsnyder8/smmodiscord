@@ -30,7 +30,7 @@ class Arcade(commands.Cog):
     @commands.command()
     @checks.is_verified()
     @checks.in_main()
-    @commands.cooldown(1, 30, BucketType.member)
+    @commands.cooldown(1, 5, BucketType.member)
     async def slots(self, ctx):
         prizes = {':yen:': 5,
                   ':dollar:': 10,
@@ -75,6 +75,7 @@ class Arcade(commands.Cog):
     @commands.command()
     @checks.is_verified()
     @checks.in_main()
+    @commands.cooldown(1, 5, BucketType.member)
     async def coinflip(self, ctx, choice: str = None):
         user = await db.user_info(ctx.author.id)
         if user.tokens <= 0:
@@ -111,6 +112,7 @@ class Arcade(commands.Cog):
     @commands.command()
     @checks.is_verified()
     @checks.in_main()
+    @commands.cooldown(1, 15, BucketType.member)
     async def timing(self, ctx):
         user = await db.user_info(ctx.author.id)
         if user.tokens <= 0:
@@ -177,6 +179,7 @@ class Arcade(commands.Cog):
     @commands.command(aliases=['rps'])
     @checks.is_verified()
     @checks.in_main()
+    @commands.cooldown(1, 5, BucketType.member)
     async def rockpaperscissors(self, ctx):
         chan = ctx.channel
         author = ctx.author
@@ -241,6 +244,7 @@ class Arcade(commands.Cog):
     @commands.command()
     @checks.is_verified()
     @checks.in_main()
+    @commands.cooldown(1, 5, BucketType.member)
     async def diceroll(self, ctx):
         user = await db.user_info(ctx.author.id)
         if user.tokens <= 0:
@@ -289,7 +293,7 @@ class Arcade(commands.Cog):
         embed.add_field(name="Tickets", value=f"{user.tickets} :tickets:")
         await ctx.reply(embed=embed)
 
-    @arcade.command(aliases=['addtoken'])
+    @arcade.command(aliases=['addtoken', 'addtokens'])
     @checks.is_owner()
     async def token_add(self, ctx, tokens: int, members: commands.Greedy[discord.Member]):
 
@@ -300,7 +304,7 @@ class Arcade(commands.Cog):
                 title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :coin:')
             await ctx.send(embed=embed)
 
-    @arcade.command(aliases=['addticket'])
+    @arcade.command(aliases=['addticket', 'addtickets'])
     @checks.is_owner()
     async def ticket_add(self, ctx, tokens: int, members: commands.Greedy[discord.Member]):
         for member in members:
