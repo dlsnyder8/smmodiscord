@@ -293,21 +293,21 @@ class Arcade(commands.Cog):
 
     @arcade.command(aliases=['addtoken'])
     @checks.is_owner()
-    async def token_add(self, ctx, tokens, members: discord.Member):
-        for member in members:
-            current_tokens = await db.update_arcade_tokens(member.id, tokens)
-            embed = discord.Embed(
-                title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :coin:')
-            await ctx.send(embed=embed)
+    async def token_add(self, ctx, tokens, member: discord.Member):
+
+        current_tokens = await db.update_arcade_tokens(member.id, tokens)
+        embed = discord.Embed(
+            title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :coin:')
+        await ctx.send(embed=embed)
 
     @arcade.command(aliases=['addticket'])
     @checks.is_owner()
-    async def ticket_add(self, ctx, tokens, members: discord.Member):
-        for member in members:
-            current_tokens = await db.update_arcade_tickets(member.id, tokens)
-            embed = discord.Embed(
-                title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :tickets:')
-            await ctx.send(embed=embed)
+    async def ticket_add(self, ctx, tokens, member: discord.Member):
+
+        current_tokens = await db.update_arcade_tickets(member.id, tokens)
+        embed = discord.Embed(
+            title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :tickets:')
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
