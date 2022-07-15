@@ -104,7 +104,7 @@ class Arcade(commands.Cog):
         else:
             current_tickets = await db.update_arcade_tickets(ctx.author.id, 2)
             embed = discord.Embed(title="Winner!")
-            embed.description = f"Congratulations you have won 5 :tickets: and you currently have {current_tickets} :tickets:"
+            embed.description = f"Congratulations you have won 2 :tickets: and you currently have {current_tickets} :tickets:"
 
         await ctx.reply(f"You have {current_tokens} :coin: left", embed=embed)
 
@@ -232,7 +232,7 @@ class Arcade(commands.Cog):
             embed.description = f"You chose {hum_pick}, which beats {cpu_pick}. Congrats!"
 
             cur_tickets = await db.update_arcade_tickets(ctx.author.id, 3)
-            await ctx.reply(f"You won 10 :tickets:. You now have {cur_tickets} :tickets:", embed=embed)
+            await ctx.reply(f"You won 3 :tickets:. You now have {cur_tickets} :tickets:", embed=embed)
         else:
             embed = discord.Embed(
                 title="Try Again!", description=f"You chose {hum_pick}, which lost to {cpu_pick}")
@@ -267,7 +267,7 @@ class Arcade(commands.Cog):
             cur_tickets = await db.update_arcade_tickets(ctx.author.id, 6)
             embed = discord.Embed("Winner!")
             embed.description(
-                f"Your stupendous choice of {hum_pick} has won yourself 15 tickets")
+                f"Your stupendous choice of {hum_pick} has won yourself 6 tickets")
             await msg.reply(f"You now have {cur_tickets} :tickets:", embed=embed)
 
         else:
