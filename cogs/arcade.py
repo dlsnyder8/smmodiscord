@@ -7,6 +7,7 @@ import database as db
 from discord.ext.commands.cooldowns import BucketType
 import random
 import asyncio
+import time
 
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.INFO)
@@ -97,6 +98,75 @@ class Arcade(commands.Cog):
             embed.description = f"Congratulations you have won 5 :tickets: and you currently have {current_tickets} :tickets:"
 
         await ctx.reply(f"You have {current_tokens} :coin: left", embed=embed)
+
+    @commands.command()
+    @checks.is_verified()
+    @checks.in_main()
+    async def timing(self, ctx):
+        user = await db.user_info(ctx.author.id)
+        if user.tokens <= 0:
+            await ctx.reply("You are out of tokens!")
+            return
+
+        embed = discord.Embed(title="Start perfect timing?")
+        embed.description = f"""You are about to start a game of perfect timing. 
+                                The goal of the game is to respond as close to 10 seconds as possible after the prompt.
+                                Anything that happens before 10 seconds will not count.
+                                The game will start once you respond with `confirm`. If you don't want to play, just wait and let the prompt timeout."""
+
+        ctx.reply(embed=embed)
+
+        def check(m):
+            return m.content in ['confirm'] and m.channel == ctx.channel and m.author == ctx.author
+
+        try:
+            msg = await self.bot.wait_for('message', timeout=20.0, check=check)
+        except asyncio.TimeoutError:
+            await ctx.reply("Game has been cancelled")
+            return
+
+        cur_tokens = await db.update_arcade_tokens(ctx.author.id, -1)
+        start_time = time.time()
+        embed = discord.Embed(title="Game has started!",
+                              description="Type `now` in chat as close to 10 seconds after this prompt as possible.")
+        await ctx.reply(embed=embed)
+
+        def check2(m):
+            return m.content in ['now'] and m.channel == ctx.channel and m.author == ctx.author
+        try:
+            await self.bot.wait_for('message', timeout=20, check=check2)
+        except asyncio.TimeoutError:
+            await ctx.reply("Too much time has passed. 0 :tickets: awarded")
+            return
+
+        elapsed = time.now() - start_time
+        elapsed = float(f'{elapsed:.2f}')
+
+        if elapsed < 0.0:
+            tickets = 0
+        elif elapsed == 0.0:
+            tickets = 250
+        elif elapsed <= 0.05:
+            tickets = 100
+        elif elapsed <= 0.1:
+            tickets = 25
+        elif elapsed <= 0.25:
+            tickets = 10
+        elif elapsed <= 0.5:
+            tickets = 5
+        elif elapsed <= 1:
+            tickets = 2
+        elif elapsed <= 2:
+            tickets = 1
+        else:
+            tickets = 0
+
+        embed = discord.Embed(
+            title="Congratulations!", description=f"You responded in {elapsed} seconds and were awarded {tickets} :tickets: ")
+        if tickets == 0:
+            embed.title = "Better luck next time!"
+
+        await ctx.reply(f"You have {cur_tokens} :coin: remaining", embed=embed)
 
     @commands.command(aliases=['rps'])
     @checks.is_verified()
