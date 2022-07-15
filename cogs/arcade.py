@@ -76,24 +76,33 @@ class Arcade(commands.Cog):
     @checks.is_verified()
     @checks.in_main()
     async def coinflip(self, ctx, choice: str = None):
-        if choice not in ['heads', 'tails']:
-            await ctx.send(f"Your options are `heads` or `tails`\n\n`{ctx.prefix}coinflip heads`")
-            return
-
         user = await db.user_info(ctx.author.id)
-        if user.tokens > 0:
-            current_tokens = await db.update_arcade_tokens(ctx.author.id, -1)
-
-        else:
+        if user.tokens <= 0:
             await ctx.reply("You are out of tokens")
             return
+
+        await ctx.reply(f'Please select `heads` or `tails` and type your choice into this channel')
+        choices = ['heads', 'tails']
+
+        def check(m):
+            return m.content in choices and ctx.author == m.author and ctx.channel == m.channel
+
+        try:
+            msg = await self.bot.wait_for('message', timeout=10.0, check=check)
+        except asyncio.TimeoutError:
+            await ctx.reply("You waited too long to select an option and the game has timed out")
+            return
+
+        current_tokens = await db.update_arcade_tokens(ctx.author.id, -1)
+
+        choice = msg.content
 
         cf = random.choice(['heads', 'tails'])
         if choice != cf:
             embed = discord.Embed(title="Try Again!")
             embed.description = f"The coin was {cf}. Sorry!"
         else:
-            current_tickets = await db.update_arcade_tickets(ctx.author.id, 5)
+            current_tickets = await db.update_arcade_tickets(ctx.author.id, 2)
             embed = discord.Embed(title="Winner!")
             embed.description = f"Congratulations you have won 5 :tickets: and you currently have {current_tickets} :tickets:"
 
@@ -114,13 +123,13 @@ class Arcade(commands.Cog):
                                 Anything that happens before 10 seconds will not count.
                                 The game will start once you respond with `confirm`. If you don't want to play, just wait and let the prompt timeout."""
 
-        ctx.reply(embed=embed)
+        await ctx.reply(embed=embed)
 
         def check(m):
             return m.content in ['confirm'] and m.channel == ctx.channel and m.author == ctx.author
 
         try:
-            msg = await self.bot.wait_for('message', timeout=20.0, check=check)
+            await self.bot.wait_for('message', timeout=20.0, check=check)
         except asyncio.TimeoutError:
             await ctx.reply("Game has been cancelled")
             return
@@ -139,30 +148,29 @@ class Arcade(commands.Cog):
             await ctx.reply("Too much time has passed. 0 :tickets: awarded")
             return
 
-        elapsed = time.now() - start_time
+        elapsed = time.time() - start_time
         elapsed = float(f'{elapsed:.2f}')
 
-        if elapsed < 0.0:
+        if elapsed < 0.0 or elapsed > 1.0:
             tickets = 0
-        elif elapsed == 0.0:
-            tickets = 250
+        elif elapsed == 0.00:
+            tickets = 300
         elif elapsed <= 0.05:
-            tickets = 100
+            tickets = 150
         elif elapsed <= 0.1:
-            tickets = 25
+            tickets = 50
         elif elapsed <= 0.25:
-            tickets = 10
+            tickets = 15
         elif elapsed <= 0.5:
-            tickets = 5
-        elif elapsed <= 1:
+            tickets = 3
+        elif elapsed <= 0.75:
             tickets = 2
-        elif elapsed <= 2:
+        elif elapsed <= 1.0:
             tickets = 1
-        else:
-            tickets = 0
 
+        cur_tickets = await db.update_arcade_tickets(ctx.author.id, tickets)
         embed = discord.Embed(
-            title="Congratulations!", description=f"You responded in {elapsed} seconds and were awarded {tickets} :tickets: ")
+            title="Congratulations!", description=f"You responded in {elapsed} seconds and were awarded {tickets} :tickets:. You now have {cur_tickets} :tickets:")
         if tickets == 0:
             embed.title = "Better luck next time!"
 
@@ -225,7 +233,7 @@ class Arcade(commands.Cog):
             embed = discord.Embed(title="Winner!")
             embed.description = f"You chose {hum_pick}, which beats {cpu_pick}. Congrats!"
 
-            cur_tickets = await db.update_arcade_tickets(ctx.author.id, 10)
+            cur_tickets = await db.update_arcade_tickets(ctx.author.id, 3)
             await ctx.reply(f"You won 10 :tickets:. You now have {cur_tickets} :tickets:", embed=embed)
         else:
             embed = discord.Embed(
@@ -258,7 +266,7 @@ class Arcade(commands.Cog):
         cpu_pick = random.choice(options)
 
         if hum_pick == cpu_pick:
-            cur_tickets = await db.update_arcade_tickets(ctx.author.id, 15)
+            cur_tickets = await db.update_arcade_tickets(ctx.author.id, 6)
             embed = discord.Embed("Winner!")
             embed.description(
                 f"Your stupendous choice of {hum_pick} has won yourself 15 tickets")
@@ -285,11 +293,21 @@ class Arcade(commands.Cog):
 
     @arcade.command(aliases=['addtoken'])
     @checks.is_owner()
-    async def token_add(self, ctx, member: discord.Member, tokens: int):
-        current_tokens = await db.update_arcade_tokens(member.id, tokens)
-        embed = discord.Embed(
-            title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :coin:')
-        await ctx.send(embed=embed)
+    async def token_add(self, ctx, tokens, members: discord.Greedy[discord.Member]):
+        for member in members:
+            current_tokens = await db.update_arcade_tokens(member.id, tokens)
+            embed = discord.Embed(
+                title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :coin:')
+            await ctx.send(embed=embed)
+
+    @arcade.command(aliases=['addticket'])
+    @checks.is_owner()
+    async def ticket_add(self, ctx, tokens, members: discord.Greedy[discord.Member]):
+        for member in members:
+            current_tokens = await db.update_arcade_tickets(member.id, tokens)
+            embed = discord.Embed(
+                title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :tickets:')
+            await ctx.send(embed=embed)
 
 
 def setup(bot):
