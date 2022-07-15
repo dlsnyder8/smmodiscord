@@ -86,7 +86,7 @@ class Arcade(commands.Cog):
         choices = ['heads', 'tails']
 
         def check(m):
-            return m.content in choices and ctx.author == m.author and ctx.channel == m.channel
+            return m.content.lower() in choices and ctx.author == m.author and ctx.channel == m.channel
 
         try:
             msg = await self.bot.wait_for('message', timeout=10.0, check=check)
@@ -96,7 +96,7 @@ class Arcade(commands.Cog):
 
         current_tokens = await db.update_arcade_tokens(ctx.author.id, -1)
 
-        choice = msg.content
+        choice = msg.content.lower()
 
         cf = random.choice(['heads', 'tails'])
         if choice != cf:
@@ -128,7 +128,7 @@ class Arcade(commands.Cog):
         await ctx.reply(embed=embed)
 
         def check(m):
-            return m.content in ['confirm'] and m.channel == ctx.channel and m.author == ctx.author
+            return m.content.lower() in ['confirm'] and m.channel == ctx.channel and m.author == ctx.author
 
         try:
             await self.bot.wait_for('message', timeout=20.0, check=check)
@@ -143,7 +143,7 @@ class Arcade(commands.Cog):
         await ctx.reply(embed=embed)
 
         def check2(m):
-            return m.content in ['now'] and m.channel == ctx.channel and m.author == ctx.author
+            return m.content.lower() in ['now'] and m.channel == ctx.channel and m.author == ctx.author
         try:
             await self.bot.wait_for('message', timeout=20, check=check2)
         except asyncio.TimeoutError:
@@ -190,7 +190,7 @@ class Arcade(commands.Cog):
             return
 
         def check(m):
-            return m.content in options and m.channel == chan and m.author == author
+            return m.content.lower() in options and m.channel == chan and m.author == author
 
         await ctx.reply("Game has started. Please respond with `rock`, `paper`, or `scissors` to play")
         try:
@@ -202,7 +202,7 @@ class Arcade(commands.Cog):
         cur_tokens = await db.update_arcade_tokens(ctx.author.id, -1)
 
         cpu_pick = random.choice(options)
-        hum_pick = msg.content
+        hum_pick = msg.content.lower()
 
         win = None
         if cpu_pick == hum_pick:
@@ -254,7 +254,7 @@ class Arcade(commands.Cog):
         options = ['1', '2', '3', '4', '5', '6']
 
         def check(m):
-            return m.author == ctx.author and ctx.channel == m.channel and m.content in options
+            return m.author == ctx.author and ctx.channel == m.channel and m.content.lower() in options
 
         try:
             msg = await self.bot.wait_for('message', check=check, timeout=20.0)
@@ -264,7 +264,7 @@ class Arcade(commands.Cog):
             return
 
         cur_tokens = await db.update_arcade_tokens(ctx.author.id, -1)
-        hum_pick = msg.content
+        hum_pick = msg.content.lower()
         cpu_pick = random.choice(options)
 
         if hum_pick == cpu_pick:
