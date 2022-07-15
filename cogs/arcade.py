@@ -299,7 +299,6 @@ class Arcade(commands.Cog):
 
         for member in members:
             current_tokens = await db.update_arcade_tokens(member.id, tokens)
-            current_tokens = (await db.user_info(ctx.author.id)).tokens
             embed = discord.Embed(
                 title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :coin:')
             await ctx.send(embed=embed)
