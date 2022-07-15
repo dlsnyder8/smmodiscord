@@ -293,7 +293,7 @@ class Arcade(commands.Cog):
 
     @arcade.command(aliases=['addtoken'])
     @checks.is_owner()
-    async def token_add(self, ctx, tokens, members: commands.Greedy[discord.Member]):
+    async def token_add(self, ctx, tokens, members: discord.Member):
         for member in members:
             current_tokens = await db.update_arcade_tokens(member.id, tokens)
             embed = discord.Embed(
@@ -302,7 +302,7 @@ class Arcade(commands.Cog):
 
     @arcade.command(aliases=['addticket'])
     @checks.is_owner()
-    async def ticket_add(self, ctx, tokens, members: commands.Greedy[discord.Member]):
+    async def ticket_add(self, ctx, tokens, members: discord.Member):
         for member in members:
             current_tokens = await db.update_arcade_tickets(member.id, tokens)
             embed = discord.Embed(

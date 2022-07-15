@@ -33,8 +33,12 @@ Warinfo = Base.classes.warinfo
 Smackback = Base.classes.smackback
 engine.dispose()
 
+if config.main_acct:
+    size = 3
+else:
+    size = 1
 asyncengine = create_async_engine(
-    config.ASYNC_DATABASE_URL, pool_pre_ping=True, pool_size=1, max_overflow=0)
+    config.ASYNC_DATABASE_URL, pool_pre_ping=True, pool_size=size, max_overflow=size)
 session = sessionmaker(
     asyncengine, expire_on_commit=False, class_=AsyncSession
 )
@@ -614,7 +618,7 @@ async def user_info(discid):
             await con.close()
 
 
-async def update_arcade_tokens(discid, tokens) -> int:
+async def update_arcade_tokens(discid, tokens):
     async with session() as con:
         try:
             stmt = select(Plebs).filter_by(discid=discid, verified=True)
@@ -631,7 +635,7 @@ async def update_arcade_tokens(discid, tokens) -> int:
             await con.close()
 
 
-async def update_arcade_tickets(discid, tickets) -> int:
+async def update_arcade_tickets(discid, tickets):
     async with session() as con:
         try:
             stmt = select(Plebs).filter_by(discid=discid, verified=True)
