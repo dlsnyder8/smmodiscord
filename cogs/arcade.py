@@ -150,8 +150,8 @@ class Arcade(commands.Cog):
             await ctx.reply("Too much time has passed. 0 :tickets: awarded")
             return
 
-        elapsed = time.time() - start_time - 10
-        elapsed = float(f'{elapsed:.2f}')
+        pure_time = time.time() - start_time
+        elapsed = float(f'{elapsed-10:.2f}')
 
         if elapsed < 0.0 or elapsed > 1.0:
             tickets = 0
@@ -170,7 +170,7 @@ class Arcade(commands.Cog):
 
         cur_tickets = await db.update_arcade_tickets(ctx.author.id, tickets)
         embed = discord.Embed(
-            title="Congratulations!", description=f"You responded in {elapsed} seconds and were awarded {tickets} :tickets:. You now have {cur_tickets} :tickets:")
+            title="Congratulations!", description=f"You responded in {pure_time} seconds and were awarded {tickets} :tickets:. You now have {cur_tickets} :tickets:")
         if tickets == 0:
             embed.title = "Better luck next time!"
 
