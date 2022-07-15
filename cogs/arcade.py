@@ -148,7 +148,7 @@ class Arcade(commands.Cog):
             await ctx.reply("Too much time has passed. 0 :tickets: awarded")
             return
 
-        elapsed = time.time() - start_time
+        elapsed = time.time() - start_time - 10
         elapsed = float(f'{elapsed:.2f}')
 
         if elapsed < 0.0 or elapsed > 1.0:
@@ -156,14 +156,12 @@ class Arcade(commands.Cog):
         elif elapsed == 0.00:
             tickets = 300
         elif elapsed <= 0.05:
-            tickets = 150
+            tickets = 100
         elif elapsed <= 0.1:
-            tickets = 50
+            tickets = 25
         elif elapsed <= 0.25:
-            tickets = 15
+            tickets = 5
         elif elapsed <= 0.5:
-            tickets = 3
-        elif elapsed <= 0.75:
             tickets = 2
         elif elapsed <= 1.0:
             tickets = 1
@@ -293,21 +291,23 @@ class Arcade(commands.Cog):
 
     @arcade.command(aliases=['addtoken'])
     @checks.is_owner()
-    async def token_add(self, ctx, tokens, member: discord.Member):
+    async def token_add(self, ctx, tokens: int, members: commands.Greedy[discord.Member]):
 
-        current_tokens = await db.update_arcade_tokens(member.id, tokens)
-        embed = discord.Embed(
-            title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :coin:')
-        await ctx.send(embed=embed)
+        for member in members:
+            current_tokens = await db.update_arcade_tokens(member.id, tokens)
+            current_tokens = (await db.user_info(ctx.author.id)).tokens
+            embed = discord.Embed(
+                title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :coin:')
+            await ctx.send(embed=embed)
 
     @arcade.command(aliases=['addticket'])
     @checks.is_owner()
-    async def ticket_add(self, ctx, tokens, member: discord.Member):
-
-        current_tokens = await db.update_arcade_tickets(member.id, tokens)
-        embed = discord.Embed(
-            title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :tickets:')
-        await ctx.send(embed=embed)
+    async def ticket_add(self, ctx, tokens: int, members: commands.Greedy[discord.Member]):
+        for member in members:
+            current_tokens = await db.update_arcade_tickets(member.id, tokens)
+            embed = discord.Embed(
+                title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :tickets:')
+            await ctx.send(embed=embed)
 
 
 def setup(bot):

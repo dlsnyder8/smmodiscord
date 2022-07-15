@@ -626,13 +626,12 @@ async def update_arcade_tokens(discid, tokens):
 
             user.tokens += tokens
             await con.commit()
-
-            return user.tokens
-
         except:
             pass
         finally:
             await con.close()
+
+    return user.tokens
 
 
 async def update_arcade_tickets(discid, tickets):
@@ -643,12 +642,12 @@ async def update_arcade_tickets(discid, tickets):
 
             user.tickets += tickets
             await con.commit()
-            return user.tickets
-
         except:
             pass
         finally:
             await con.close()
+
+    return user.tickets
 
 
 ####################
@@ -1229,12 +1228,12 @@ async def main():
     user = await user_info(332314562575597579)
 
     print(user.tokens)
-    await update_arcade_tokens(332314562575597579, 10)
-    user = await user_info(332314562575597579)
-    print(user.tokens)
-    await update_arcade_tokens(332314562575597579, -10)
-    user = await user_info(332314562575597579)
-    print(user.tokens)
+    cur_tokens = await update_arcade_tokens(332314562575597579, 10)
+
+    print(cur_tokens)
+    cur_tokens = await update_arcade_tokens(332314562575597579, -10)
+
+    print(cur_tokens)
 
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)
