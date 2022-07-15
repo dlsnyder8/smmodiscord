@@ -151,7 +151,7 @@ class Arcade(commands.Cog):
             return
 
         pure_time = time.time() - start_time
-        elapsed = float(f'{pure_time-10:.2f}')
+        elapsed = float(f'{(pure_time-10):.2f}')
 
         if elapsed < 0.0 or elapsed > 1.0:
             tickets = 0
