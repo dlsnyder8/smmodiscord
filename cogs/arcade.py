@@ -150,7 +150,7 @@ class Arcade(commands.Cog):
             await ctx.reply("Too much time has passed. 0 :tickets: awarded")
             return
 
-        pure_time = time.time() - start_time
+        pure_time = float(f'{(time.time() - start_time):.2f}')
         elapsed = float(f'{(pure_time-10):.2f}')
 
         if elapsed < 0.0 or elapsed > 1.0:
