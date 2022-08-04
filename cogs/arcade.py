@@ -293,6 +293,20 @@ class Arcade(commands.Cog):
         embed.add_field(name="Tickets", value=f"{user.tickets} :tickets:")
         await ctx.reply(embed=embed)
 
+    @arcade.command()
+    @checks.is_owner()
+    async def economy(self, ctx):
+        data = await db.all_arcade_info()
+
+        total_tokens = sum(x.tokens for x in data)
+        total_tickets = sum(x.tickets for x in data)
+
+        embed = discord.Embed(title="Arcade Economy")
+        embed.add_field(name="Tickets", value=total_tickets, inline=True)
+        embed.add_field(name="Tokens", value=total_tokens, inline=True)
+
+        await ctx.send(embed=embed)
+
     @arcade.command(aliases=['addtoken', 'addtokens'])
     @checks.is_owner()
     async def token_add(self, ctx, tokens: int, members: commands.Greedy[discord.Member]):

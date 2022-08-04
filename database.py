@@ -650,9 +650,24 @@ async def update_arcade_tickets(discid, tickets):
     return user.tickets
 
 
+async def all_arcade_info():
+    async with session() as con:
+        try:
+            stmt = select(Plebs).filter_by(verified=True)
+            data = await con.execute(stmt)
+            data = [r[0] for r in data.fetchall()]
+
+        except:
+            pass
+        finally:
+            await con.close()
+
+    return data
+
 ####################
 # Guild Commands #
 ####################
+
 
 async def is_added(discid):
     async with session() as con:
@@ -1225,16 +1240,7 @@ async def rollback():
 
 async def main():
     # async with engine.begin() as conn:
-    user = await user_info(332314562575597579)
-
-    print(user.tokens)
-    cur_tokens = await update_arcade_tokens(332314562575597579, 10)
-
-    print(cur_tokens)
-    cur_tokens = await update_arcade_tokens(332314562575597579, -10)
-
-    print(cur_tokens)
-
+    print(sum(await all_arcade_info()))
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)
     # await add_server(1234,"testtest server")
