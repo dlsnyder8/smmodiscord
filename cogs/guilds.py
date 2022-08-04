@@ -216,6 +216,7 @@ class Guilds(commands.Cog):
 
     @commands.command()
     @checks.is_admin()
+    @commands.cooldown(1, 600, BucketType.guild)
     async def softcheck(self, ctx, guildrole: discord.Role = None):
 
         server = await db.ServerInfo(ctx.guild.id)
