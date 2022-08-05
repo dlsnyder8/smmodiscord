@@ -100,7 +100,9 @@ class Diamond(commands.Cog):
                                   description=f"Role: {role}\nChannel: {chan}")
                     await log.server_log_embed(self.bot, server.serverid, embed)
                     continue
-
+                if server.last_pinged is None:
+                    await db.update_timestamp(server.serverid,datetime.now(timezone.utc))
+                    continue
                 plus30min = server.last_pinged + timedelta(minutes=29)
                 plus30min = pytz.utc.localize(plus30min)
 
