@@ -90,7 +90,6 @@ class Diamond(commands.Cog):
                 embed.description = string
                 guild = self.bot.get_guild(server.serverid)
                 if guild is None:
-                    await log.errorlognoping(self.bot, Embed(title="Guild Not Found", description=f"Guild {server.serverid} cannot be found"))
                     continue
                 chan = self.bot.get_channel(server.diamond_channel)
                 role = guild.get_role(server.diamond_role)
@@ -101,7 +100,7 @@ class Diamond(commands.Cog):
                     await log.server_log_embed(self.bot, server.serverid, embed)
                     continue
                 if server.last_pinged is None:
-                    await db.update_timestamp(server.serverid,datetime.now(timezone.utc))
+                    await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
                     continue
                 plus30min = server.last_pinged + timedelta(minutes=29)
                 plus30min = pytz.utc.localize(plus30min)
