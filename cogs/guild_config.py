@@ -93,6 +93,10 @@ class Config(commands.Cog):
         More info can be found by running `{ctx.prefix}config` to see your current configuration or `{ctx.prefix}config options` to see all of the commands for changing the config values
         """
 
+        embed = discord.Embed(title="Embed Guide")
+        embed.description = info
+        await ctx.send(embed=embed)
+
     @config.command()
     @checks.is_admin()
     @checks.is_verified()
