@@ -6,6 +6,7 @@ CREATE TABLE "server" (
   "ambassador_role" numeric DEFAULT null,
   "diamond_ping" boolean DEFAULT false,
   "diamond_role" numeric DEFAULT null,
+  "diamond_amount" numeric DEFAULT 2000000,
   "diamond_channel" numeric DEFAULT null,
   "last_pinged" timestamp default null,
   "guild_role" bigint default null,

@@ -190,6 +190,23 @@ async def add_diamond_channel(serverid, channelid):
             await con.close()
 
 
+async def change_diamond_amount(serverid, amount):
+    async with session() as con:
+        try:
+
+            stmt = update(Server).filter_by(serverid=serverid).values(
+                {Server.diamond_amount: amount})
+
+            await con.execute(stmt)
+            await con.commit()
+
+        except Exception as e:
+            await con.rollback()
+            raise e
+        finally:
+            await con.close()
+
+
 async def change_guild_role(serverid, roleid):
     async with session() as con:
         try:

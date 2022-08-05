@@ -47,6 +47,7 @@ class Config(commands.Cog):
                                 Diamond Ping: {data.diamond_ping}
                                 Diamond Role: {f'<@&{data.diamond_role}>' if data.diamond_role is not None else 'Not set'}
                                 Diamond Channel: {f'<#{data.diamond_channel}>' if data.diamond_channel is not None else 'Not set'}
+                                Diamond Amount: {data.diamond_amount:,} gold
                                 """
 
             embed.add_field(name="Want to change these?",
@@ -102,8 +103,8 @@ class Config(commands.Cog):
     @checks.is_verified()
     @checks.server_configured()
     async def options(self, ctx):
-        options = f"""**All commands will start with {ctx.prefix}config**
-                    diamonds <Diamond Ping (True/False)> <Diamond Role> <Diamond Channel>
+        options = f"""**All commands will start with `{ctx.prefix}config`**
+                    diamonds <Diamond Ping (True/False)> <Diamond Role> <Diamond Channel> <Amount>
                     guild_role <@mention guild role>
                     non_guild_role <@mention non guild role>
                     api_token <API Token> -- Use in private channel
@@ -120,7 +121,7 @@ class Config(commands.Cog):
     @checks.is_verified()
     @checks.server_configured()
     @checks.premium_server()
-    async def diamonds(self, ctx, active: bool = False, role: discord.Role = None, channel: discord.TextChannel = None):
+    async def diamonds(self, ctx, active: bool = False, role: discord.Role = None, channel: discord.TextChannel = None, amount=2000000):
         if active is False:
             await db.enable_diamond_ping(ctx.guild.id)
             await ctx.send("Diamond Pings have been disabled for this guild")
@@ -133,6 +134,7 @@ class Config(commands.Cog):
             await db.enable_diamond_ping(ctx.guild.id, True)
             await db.add_diamond_channel(ctx.guild.id, channel.id)
             await db.add_diamond_role(ctx.guild.id, role.id)
+            await db.change_diamond_amount(ctx.guild.id, amount)
 
             await ctx.send(embed=Embed(title="Updated", description=f"Channel: {channel.mention}\nRole: {role.mention}"))
 

@@ -70,41 +70,43 @@ class Diamond(commands.Cog):
         more_than_200 = False
         string = ""
         listings = await api.diamond_market()
+        allservers = await db.all_servers()
         # listings = [{"price_per_diamond": 1, "diamonds_remaining": 5}]
-        embed = Embed(title="Diamonds Under 1.3m")
 
-        for listing in listings:
-            if listing["price_per_diamond"] <= 1300000:  # 1.2m
-                cheap_diamonds = True
-                string += f"There are {listing['diamonds_remaining']} diamonds left at {listing['price_per_diamond']:,} each.\n"
-                if listing['diamonds_remaining'] >= 200:
-                    more_than_200 = True
-        if cheap_diamonds:
-            allinfo = await db.get_diamond_ping_info()
+        # Servers who have premium and have a properly configured diamond pings
+        filtered = [
+            x for x in allservers if x.premium and x.diamond_ping and x.diamond_role is not None and x.diamond_channel is not None]
 
-            embed.description = string
-            for server in allinfo:
-                try:
+        for server in filtered:
+            diamond = [x for x in listings if x['price_per_diamond']
+                       < server.diamond_amount]
 
-                    guild = self.bot.get_guild(server.serverid)
+            if diamond is not []:
+                embed = Embed(title="Cheap Diamonds!!!")
+                string = ""
+                for list in diamond:
+                    string += f"There are {list['diamonds_remaining']} diamonds left at {list['price_per_diamond']:,} each.\n"
 
-                    channel = self.bot.get_channel(server.diamond_channel)
-                    role = guild.get_role(server.diamond_role)
+                embed.description = string
+                guild = self.bot.get_guild(server.serverid)
+                if guild is None:
+                    await log.errorlognoping(self.bot, Embed(title="Guild Not Found", description=f"Guild {server.serverid} cannot be found"))
+                    continue
+                chan = self.bot.get_channel(server.diamond_channel)
+                role = guild.get_role(server.diamond_role)
 
-                    plus30min = server.last_pinged + timedelta(minutes=29)
-                    plus30min = pytz.utc.localize(plus30min)
+                if chan is None or role is None:
+                    embed = Embed(title="Diamond Config is missing role or channel",
+                                  description=f"Role: {role}\nChannel: {chan}")
+                    await log.server_log_embed(self.bot, server.serverid, embed)
+                    continue
 
-                    if plus30min < datetime.now(timezone.utc):
-                        if more_than_200:
-                            await channel.send(content=f"{role.mention}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
-                        else:
-                            await channel.send(content=f"{role.name}\n <https://web.simple-mmo.com/diamond-market>", embed=embed)
-                        await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
+                plus30min = server.last_pinged + timedelta(minutes=29)
+                plus30min = pytz.utc.localize(plus30min)
 
-                except Exception as e:
-                    await log.log(self.bot, "Diamond Market Fucky", f"Something went wrong with {server.serverid}")
-                    await log.log(self.bot, "Diamond Market Fucky", e)
-                    pass
+                if plus30min < datetime.now(timezone.utc):
+                    await chan.send(f'{role.mention}', embed=embed)
+                    await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
 
     @diamond_check.before_loop
     async def before_diamodn_check(self):
