@@ -151,13 +151,28 @@ async def premium_server(serverid):
             stmt = select(Server).filter_by(serverid=serverid)
             data = await con.execute(stmt)
             data = data.fetchone()[0]
-            return data.premium
+            
         except Exception as e:
             await con.rollback()
             raise e
         finally:
             await con.close()
 
+    return data.premium
+
+async def set_premium(serverid,isprem : bool):
+    async with session() as con:
+        try:
+            stmt = update(Server).filter_by(serverid=serverid).values({Server.premium : isprem})
+            await con.execute(stmt)
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
+        finally:
+            await con.close()
+        
+    
 
 async def add_diamond_role(serverid, roleid):
     async with session() as con:

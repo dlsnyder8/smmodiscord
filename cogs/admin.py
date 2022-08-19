@@ -38,6 +38,20 @@ class Admin(commands.Cog):
 
     @commands.command()
     @checks.is_owner()
+    async def togglepremium(self, ctx, id=None):
+        if id is None:
+            info = await db.ServerInfo(ctx.guild.id)
+            id = info.serverid
+        else:
+            info = await db.ServerInfo(id)
+
+        await db.set_premium(id, not info.premium)
+
+        Embed(title="Premium Status Changed",
+              description=f"The premium for server {id} has been set to {not info.premium}")
+
+    @commands.command()
+    @checks.is_owner()
     async def sql(self, ctx, query: str):
         ret = await db.execute(query)
 
