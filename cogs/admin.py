@@ -47,8 +47,9 @@ class Admin(commands.Cog):
 
         await db.set_premium(id, not info.premium)
 
-        Embed(title="Premium Status Changed",
+        embed = Embed(title="Premium Status Changed",
               description=f"The premium for server {id} has been set to {not info.premium}")
+        await ctx.send(embed=embed)
 
     @commands.command()
     @checks.is_owner()
