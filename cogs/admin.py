@@ -48,7 +48,7 @@ class Admin(commands.Cog):
         await db.set_premium(id, not info.premium)
 
         embed = Embed(title="Premium Status Changed",
-              description=f"The premium for server {id} has been set to {not info.premium}")
+                      description=f"The premium for server {id} has been set to {not info.premium}")
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -295,6 +295,19 @@ class Admin(commands.Cog):
                 string += f"{member.name} is not a pleb anymore\n"
 
         await ctx.send(string)
+
+    @commands.command()
+    @checks.is_owner()
+    @commands.cooldown(1, 30, BucketType.member)
+    async def id(self, ctx, members: commands.Greedy[discord.Member]):
+        out = ""
+        for member in members:
+            smmoid = await db.get_smmoid(member.id)
+            if smmoid is not None:
+                out += f"{member.display_name}: <https://web.simple-mmo.com/user/view/{smmoid}\n"
+            else:
+                out += f"{member.display_name} is not linked\n"
+        await ctx.send(out)
 
 
 def setup(bot):
