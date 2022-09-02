@@ -304,7 +304,7 @@ class Admin(commands.Cog):
         for member in members:
             smmoid = await db.get_smmoid(member.id)
             if smmoid is not None:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/user/view/{smmoid}\n"
+                out += f"{member.display_name}: <https://web.simple-mmo.com/user/view/{smmoid}>\n"
             else:
                 out += f"{member.display_name} is not linked\n"
         await ctx.send(out)
