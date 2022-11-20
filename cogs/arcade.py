@@ -269,14 +269,11 @@ class Arcade(commands.Cog):
 
         if hum_pick == cpu_pick:
             cur_tickets = await db.update_arcade_tickets(ctx.author.id, 6)
-            embed = discord.Embed("Winner!")
-            embed.description(
-                f"Your stupendous choice of {hum_pick} has won yourself 6 tickets")
+            embed = discord.Embed(title="Winner!", description=f"Your stupendous choice of {hum_pick} has won yourself 6 tickets")
             await msg.reply(f"You now have {cur_tickets} :tickets:", embed=embed)
 
         else:
-            embed = discord.Embed(title="Try Again!")
-            embed.description = f"The computer chose {cpu_pick}! You have {cur_tokens} :coin: remaining."
+            embed = discord.Embed(title="Try Again!", description=f"The computer chose {cpu_pick}! You have {cur_tokens} :coin: remaining.") 
             await msg.reply(embed=embed)
 
     @arcade.command()
