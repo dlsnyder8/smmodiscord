@@ -397,6 +397,31 @@ async def add_new_pleb(smmoid, discid, verification, verified=False, active=Fals
         finally:
             await con.close()
 
+async def get_yearly_token(discid):
+    async with session() as con:
+        try:
+            stmt = select(Plebs.yearlytoken).filter_by(verified=True, discid=discid)
+            data = await con.execute(stmt)
+            return data.fetchone()[0]
+        except Exception as e:
+            raise e
+        finally:
+            await con.close()
+
+async def update_yearly_token(discid, token):
+    async with session() as con:
+        try:
+            stmt = update(Plebs).filter_by(verified=True, discid=discid).values({
+                Plebs.yearlytoken: token
+            })
+            await con.execute(stmt)
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e 
+        finally:
+            await con.close()
+
 
 async def update_pleb(smmoid, discid, verification, verified=False, active=False):
     async with session() as con:
@@ -1067,8 +1092,9 @@ async def has_joined(eventid: int, discordid):
 async def valid_event(eventid: int, server: int):
     async with session() as con:
         try:
-            valid = (await con.execute(select(Events).filter_by(id=int(eventid)))).fetchone()
-            return False if valid is None else True
+
+            valid = (await con.execute(select(Events).filter_by(id=int(eventid),serverid=server))).fetchone()
+            return False if valid is None else valid[0]
         except Exception as e:
             await con.rollback()
             raise e

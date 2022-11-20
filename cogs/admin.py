@@ -10,6 +10,7 @@ import random
 import api
 import database as db
 from util import checks
+import string
 
 dyl = 332314562575597579
 server = 444067492013408266
@@ -68,6 +69,24 @@ class Admin(commands.Cog):
         line = random.choice(content)
 
         await ctx.send(line)
+
+    @commands.command()
+    @checks.is_verified()
+    async def mytoken(self,ctx):
+        print('hello world')
+        token = await db.get_yearly_token(ctx.author.id)
+        if not token:
+            letters = string.ascii_letters
+            token = ''.join(random.choice(letters)
+                                        for i in range(16))
+            await db.update_yearly_token(ctx.author.id, token)
+        print(token)
+        try:
+            await ctx.author.send(f"Your access token is: `{token}`. Keep this secret and do not share it with anyone else")
+            await ctx.reply("Check your DMs for your access token!")
+        except discord.Forbidden:
+            await ctx.reply("I am unable to send you any DMs. Please fix your permissions :)")
+        
 
     @commands.command()
     async def supporters(self, ctx, delete: bool = True):
