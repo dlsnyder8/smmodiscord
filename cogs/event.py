@@ -52,6 +52,9 @@ class Event(commands.Cog):
         valid = await db.valid_event(eventid, ctx.guild.id)
         if valid is False:
             await ctx.send("Invalid event ID")
+            return 
+        elif valid.is_started:
+            await ctx.send("This event has already started. You do not need to start it again")
             return
         try:
             await db.start_event(eventid, ctx.guild.id)
