@@ -27,7 +27,8 @@ CREATE TABLE "plebs" (
   "pleb_active" boolean DEFAULT false,
   "guild_ban" boolean default false,
   "tokens" int default 0,
-  "tickets" int default 0
+  "tickets" int default 0,
+  "yearlytoken" text default null
 );
 
 CREATE TABLE "guilds" (
