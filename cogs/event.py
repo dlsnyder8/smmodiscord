@@ -127,7 +127,7 @@ class Event(commands.Cog):
     @event.command()
     @checks.is_admin()
     async def results(self, ctx, eventid: int):
-        valid = await db.valid_event(eventid, ctx.guild.id)
+        valid = await db.valid_event(eventid, 745682379322163229)
         if valid is False:
             await ctx.send("Invalid event ID")
             return
@@ -139,13 +139,16 @@ class Event(commands.Cog):
         if len(participants) == 0 or participants is None:
             await ctx.send("That doesn't appear to be a valid event id")
             return
-        eventinfo = await db.event_info(eventid, ctx.guild.id)
+        eventinfo = valid # await db.event_info(eventid, ctx.guild.id)
+        print(eventinfo)
+
         participants.sort(
             reverse=True, key=lambda x: x.current_stat-x.starting_stat)
 
         embed = Embed(title=f"Results for {eventinfo.name}")
         string = ""
         i = 1
+        last = 1
         async with ctx.typing():
             for particpant in participants:
                 string += f"**{i}.** <@{particpant.discordid}> - {particpant.current_stat-particpant.starting_stat} {translation[eventinfo.type]}\n"
