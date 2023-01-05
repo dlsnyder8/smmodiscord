@@ -117,7 +117,7 @@ class Pleb(commands.Cog):
         await self.bot.wait_until_ready()
 
 
-def setup(bot):
+async def setup(bot):
     if config.main_acct:
-        bot.add_cog(Pleb(bot))
+        await bot.add_cog(Pleb(bot))
         print("Pleb Cog Loaded")

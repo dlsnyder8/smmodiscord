@@ -227,6 +227,6 @@ class Config(commands.Cog):
         await ctx.send(f"Welcome messages will now be sent to {channel.mention}")
 
 
-def setup(bot):
-    bot.add_cog(Config(bot))
+async def setup(bot):
+    await bot.add_cog(Config(bot))
     print("Config Cog Loaded")

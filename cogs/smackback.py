@@ -25,6 +25,6 @@ class Smackback(commands.Cog):
             pass
 
 
-def setup(bot):
-    bot.add_cog(Smackback(bot))
+async def setup(bot):
+    await bot.add_cog(Smackback(bot))
     print("Smackback Cog Loaded")

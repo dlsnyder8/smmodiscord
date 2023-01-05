@@ -36,6 +36,12 @@ class Admin(commands.Cog):
     async def admin(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
+        
+    @checks.is_owner()
+    @commands.command(aliases=["kill"], hidden=True)
+    async def restart(self,ctx):
+        await ctx.send("Senpai, why you kill me :3")
+        await self.close()
 
     @commands.command()
     @checks.is_owner()
@@ -329,6 +335,6 @@ class Admin(commands.Cog):
         await ctx.send(out)
 
 
-def setup(bot):
-    bot.add_cog(Admin(bot))
+async def setup(bot):
+    await bot.add_cog(Admin(bot))
     print("Admin Cog Loaded")

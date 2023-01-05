@@ -336,6 +336,6 @@ class Guilds(commands.Cog):
         await self.bot.wait_until_ready()
 
 
-def setup(bot):
-    bot.add_cog(Guilds(bot))
+async def setup(bot):
+    await bot.add_cog(Guilds(bot))
     print("Guilds Cog Loaded")
