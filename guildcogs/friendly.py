@@ -13,18 +13,13 @@ from util.log import flylog, log, flylog2, flylog3
 import traceback
 from datetime import datetime, timezone
 from dateutil import parser
-from dpymenus import Page, ButtonMenu
 import csv
 import os
 
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+
 
 # fly guilds
 fly = (408, 455, 541, 482)
@@ -304,7 +299,6 @@ class Friendly(commands.Cog):
             roles = member.roles
 
             roleids = [r.id for r in roles]
-            print(roleids)
             output = set(roleids).intersection(weighted_fly_roles)
             events = set(roleids).intersection(event_roles)
             inviteonly = set(roleids).intersection(invite_roles)
@@ -1235,17 +1229,14 @@ class Friendly(commands.Cog):
                         # Has Friendly role, but not in Friendly.
                         else:
                             listUsers.append(f"{member.mention}")
-                            print(f"{member.display_name}")
 
                             not_in_fly += 1
-                            print(not_in_fly)
                             await member.remove_roles(*all_fly_roles, reason="User left fly")
                             await member.add_roles(ctx.guild.get_role(acquaintance))
 
                     else:
                         # unlinked. remove roles
                         not_linked += 1
-                        print(f"{member.display_name}")
 
                         listUsers.append(f"{member.mention}")
                         await member.remove_roles(*all_fly_roles, reason="User left fly")
@@ -1726,4 +1717,4 @@ class Friendly(commands.Cog):
 async def setup(bot):
     await bot.add_cog(Friendly(bot))
 
-    print("Friendly Cog Loaded")
+    logger.info("Friendly Cog Loaded")

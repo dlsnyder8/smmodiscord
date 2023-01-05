@@ -10,13 +10,8 @@ import random
 from discord.ext.commands.cooldowns import BucketType
 
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 dyl = 332314562575597579
 
@@ -274,10 +269,9 @@ class Guilds(commands.Cog):
         allservers = await db.all_servers()
         filtered = [
             x for x in allservers if x.guild_role is not None and x.guilds is not None]
-        print(filtered)
+        
 
         for server in filtered:
-            print(server.serverid)
             if server.serverid in ignored_servers:
                 continue
 
@@ -338,4 +332,4 @@ class Guilds(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Guilds(bot))
-    print("Guilds Cog Loaded")
+    logger.info("Guilds Cog Loaded")

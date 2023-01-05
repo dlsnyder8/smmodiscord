@@ -7,13 +7,8 @@ import logging
 import asyncio
 import config
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 server = 444067492013408266
 
@@ -309,12 +304,11 @@ class Guild(commands.Cog):
             try:
                 gLeader = [x for x in members if x["position"] == "Leader"]
             except Exception as e:
-                print("members:", members)
                 # if the guild has been disbanded, remove leader + any guild ambassadors
                 if(members["error"] == "guild not found"):
                     user = guild.get_member(discid)
                     if user is not None:
-                        print(
+                        logging.info(
                             f"{user.name} is not a leader because guild {guildid} has been deleted.")
                         # if not leader, remove role and update db
                         await user.remove_roles(leaderrole)
@@ -324,7 +318,7 @@ class Guild(commands.Cog):
                         for amb in guildambs:
                             user = guild.get_member(amb.discid)
                             if user is not None:
-                                print(
+                                logging.info(
                                     f"{user.name} is not an ambassador because guild {guildid} has been deleted.")
                                 await user.remove_roles(ambassadorrole)
                             await db.guild_ambassador_update(amb.discid, False, 0)
@@ -335,7 +329,7 @@ class Guild(commands.Cog):
             if len(gLeader) > 0 and int(gLeader[0]["user_id"]) != lsmmoid:
                 user = guild.get_member(discid)
                 if user is not None:
-                    print(f"{user.name} is not a leader")
+                    logging.info(f"{user.name} is not a leader")
                     # if not leader, remove role and update db
                     await user.remove_roles(leaderrole)
                 await db.guild_leader_update(discid, False, 0, 0)
@@ -344,7 +338,7 @@ class Guild(commands.Cog):
                     for amb in guildambs:
                         user = guild.get_member(int(amb.discid))
                         if user is not None:
-                            print(f"{user.name} is not an ambassador")
+                            logging.info(f"{user.name} is not an ambassador")
                             await user.remove_roles(ambassadorrole)
                         await db.guild_ambassador_update(amb.discid, False, 0)
                 continue
@@ -357,7 +351,7 @@ class Guild(commands.Cog):
                         if len([x for x in members if int(x["user_id"]) == int(amb[1])]) == 0:
                             user = guild.get_member(int(amb[0]))
                             if user is not None:
-                                print(f"{user.name} is not an ambassador")
+                                logging.info(f"{user.name} is not an ambassador")
 
                                 await user.remove_roles(ambassadorrole)
                             await db.guild_ambassador_update(amb[0], False, 0)
@@ -367,7 +361,7 @@ class Guild(commands.Cog):
 
     @tasks.loop(hours=4, reconnect=True)
     async def update_all_guilds(self):
-        await self.guildcheck()
+        await self.guildcheck(None)
         return
 
     @update_all_guilds.before_loop
@@ -378,4 +372,4 @@ class Guild(commands.Cog):
 async def setup(bot):
     if config.main_acct:
         await bot.add_cog(Guild(bot))
-        print("Guild management Cog Loaded")
+        logger.info("Guild management Cog Loaded")

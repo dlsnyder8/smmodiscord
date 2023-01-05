@@ -7,13 +7,8 @@ from discord import Embed
 from util.log import *
 
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 dyl = 332314562575597579
 
@@ -131,4 +126,4 @@ class CommandErrorHandler(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(CommandErrorHandler(bot))
-    print("Error Handler Loaded")
+    logger.info("Error Handler Loaded")

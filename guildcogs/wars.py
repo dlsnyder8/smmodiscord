@@ -7,13 +7,8 @@ import logging
 from datetime import datetime, timezone, timedelta
 import config
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 
 class Wars(commands.Cog):
@@ -34,7 +29,7 @@ class Wars(commands.Cog):
             await ctx.send(embed=Embed(title="No Active Wars for Friendly", description="There are no active wars. They may be on hold or may have all ended."))
             return
 
-        print(wars)
+    
         warstring = ""
         for war in wars[:35]:
             if war['guild_1']['id'] == 408:
@@ -528,4 +523,4 @@ class Wars(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Wars(bot))
-    print("Wars Cog Loaded")
+    logger.info("Wars Cog Loaded")

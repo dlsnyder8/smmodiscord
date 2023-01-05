@@ -6,21 +6,15 @@ import config
 import logging
 from util import checks, log
 
-# Logging setup
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 dev = True
 
 TOKEN = config.TOKEN
 DEV_TOKEN = config.DEV_TOKEN
 if TOKEN is None or DEV_TOKEN is None:
-    print("Bot Token not found in config file")
+    logging.error("Bot Token not found in config file")
     quit()
 if dev is True:
     TOKEN = DEV_TOKEN
@@ -51,9 +45,9 @@ class MyBot(commands.Bot):
                 await self.load_extension(f'guildcogs.{mod}')
 
     async def on_ready(self):
-        print(f'{self.user.name} has connected to Discord')
+        logging.info(f'{self.user.name} has connected to Discord')
         await log.errorlognoping(self, embed=discord.Embed(title="Bot Started", description="The bot has been restarted"))
-        print(f"Tasks have been started")
+        logging.info(f"Tasks have been started")
 
 
  
@@ -68,4 +62,4 @@ class MyBot(commands.Bot):
 
 
 
-bot = MyBot().run(TOKEN)
+bot = MyBot().run(TOKEN,root_logger=True)

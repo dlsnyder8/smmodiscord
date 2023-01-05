@@ -18,13 +18,9 @@ server = 444067492013408266
 fly = (408, 455, 541, 482)
 
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+
 
 
 class Admin(commands.Cog):
@@ -79,14 +75,13 @@ class Admin(commands.Cog):
     @commands.command()
     @checks.is_verified()
     async def mytoken(self,ctx):
-        print('hello world')
         token = await db.get_yearly_token(ctx.author.id)
         if not token:
             letters = string.ascii_letters
             token = ''.join(random.choice(letters)
                                         for i in range(16))
             await db.update_yearly_token(ctx.author.id, token)
-        print(token)
+      
         try:
             await ctx.author.send(f"Your access token is: `{token}`. Keep this secret and do not share it with anyone else")
             await ctx.reply("Check your DMs for your access token!")
@@ -337,4 +332,4 @@ class Admin(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Admin(bot))
-    print("Admin Cog Loaded")
+    logger.info("Admin Cog Loaded")

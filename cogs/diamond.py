@@ -10,13 +10,8 @@ from dateutil import parser
 import pytz
 
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 
 class Diamond(commands.Cog):
@@ -57,7 +52,7 @@ class Diamond(commands.Cog):
     async def config(self, ctx):
 
         config = await db.server_config(ctx.guild.id)
-        print(config)
+        
         ID, ping_bool, role, channel, timestamp = config[0]
         embed = Embed(title="Server Config",
                       description=f"ID: {ID}\nDiamond Ping: {ping_bool}\nPinged Role: {ctx.guild.get_role(role)}\nChannel: {ctx.guild.get_channel(channel)}")
@@ -65,7 +60,6 @@ class Diamond(commands.Cog):
 
     @tasks.loop(minutes=1, reconnect=True)
     async def diamond_check(self):
-        # print('starting diamond check')
         cheap_diamonds = False
         more_than_200 = False
         string = ""
@@ -116,4 +110,4 @@ class Diamond(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Diamond(bot))
-    print("Diamond Cog Loaded")
+    logger.info("Diamond Cog Loaded")

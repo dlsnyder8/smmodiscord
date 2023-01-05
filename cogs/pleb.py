@@ -10,7 +10,8 @@ import api
 import logging
 import config
 
-logger = logging.getLogger('discord')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 dyl = 332314562575597579
@@ -55,7 +56,7 @@ class Pleb(commands.Cog):
         if(await db.server_added(server)):  # server has been initialized
             pleb_role = (await db.server_config(server)).pleb_role
         else:
-            print("Server has not been added to db")
+            logging.error("Server has not been added to db")
             return
 
         if ctx is not None:
@@ -90,7 +91,7 @@ class Pleb(commands.Cog):
             isPleb = await api.pleb_status(smmoid)
 
             if isPleb is None:
-                print("THE API IS STUPID")
+                logging.error("THE API IS STUPID")
 
             elif isPleb is True:
                 await db.update_status(smmoid, True)  # they are a pleb
@@ -109,7 +110,7 @@ class Pleb(commands.Cog):
 
     @tasks.loop(hours=3, reconnect=True)
     async def update_all_plebs(self):
-        await self.plebcheck()
+        await self.plebcheck(None)
         return
 
     @update_all_plebs.before_loop
@@ -120,4 +121,4 @@ class Pleb(commands.Cog):
 async def setup(bot):
     if config.main_acct:
         await bot.add_cog(Pleb(bot))
-        print("Pleb Cog Loaded")
+        logger.info("Pleb Cog Loaded")
