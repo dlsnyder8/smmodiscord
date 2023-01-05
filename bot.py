@@ -15,69 +15,57 @@ handler.setFormatter(logging.Formatter(
     '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-dev = False
+dev = True
 
 TOKEN = config.TOKEN
 DEV_TOKEN = config.DEV_TOKEN
-
 if TOKEN is None or DEV_TOKEN is None:
     print("Bot Token not found in config file")
     quit()
-
 if dev is True:
     TOKEN = DEV_TOKEN
 
-# Set discord intents
-intents = Intents.all()
-game = discord.Game("Contact dyl#8008 with questions")
 
-if not dev:
-    bot = commands.Bot(command_prefix=config.prefix, intents=intents,
-                       activity=game)
-else:
-    bot = commands.Bot(command_prefix='&&', intents=intents,
-                       activity=game)
+class MyBot(commands.Bot):
+    def __init__(self):
+        game = discord.Game("Contact dyl#8008 with questions")
+        intents = Intents.all()
+        if not dev:
+            super().__init__(command_prefix='&',intents=intents, activity=game)
+        else:
+            super().__init__(command_prefix='&&',intents=intents, activity=game)
+    # Load extensions
+    async def setup_hook(self):
+        extra_cogs = config.special_cogs
+        if not dev:
+            for f in os.listdir('./cogs'):
+                if f.endswith('.py') and f[:-3] not in config.ignored_cogs:
+                    await self.load_extension(f'cogs.{f[:-3]}')
+            for mod in extra_cogs:
+                await self.load_extension(f'guildcogs.{mod}')
+        else:
+            for f in os.listdir('./cogs'):
+                if f.endswith('.py'):
+                    await self.load_extension(f'cogs.{f[:-3]}')
+            for mod in extra_cogs:
+                await self.load_extension(f'guildcogs.{mod}')
 
-extra_cogs = config.special_cogs
-if not dev:
-    for f in os.listdir('./cogs'):
-        if f.endswith('.py') and f[:-3] not in config.ignored_cogs:
-            bot.load_extension(f'cogs.{f[:-3]}')
-    for mod in extra_cogs:
-        bot.load_extension(f'guildcogs.{mod}')
-
-else:
-    for f in os.listdir('./cogs'):
-        if f.endswith('.py'):
-            bot.load_extension(f'cogs.{f[:-3]}')
-    for mod in extra_cogs:
-        bot.load_extension(f'guildcogs.{mod}')
-
-
-@bot.event
-async def on_ready():
-    print(f'{bot.user.name} has connected to Discord')
-    await log.errorlognoping(bot, embed=discord.Embed(title="Bot Started", description="The bot has been restarted"))
-    print(f"Tasks have been started")
+    async def on_ready(self):
+        print(f'{self.user.name} has connected to Discord')
+        await log.errorlognoping(self, embed=discord.Embed(title="Bot Started", description="The bot has been restarted"))
+        print(f"Tasks have been started")
 
 
-@bot.event
-async def on_guild_join(guild):
+ 
+    async def on_guild_join(self,guild):
+        for channel in guild.text_channels:
+            if channel.permissions_for(guild.me).send_messages:
+                await log.joinlog(self, guild, channel)
+                await channel.send("Thanks for inviting me! To start using my features, please run `&config init` to add your server to my database")
+                return
 
-    for channel in guild.text_channels:
-        if channel.permissions_for(guild.me).send_messages:
-            await log.joinlog(bot, guild, channel)
-            await channel.send("Thanks for inviting me! To start using my features, please run `&config init` to add your server to my database")
-            return
-
-    await log.joinlog(bot, guild, None)
-
-
-@checks.is_owner()
-@bot.command(aliases=["kill"], hidden=True)
-async def restart(ctx):
-    await ctx.send("Senpai, why you kill me :3")
-    await bot.close()
+        await log.joinlog(self, guild, None)
 
 
-bot.run(TOKEN)
+
+bot = MyBot().run(TOKEN)
