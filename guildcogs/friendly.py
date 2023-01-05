@@ -415,7 +415,7 @@ class Friendly(commands.Cog):
             if ctx.author.id != dyl:
                 await channel.send(f"Welcome {ctx.author.mention} to the Friendliest guild in SimpleMMO!")
 
-            await ctx.send(f"<@581061608357363712>\n ;adminlink {ctx.author.id} {smmoid}")
+            await ctx.send(f"<@581061608357363712> <@307328265129820160>\n ;adminlink {ctx.author.id} {smmoid}")
 
         else:
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
