@@ -370,7 +370,7 @@ class Friendly(commands.Cog):
                             x['boss_kills'], x['market_trades'], x['reputation'], x['bounties_completed'], x['dailies_unlocked'], x['chests_opened']]
                     writer.writerow(data)
             file_csv = open('friendly.csv')
-            await ctx.send("Here are the guild stats", file=file_csv)
+            await ctx.send("Here are the guild stats", file=discord.File('friendly.csv'))
             os.remove('friendly.csv')
 
     @checks.is_verified()
