@@ -361,13 +361,13 @@ class Friendly(commands.Cog):
             with open('friendly.csv', 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(['smmoid', 'name', 'npc_kills', 'user_kills', 'quests_complete', 'level',
-                                'tasks', 'boss_kills', 'market_trades', 'reputation', 'bounties', 'dailies', 'chests'])
+                                'tasks', 'boss_kills', 'market_trades', 'reputation', 'bounties', 'dailies', 'chests', 'steps'])
                 for member in members:
                     smmoid = await db.get_smmoid(member.id)
                     x = await api.get_all(smmoid)
 
                     data = [smmoid, x['name'], x['npc_kills'], x['user_kills'], x['quests_complete'], x['level'], x['tasks_completed'],
-                            x['boss_kills'], x['market_trades'], x['reputation'], x['bounties_completed'], x['dailies_unlocked'], x['chests_opened']]
+                            x['boss_kills'], x['market_trades'], x['reputation'], x['bounties_completed'], x['dailies_unlocked'], x['chests_opened'], x['steps']]
                     writer.writerow(data)
             file_csv = open('friendly.csv')
             await ctx.send("Here are the guild stats", file=discord.File('friendly.csv'))
