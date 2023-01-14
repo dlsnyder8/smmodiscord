@@ -110,7 +110,7 @@ class Friendly(commands.Cog):
 
         # check if verified
         if(await db.is_verified(smmoid)):
-            await ctx.send("This SimpleMMO account has already been linked to a Discord account.")
+            await ctx.reply("Hey you've already linked your account! Are you trying to get the Friendly role? If so, you need to type `&join` to get the role! \n\nOh...you weren't trying to do that? Well... this is awkward. Goodbye.")
             return
 
         if(await db.islinked(ctx.author.id) is True):
