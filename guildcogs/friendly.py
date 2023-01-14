@@ -105,7 +105,7 @@ class Friendly(commands.Cog):
 
         # check if verified
         if(await db.is_verified(smmoid)):
-            await ctx.send("This SimpleMMO account has already been linked to a Discord account.")
+            await ctx.reply("Hey you've already linked your account! Are you trying to get the Friendly role? If so, you need to type `&join` to get the role! \n\nOh...you weren't trying to do that? Well... this is awkward. Goodbye.")
             return
 
         if(await db.islinked(ctx.author.id) is True):
@@ -355,16 +355,16 @@ class Friendly(commands.Cog):
             with open('friendly.csv', 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(['smmoid', 'name', 'npc_kills', 'user_kills', 'quests_complete', 'level',
-                                'tasks', 'boss_kills', 'market_trades', 'reputation', 'bounties', 'dailies', 'chests'])
+                                'tasks', 'boss_kills', 'market_trades', 'reputation', 'bounties', 'dailies', 'chests', 'steps'])
                 for member in members:
                     smmoid = await db.get_smmoid(member.id)
                     x = await api.get_all(smmoid)
 
                     data = [smmoid, x['name'], x['npc_kills'], x['user_kills'], x['quests_complete'], x['level'], x['tasks_completed'],
-                            x['boss_kills'], x['market_trades'], x['reputation'], x['bounties_completed'], x['dailies_unlocked'], x['chests_opened']]
+                            x['boss_kills'], x['market_trades'], x['reputation'], x['bounties_completed'], x['dailies_unlocked'], x['chests_opened'], x['steps']]
                     writer.writerow(data)
             file_csv = open('friendly.csv')
-            await ctx.send("Here are the guild stats", file=file_csv)
+            await ctx.send("Here are the guild stats", file=discord.File('friendly.csv'))
             os.remove('friendly.csv')
 
     @checks.is_verified()
