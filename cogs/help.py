@@ -69,5 +69,6 @@ class Help(commands.Cog):
 
 
 async def setup(bot):
+    return
     await bot.add_cog(Help(bot))
     logger.info("Help Cog Loaded")
