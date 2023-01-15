@@ -141,8 +141,8 @@ def is_owner():
         else:
             message = await ctx.send(
                 embed=discord.Embed(
-                    title="Not an Admin",
-                    description="You must be an administrator to run this command",
+                    title="Not dyl",
+                    description="You must be dyl to run this command",
                     color=0xff0000
                 )
             )
