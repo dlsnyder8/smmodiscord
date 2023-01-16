@@ -163,55 +163,6 @@ class Friendly(commands.Cog):
                 await ctx.reply(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
                 return
 
-    @commands.command(aliases=['sg', 'gold'])
-    @commands.cooldown(1, 30, BucketType.guild)
-    async def sendgold(self, ctx, members: commands.Greedy[discord.Member]):
-        out = ""
-        async with ctx.typing():
-            for member in members:
-                smmoid = await db.get_smmoid(member.id)
-                if smmoid is not None:
-                    if await api.safemode_status(smmoid):
-                        out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
-                    else:
-                        out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
-                else:
-                    out += f"{member.display_name} is not linked. No gold for them\n"
-
-            await ctx.send(out)
-
-    @commands.command(aliases=['mush'])
-    @checks.is_verified()
-    @commands.cooldown(1, 30, BucketType.member)
-    async def mushroom(self, ctx):
-        smmoid = await db.get_smmoid(ctx.author.id)
-        await ctx.send(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
-
-    @commands.command()
-    @commands.cooldown(1, 30, BucketType.member)
-    async def give(self, ctx, itemid: int, members: commands.Greedy[discord.Member]):
-        out = ""
-        for member in members:
-            smmoid = await db.get_smmoid(member.id)
-            if smmoid is not None:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{itemid}>\n"
-            else:
-                out += f"{member.display_name} is not linked\n"
-        await ctx.send(out)
-
-    @commands.command()
-    @commands.cooldown(1, 30, BucketType.member)
-    async def trade(self, ctx, members: commands.Greedy[discord.Member]):
-        out = ""
-        for member in members:
-            smmoid = await db.get_smmoid(member.id)
-
-            if smmoid is not None:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
-            else:
-                out += f"{member.display_name} is not linked\n"
-        await ctx.send(out)
-
     @commands.command()
     @checks.in_fly_guild()
     async def colors(self, ctx):

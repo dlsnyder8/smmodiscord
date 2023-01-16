@@ -1,4 +1,5 @@
 import discord
+from discord import Embed, app_commands
 from discord.ext import commands
 from util import checks
 from discord.embeds import Embed
@@ -6,6 +7,7 @@ from discord.ext.commands import Context
 from discord.ext.commands.cooldowns import BucketType
 import logging
 import database as db
+import api
 import aiofiles
 import random
 import string
@@ -20,7 +22,7 @@ class Utilities(commands.Cog):
         
     @commands.hybrid_command()
     @checks.is_verified()
-    async def findmentions(self, ctx: Context, channel: discord.TextChannel, messageid):
+    async def findmentions(self, ctx: Context, channel: discord.TextChannel, messageid: int):
         try:
             message = await channel.fetch_message(messageid)
             users = message.raw_mentions
@@ -40,35 +42,85 @@ class Utilities(commands.Cog):
         except discord.HTTPException:
             await ctx.send("HTTP Error")
             
+    @app_commands.command(name="Send Gold", description="Generate a link to the web app 'Send Gold' page if the mentioned user is linked")
+    @commands.cooldown(1, 30, BucketType.guild)
+    async def sendgold(self, interaction: discord.Interaction, members: commands.Greedy[discord.Member]):
+        out = ""
+        await interaction.response.defer(thinking=True)
+        for member in members:
+            smmoid = await db.get_smmoid(member.id)
+            if smmoid is not None:
+                if await api.safemode_status(smmoid):
+                    out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
+                else:
+                    out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
+            else:
+                out += f"{member.display_name} is not linked. No gold for them\n"
+
+        await interaction.followup.send(out)
+
+    @app_commands.command(name='mushroom', description="Sends the link so people can easily send you mushrooms")
+    @checks.is_verified()
+    @commands.cooldown(1, 30, BucketType.member)
+    async def mushroom(self, interaction: discord.Interaction):
+        smmoid = await db.get_smmoid(interaction.author.id)
+        await interaction.response.send_message(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
+
+    @app_commands.command(name="Item Link", description="Generates the link to send an item to any number of users who are linked.")
+    @commands.cooldown(1, 30, BucketType.member)
+    async def give(self, interaction: discord.Interaction, itemid: int, members: commands.Greedy[discord.Member]):
+        await interaction.response.defer(thinking=True)
+        out = ""
+        for member in members:
+            smmoid = await db.get_smmoid(member.id)
+            if smmoid is not None:
+                out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{itemid}>\n"
+            else:
+                out += f"{member.display_name} is not linked\n"
+        await interaction.followup.send(out)
+
+    @app_commands.command(description="Generates the trade link for linked members")
+    @commands.cooldown(1, 30, BucketType.member)
+    async def trade(self, interaction: discord.Interaction, members: commands.Greedy[discord.Member]):
+        await interaction.response.defer(thinking=True)
+        out = ""
+        for member in members:
+            smmoid = await db.get_smmoid(member.id)
+
+            if smmoid is not None:
+                out += f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
+            else:
+                out += f"{member.display_name} is not linked\n"
+        await interaction.followup.send(out)
+            
     @commands.cooldown(1, 300, BucketType.guild)
-    @commands.command()
-    async def topic(self, ctx):
+    @app_commands.command()
+    async def topic(self, interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
         async with aiofiles.open("assets/starters.txt", mode='r') as f:
             content = await f.read()
 
         content = content.splitlines()
         line = random.choice(content)
 
-        await ctx.send(line)
+        await interaction.followup.send(line)
 
     
     # TODO Make an app_command
-    @commands.command()
+    @app_commands.command()
     @checks.is_verified()
-    async def mytoken(self,ctx):
-        token = await db.get_yearly_token(ctx.author.id)
+    async def mytoken(self,interaction: discord.Interaction):
+        token = await db.get_yearly_token(interaction.author.id)
         if not token:
             letters = string.ascii_letters
             token = ''.join(random.choice(letters)
                                         for i in range(16))
-            await db.update_yearly_token(ctx.author.id, token)
+            await db.update_yearly_token(interaction.author.id, token)
       
-        try:
-            await ctx.author.send(f"Your access token is: `{token}`. Keep this secret and do not share it with anyone else")
-            await ctx.reply("Check your DMs for your access token!")
-        except discord.Forbidden:
-            await ctx.reply("I am unable to send you any DMs. Please fix your permissions :)")
-
+        
+            await interaction.response.send_message(f"Your access token is: `{token}`. Keep this secret and do not share it with anyone else",ephemeral=True)
+           
+        
 
     @commands.hybrid_command()
     async def premium(self, ctx: Context):
