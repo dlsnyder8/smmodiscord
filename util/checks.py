@@ -37,7 +37,6 @@ def MI6():
             return True
         else:
             return False
-
     return commands.check(predicate)
 
 

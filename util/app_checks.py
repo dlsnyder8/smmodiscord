@@ -1,7 +1,6 @@
 import discord
 from discord import app_commands
 from discord.embeds import Embed
-from discord.ext import commands
 import database as db
 
 dyl = 332314562575597579
@@ -11,15 +10,14 @@ def is_owner():
         if(interaction.author.id == dyl):
             return True
         else:
-            message = await interaction.response.send_message(
+            await interaction.response.send_message(
                 embed=discord.Embed(
                     title="Not dyl",
                     description="You must be dyl to run this command",
                     color=0xff0000
-                )
+                ), ephemeral=True
             )
-
-            await message.delete(delay=10)
+            
             return False
     return app_commands.check(predicate)
 
@@ -34,7 +32,8 @@ def is_verified():
                 color=0x00ff00)
 
             await interaction.response.send_message(
-                embed=embed
+                embed=embed,
+                ephemeral=True
             )
             return False
         else:
@@ -75,4 +74,10 @@ def is_admin():
                 description="You must be an administrator to run this command"
             ), ephemeral=True)
             return False
+    return app_commands.check(predicate)
+
+
+def is_guild_banned():
+    async def predicate(interaction: discord.Interaction):
+        return not await db.is_banned(interaction.author.id)
     return app_commands.check(predicate)
