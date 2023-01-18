@@ -7,7 +7,7 @@ dyl = 332314562575597579
 
 def is_owner():
     async def predicate(interaction: discord.Interaction):
-        if(interaction.author.id == dyl):
+        if(interaction.user.id == dyl):
             return True
         else:
             await interaction.response.send_message(
@@ -24,7 +24,7 @@ def is_owner():
 
 def is_verified():
     async def predicate(interaction: discord.Interaction):
-        smmoid = await db.get_smmoid(interaction.author.id)
+        smmoid = await db.get_smmoid(interaction.user.id)
         if not await db.is_verified(smmoid):
             embed = discord.Embed(
                 title="Not Verified",
@@ -64,7 +64,7 @@ def server_configured():
 
 def is_admin():
     async def predicate(interaction: discord.Interaction):
-        if interaction.author.id == dyl:
+        if interaction.user.id == dyl:
             return True
         if interaction.message.author.guild_permissions.administrator:
             return True
@@ -79,5 +79,5 @@ def is_admin():
 
 def is_guild_banned():
     async def predicate(interaction: discord.Interaction):
-        return not await db.is_banned(interaction.author.id)
+        return not await db.is_banned(interaction.user.id)
     return app_commands.check(predicate)

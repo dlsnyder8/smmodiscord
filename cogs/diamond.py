@@ -22,7 +22,6 @@ class Diamond(commands.Cog):
     @commands.group(aliases=['d'], hidden=True)
     async def diamond(self, ctx):
         if ctx.invoked_subcommand is None:
-
             pass
 
     @diamond.command()
@@ -53,15 +52,13 @@ class Diamond(commands.Cog):
 
         config = await db.server_config(ctx.guild.id)
         
-        ID, ping_bool, role, channel, timestamp = config[0]
+        ID, ping_bool, role, channel, _ = config[0]
         embed = Embed(title="Server Config",
                       description=f"ID: {ID}\nDiamond Ping: {ping_bool}\nPinged Role: {ctx.guild.get_role(role)}\nChannel: {ctx.guild.get_channel(channel)}")
         await ctx.send(embed=embed)
 
     @tasks.loop(minutes=1, reconnect=True)
     async def diamond_check(self):
-        cheap_diamonds = False
-        more_than_200 = False
         string = ""
         listings = await api.diamond_market()
         allservers = await db.all_servers()
@@ -74,6 +71,7 @@ class Diamond(commands.Cog):
         for server in filtered:
             diamond = [x for x in listings if x['price_per_diamond']
                        < server.diamond_amount]
+            logger.info(diamond)
 
             if diamond is not []:
                 embed = Embed(title="Cheap Diamonds!!!")
@@ -97,14 +95,14 @@ class Diamond(commands.Cog):
                     await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
                     continue
                 plus30min = server.last_pinged + timedelta(minutes=29)
-                plus30min = pytz.utc.localize(plus30min)
+                # plus30min = pytz.utc.localize(plus30min)
 
                 if plus30min < datetime.now(timezone.utc):
                     await chan.send(f'{role.mention}', embed=embed)
                     await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
 
     @diamond_check.before_loop
-    async def before_diamodn_check(self):
+    async def before_diamond_check(self):
         await self.bot.wait_until_ready()
 
 

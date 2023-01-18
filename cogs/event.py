@@ -192,7 +192,7 @@ class Event(commands.GroupCog, name="event"):
 
     @app_commands.command()
     @app_checks.is_verified()
-    async def stat(self, interaction:discord.Interaction, eventid=None):
+    async def stat(self, interaction:discord.Interaction, eventid:int=None):
 
         translation = {"pvp": "PvP Kills", "step": "Steps",
                        "npc": "NPC Kills", "level": "Levels"}
@@ -201,7 +201,7 @@ class Event(commands.GroupCog, name="event"):
         if len(active_events) == 1:
             eventid = active_events[0].id
 
-            progress = await db.participant_progress(eventid, interaction.author.id)
+            progress = await db.participant_progress(eventid, interaction.user.id)
             eventinfo = await db.event_info(eventid, interaction.guild.id)
             if progress is None or eventinfo is None:
                 await interaction.response.send_message("You are not particpating in the current event")
@@ -212,7 +212,7 @@ class Event(commands.GroupCog, name="event"):
                 await interaction.response.send_message(f"Please specify an event id as there are multiple active events.")
                 return
             else:
-                progress = await db.participant_progress(eventid, interaction.author.id)
+                progress = await db.participant_progress(eventid, interaction.user.id)
                 eventinfo = await db.event_info(eventid, interaction.guild.id)
                 if progress is None:
                     await interaction.response.send_message("You are not a participant in that event or that event does not exist.")
@@ -231,7 +231,7 @@ class Event(commands.GroupCog, name="event"):
 
     @app_commands.command()
     @app_checks.is_admin()
-    async def participants(self, interaction:discord.Interaction, eventid=None):
+    async def participants(self, interaction:discord.Interaction, eventid: int=None):
 
         if eventid is None:
             await interaction.response.send_message("You must specify an event ID.")
@@ -252,7 +252,7 @@ class Event(commands.GroupCog, name="event"):
         await interaction.response.send_message(embed=Embed(title="Number of Participants", description=f"There are {len(participants)} people particpating in this event."))
         return
 
-    @app_commands.command(aliases=['signup'])
+    @app_commands.command()
     @app_checks.is_verified()
     @app_checks.server_configured()
     async def join(self, interaction:discord.Interaction, eventid: int=None):
@@ -261,7 +261,7 @@ class Event(commands.GroupCog, name="event"):
         tempid = eventid
 
         # If they've joined it before, error
-        if eventid is not None and await db.has_joined(eventid, interaction.author.id):
+        if eventid is not None and await db.has_joined(eventid, interaction.user.id):
             await interaction.response.send_message(f"You have already joined event {eventinfo.name}")
             return
 
@@ -274,20 +274,20 @@ class Event(commands.GroupCog, name="event"):
                 return
             try:
                 data = await db.server_config(interaction.guild.id)
-                if data.guild_role is not None and eventinfo.guild_only and not interaction.author._roles.has(data.guild_role):
+                if data.guild_role is not None and eventinfo.guild_only and not interaction.user._roles.has(data.guild_role):
                     await interaction.response.send_message(f"This event is only for Guild members.")
                     return
-                await db.join_event(eventid, interaction.author.id)
+                await db.join_event(eventid, interaction.user.id)
                 if eventinfo.is_started:
                     stat_convert = {
                         "pvp": "user_kills", "step": "steps", "npc": "npc_kills", "level": "level"}
-                    smmoid = await db.get_smmoid(interaction.author.id)
+                    smmoid = await db.get_smmoid(interaction.user.id)
                     profile = await api.get_all(smmoid)
                     info = profile[stat_convert[eventinfo.type]]
 
-                    await db.update_start_stat(eventid, interaction.author.id, info)
+                    await db.update_start_stat(eventid, interaction.user.id, info)
 
-                await interaction.author.add_roles(interaction.guild.get_role(eventinfo.event_role))
+                await interaction.user.add_roles(interaction.guild.get_role(eventinfo.event_role))
                 await interaction.response.send_message(f"You have succesfully joined the {eventinfo.name} event.")
                 return
             except Exception as e:
@@ -302,14 +302,14 @@ class Event(commands.GroupCog, name="event"):
                 return
             try:
                 # if guild only, check if in guild
-                if active_events[0].guild_only and not interaction.author._roles.has(710315282920636506):
+                if active_events[0].guild_only and not interaction.user._roles.has(710315282920636506):
                     await interaction.response.send_message(f"This event is only for Guild members.")
                     return
-                elif await db.has_joined(eventid, interaction.author.id):
+                elif await db.has_joined(eventid, interaction.user.id):
                     await interaction.response.send_message(f"You've already joined the only active event.")
                     return
-                await db.join_event(eventid, interaction.author.id)
-                await interaction.author.add_roles(interaction.guild.get_role(active_events[0].event_role))
+                await db.join_event(eventid, interaction.user.id)
+                await interaction.user.add_roles(interaction.guild.get_role(active_events[0].event_role))
 
                 await interaction.response.send_message(f"You have succesfully joined the {active_events[0].name} event.")
             except Exception as e:
@@ -350,7 +350,7 @@ class Event(commands.GroupCog, name="event"):
         embed.description = string
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(aliases=['lb'])
+    @app_commands.command()
     @app_checks.is_verified()
     async def leaderboard(self, interaction:discord.Interaction, eventid: int):
         valid = await db.valid_event(eventid, interaction.guild.id)
@@ -387,7 +387,7 @@ class Event(commands.GroupCog, name="event"):
         embed.description = string
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(aliases=['finished'])
+    @app_commands.command()
     @app_checks.is_admin()
     async def finished_events(self, interaction:discord.Interaction):
 
@@ -401,7 +401,7 @@ class Event(commands.GroupCog, name="event"):
 
         await interaction.response.send_message(embed=Embed(title="Events to clean up", description=string))
 
-    @app_commands.command(aliases=['active'])
+    @app_commands.command()
     @app_checks.is_verified()
     async def active_events(self, interaction:discord.Interaction):
 
@@ -415,7 +415,7 @@ class Event(commands.GroupCog, name="event"):
         else:
             await interaction.response.send_message(embed=Embed(title="Active Events", description=string))
 
-    @app_commands.command(aliases=['joinable'])
+    @app_commands.command()
     @app_checks.is_verified()
     async def joinable_events(self, interaction:discord.Interaction):
 

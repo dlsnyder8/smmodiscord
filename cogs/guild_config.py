@@ -13,7 +13,7 @@ logger.setLevel(logging.INFO)
 dyl = 332314562575597579
 
 
-class Config(commands.GroupCog, name="Guild Config"):
+class Config(commands.GroupCog, name="config"):
     def __init__(self, bot):
         self.bot = bot
         super().__init__()
@@ -50,7 +50,7 @@ class Config(commands.GroupCog, name="Guild Config"):
         await interaction.response.send_message(embed=embed)
         return
 
-    @app_commands.command(name='init', description="Sets up bot in server", aliases=['initialize'])
+    @app_commands.command(description="Sets up bot in server")
     @app_checks.is_admin()
     async def init(self, interaction: discord.Interaction):
         guild = interaction.guild
@@ -115,7 +115,11 @@ class Config(commands.GroupCog, name="Guild Config"):
     @app_checks.is_verified()
     @app_checks.server_configured()
     @app_checks.premium_server()
-    async def diamonds(self, interaction: discord.Interaction, active: bool = False, role: discord.Role = None, channel: discord.TextChannel = None, amount=2000000):
+    async def diamonds(self, interaction: discord.Interaction,
+                       active: bool = False, 
+                       role: discord.Role = None, 
+                       channel: discord.TextChannel = None, 
+                       amount:int=2000000):
         if active is False:
             await db.enable_diamond_ping(interaction.guild.id)
             await interaction.response.send_message("Diamond Pings have been disabled for this guild")
@@ -162,7 +166,7 @@ class Config(commands.GroupCog, name="Guild Config"):
             await interaction.response.send_message("This is not a valid API Token")
             return
 
-        smmoid = await db.get_smmoid(interaction.author.id)
+        smmoid = await db.get_smmoid(interaction.user.id)
         if int(smmoid) != token_id:
             await interaction.response.send_message("This API Token is not owned by the same account that you have connected to your Discord Account.")
             return
@@ -186,7 +190,8 @@ class Config(commands.GroupCog, name="Guild Config"):
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
-    async def guilds(self, interaction: discord.Interaction, guilds: commands.Greedy[int]):
+    # TODO multiple guilds at once
+    async def guilds(self, interaction: discord.Interaction, guilds: int):
         if len(guilds) < 1:
             await interaction.response.send_message("You must specify at least 1 guild. If you're having issues, you may need to remove any punctuation between numbers")
             return

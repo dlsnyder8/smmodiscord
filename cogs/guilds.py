@@ -32,19 +32,19 @@ class Guilds(commands.Cog):
                             3) Add the verification key to your motto, then run `/verify SMMOID` again"""))
 
     @checks.server_configured()
-    @app_commands.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]")
+    @app_commands.command(description="Connects your Discord account with your SMMO account")
     async def verify(self, interaction: discord.Interaction, smmoid: int):
         # check if verified
         if(await db.is_verified(smmoid)):
             await interaction.response.send_message("This SimpleMMO account has already been linked to a Discord account.")
             return
 
-        if(await db.islinked(interaction.author.id) is True):
+        if(await db.islinked(interaction.user.id) is True):
             await interaction.response.send_message(embed=Embed(title="Already Linked", description=f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord."))
             return
 
         # check if has verification key in db
-        key = await db.verif_key(smmoid, interaction.author.id)
+        key = await db.verif_key(smmoid, interaction.user.id)
         if(key is not None):
 
             profile = await api.get_all(smmoid)
@@ -74,7 +74,7 @@ class Guilds(commands.Cog):
                 letters = string.ascii_letters
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
-                await db.update_pleb(smmoid, interaction.author.id, key)
+                await db.update_pleb(smmoid, interaction.user.id, key)
                 await interaction.response.send_message(f"""Your new verification key is: `{key}`
                                 Please add this to your motto and run `/verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>""")
                 return
@@ -85,7 +85,7 @@ class Guilds(commands.Cog):
                 letters = string.ascii_letters
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
-                await db.add_new_pleb(smmoid, interaction.author.id, key)
+                await db.add_new_pleb(smmoid, interaction.user.id, key)
                 await interaction.response.send_message(f'Your verification key is: `{key}` \nPlease add this to your motto and run `/verify {smmoid}` again!\n<https://web.simple-mmo.com/changemotto>')
                 return
 
@@ -100,12 +100,12 @@ class Guilds(commands.Cog):
         if config.guild_role is None:
             await interaction.response.send_message("The guild role for this server has not been set up. Please contact an administrator on this server", ephemeral=True)
             return
-        if interaction.author._roles.has(config.guild_role):
+        if interaction.user._roles.has(config.guild_role):
 
             await interaction.response.send_message(f"You've already been granted the {config.guild_name} role :)", ephemeral=True)
             return
 
-        smmoid = await db.get_smmoid(interaction.author.id)
+        smmoid = await db.get_smmoid(interaction.user.id)
 
         # get guild from profile (get_all())
         profile = await api.get_all(smmoid)
@@ -116,12 +116,12 @@ class Guilds(commands.Cog):
             return
 
         # if user is in a fly guild....
-        if guildid in config.guilds or interaction.author.id == dyl:
+        if guildid in config.guilds or interaction.user.id == dyl:
             roles_given = ""
 
             # add fly role
             try:
-                await interaction.author.add_roles(interaction.guild.get_role(config.guild_role))
+                await interaction.user.add_roles(interaction.guild.get_role(config.guild_role))
             except discord.Forbidden:
                 await interaction.response.send_message("I am unable to add roles to this user because either I do not have proper permissions, or my role is not high enough.")
                 return
@@ -129,15 +129,15 @@ class Guilds(commands.Cog):
 
             if config.non_guild_role is not None:
                 try:
-                    await interaction.author.remove_roles(interaction.guild.get_role(config.non_guild_role))
+                    await interaction.user.remove_roles(interaction.guild.get_role(config.non_guild_role))
                 except discord.Forbidden:
                     pass
             if config.log_channel is not None:
-                await log.server_log(self.bot, interaction.guild.id, title="User has joined the guild", desc=f"**Roles given to** {interaction.author.mention}\n{roles_given}", id=ctx.author.id)
+                await log.server_log(self.bot, interaction.guild.id, title="User has joined the guild", desc=f"**Roles given to** {interaction.user.mention}\n{roles_given}", id=ctx.author.id)
             channel = self.bot.get_channel(config.welcome_channel)
-            if interaction.author.id != dyl:
+            if interaction.user.id != dyl:
                 try:
-                    await channel.send(f"Welcome {interaction.author.mention} to the {config.guild_name} guild!")
+                    await channel.send(f"Welcome {interaction.user.mention} to the {config.guild_name} guild!")
                 except discord.HTTPException:
                     pass
                 except AttributeError:

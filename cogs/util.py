@@ -42,9 +42,9 @@ class Utilities(commands.Cog):
         except discord.HTTPException:
             await ctx.send("HTTP Error")
             
-    @app_commands.command(name="Send Gold", description="Generate a link to the web app 'Send Gold' page if the mentioned user is linked")
+    @app_commands.command(name="send_gold", description="Generate a link to the web app 'Send Gold' page if the mentioned user is linked")
     @commands.cooldown(1, 30, BucketType.guild)
-    async def sendgold(self, interaction: discord.Interaction, members: commands.Greedy[discord.Member]):
+    async def sendgold(self, interaction: discord.Interaction, members: discord.Member):
         out = ""
         await interaction.response.defer(thinking=True)
         for member in members:
@@ -63,12 +63,12 @@ class Utilities(commands.Cog):
     @checks.is_verified()
     @commands.cooldown(1, 30, BucketType.member)
     async def mushroom(self, interaction: discord.Interaction):
-        smmoid = await db.get_smmoid(interaction.author.id)
+        smmoid = await db.get_smmoid(interaction.user.id)
         await interaction.response.send_message(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
 
-    @app_commands.command(name="Item Link", description="Generates the link to send an item to any number of users who are linked.")
+    @app_commands.command(name="item_link", description="Generates the link to send an item to any number of users who are linked.")
     @commands.cooldown(1, 30, BucketType.member)
-    async def give(self, interaction: discord.Interaction, itemid: int, members: commands.Greedy[discord.Member]):
+    async def give(self, interaction: discord.Interaction, itemid: int, members: discord.Member):
         await interaction.response.defer(thinking=True)
         out = ""
         for member in members:
@@ -81,7 +81,7 @@ class Utilities(commands.Cog):
 
     @app_commands.command(description="Generates the trade link for linked members")
     @commands.cooldown(1, 30, BucketType.member)
-    async def trade(self, interaction: discord.Interaction, members: commands.Greedy[discord.Member]):
+    async def trade(self, interaction: discord.Interaction, members: discord.Member):
         await interaction.response.defer(thinking=True)
         out = ""
         for member in members:
@@ -110,12 +110,12 @@ class Utilities(commands.Cog):
     @app_commands.command()
     @checks.is_verified()
     async def mytoken(self,interaction: discord.Interaction):
-        token = await db.get_yearly_token(interaction.author.id)
+        token = await db.get_yearly_token(interaction.user.id)
         if not token:
             letters = string.ascii_letters
             token = ''.join(random.choice(letters)
                                         for i in range(16))
-            await db.update_yearly_token(interaction.author.id, token)
+            await db.update_yearly_token(interaction.user.id, token)
       
         
             await interaction.response.send_message(f"Your access token is: `{token}`. Keep this secret and do not share it with anyone else",ephemeral=True)
@@ -135,7 +135,6 @@ class Utilities(commands.Cog):
         embed = Embed(
             title="Invite Me!", description="You can invite me by clicking [here](https://discord.com/api/oauth2/authorize?client_id=787258388752236565&permissions=8&scope=bot)")
         await ctx.send(embed=embed)
-        
         
         
 async def setup(bot):

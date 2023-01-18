@@ -1,9 +1,11 @@
 import discord
 from discord.embeds import Embed
 from discord.ext import commands
+from discord import app_commands
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands import Greedy, Context
 from typing import Literal, Optional
+import typing
 import time
 import logging
 import aiofiles
@@ -16,10 +18,8 @@ server = 444067492013408266
 
 fly = (408, 455, 541, 482)
 
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
 
 class Admin(commands.Cog):
     def __init__(self, bot):
@@ -30,6 +30,10 @@ class Admin(commands.Cog):
     async def admin(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
+        
+    @app_commands.command()
+    async def choices(self, interaction: discord.Interaction, discord: discord.Member=None, userid:int=None):
+        await interaction.response.send_message(discord if discord is not None else userid)
         
     @checks.is_owner()
     @commands.hybrid_command(aliases=["kill"], hidden=True)

@@ -17,7 +17,6 @@ logger.setLevel(logging.INFO)
 dyl = 332314562575597579
 server = 444067492013408266
 
-
 class Pleb(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -41,7 +40,8 @@ class Pleb(commands.Cog):
 
     @pleb.command()
     @checks.is_owner()
-    async def whois(self, ctx, *, member: discord.Member):
+    async def whois(self, ctx, *, member: discord.User):
+        
         users = await db.disc_ids(member.id)
         for user in users:
             await ctx.send(f'user: {user.smmoid}, verified: {user.verified}')
@@ -64,6 +64,8 @@ class Pleb(commands.Cog):
 
         plebs = await db.get_all_plebs()
         guild = self.bot.get_guild(int(server))
+        if guild is None:
+            return
         role = guild.get_role(int(pleb_role))
         count = 0
         if ctx is not None:

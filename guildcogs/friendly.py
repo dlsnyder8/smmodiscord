@@ -1,4 +1,4 @@
-import discord
+import discordflylog3
 from discord.embeds import Embed
 from discord.ext import commands, tasks
 from discord.ext.commands.core import guild_only

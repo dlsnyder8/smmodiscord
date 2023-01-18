@@ -2,6 +2,7 @@ import discord
 import traceback
 import sys
 from discord.ext import commands
+from discord.app_commands import AppCommandError
 import logging
 from discord import Embed
 from util.log import *
@@ -17,6 +18,11 @@ class CommandErrorHandler(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        
+    def cog_load(self):
+        tree = self.bot.tree
+        self.bot._old_tree_error = tree.on_error
+        tree.on_error = self.on_app_command_error
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -36,7 +42,7 @@ class CommandErrorHandler(commands.Cog):
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
 
-        ignored = (commands.CommandNotFound, discord.InteractionResponded, )
+        ignored = (commands.CommandNotFound, )
         # error = getattr(error, 'original', error)
 
         if isinstance(error, ignored):
@@ -122,6 +128,9 @@ class CommandErrorHandler(commands.Cog):
             # await ctx.send(embed=discord.Embed(title="Traceback",description=traceback.format_exc()))
             # traceback.print_exception(
             #     type(error), error, error.__traceback__, file=sys.stderr)
+            
+    async def on_app_command_error(self, interaction: discord.Interaction, error: AppCommandError):
+        pass
 
 
 async def setup(bot):
