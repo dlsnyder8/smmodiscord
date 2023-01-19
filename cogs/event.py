@@ -49,14 +49,15 @@ class Event(commands.GroupCog, name="event"):
     @app_commands.command()
     @app_checks.is_admin()
     async def start(self, interaction: discord.Interaction, eventid:int):
+        await interaction.response.send_message("Gathering starting stats. This may take a minute, please wait for confirmation.")
         stat_convert = {"pvp": "user_kills", "step": "steps",
                         "npc": "npc_kills", "level": "level"}
         valid = await db.valid_event(eventid, interaction.guild.id)
         if valid is False:
-            await interaction.response.send_message("Invalid event ID")
+            await interaction.followup.send("Invalid event ID")
             return 
         elif valid.is_started:
-            await interaction.response.send_message("This event has already started. You do not need to start it again")
+            await interaction.followup.send("This event has already started. You do not need to start it again")
             return
         try:
             await db.start_event(eventid, interaction.guild.id)
@@ -64,18 +65,18 @@ class Event(commands.GroupCog, name="event"):
 
             members = await db.get_participants(eventid)
             if members is None:
-                await interaction.response.send_message("That is not a valid ID")
+                await interaction.followup.send("That is not a valid ID")
                 return
             if len(members) == 0:
-                await interaction.response.send_message("There are no participants for that event. It has been ended automatically")
+                await interaction.followup.send("There are no participants for that event. It has been ended automatically")
                 await db.end_event(eventid, interaction.guild.id)
                 return
             elif members is None:
-                await interaction.response.send_message("The event ID might be incorrect or something brokey")
+                await interaction.followup.send("The event ID might be incorrect or something brokey")
                 return
 
         except Exception as e:
-            await interaction.response.send_message(embed=Embed(title="Error", description=e))
+            await interaction.followup.send(embed=Embed(title="Error", description=e))
             raise e
 
         for member in members:
@@ -86,26 +87,27 @@ class Event(commands.GroupCog, name="event"):
 
             await db.update_start_stat(eventid, member.discordid, info)
 
-        await interaction.response.send_message(f"Event {eventid} has started!")
+        await interaction.followup.send(f"Event {eventid} has started!")
 
     @app_commands.command()
     @app_checks.is_admin()
     async def end(self, interaction: discord.Interaction, eventid: int):
+        await interaction.response.send_message("Gathering final stats. Please be patient.")
         try:
             eventinfo = await db.event_info(eventid, interaction.guild.id)
             if eventinfo is None:
-                await interaction.response.send_message("That event id is not valid")
+                await interaction.followup.send("That event id is not valid")
                 return
             elif eventinfo.is_ended:
-                await interaction.response.send_message("That event has already been ended")
+                await interaction.followup.send("That event has already been ended")
                 return
 
             await self.stat_update(interaction.guild.id)
             await db.end_event(eventid, interaction.guild.id)
-            await interaction.response.send_message(f"Event {eventid} has concluded. Make sure to cleanup the event with `/cleanup {eventid}`")
+            await interaction.followup.send(f"Event {eventid} has concluded. Make sure to clean up the event with `/event cleanup {eventid}`")
             self.cleanup()
         except Exception as e:
-            await interaction.response.send_message(embed=Embed(title="Error", description=e))
+            await interaction.followup.send(embed=Embed(title="Error", description=e))
             raise e
 
     @app_commands.command()
@@ -387,7 +389,7 @@ class Event(commands.GroupCog, name="event"):
         embed.description = string
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command()
+    @app_commands.command(name='finished')
     @app_checks.is_admin()
     async def finished_events(self, interaction:discord.Interaction):
 
