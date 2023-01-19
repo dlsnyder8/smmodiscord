@@ -4,13 +4,8 @@ from datetime import datetime, timezone
 import database as db
 
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 
 async def test(self, ctx, desc: str):
