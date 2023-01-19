@@ -27,26 +27,6 @@ class Pleb(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
 
-    @pleb.command()
-    @checks.is_owner()
-    async def ispleb(self, ctx, arg):
-        smmoid = int(arg)
-        ispleb = await api.pleb_status(smmoid)
-        if ispleb:
-            await ctx.send(f'{smmoid} is a pleb')
-        else:
-            await ctx.send(f'{smmoid} is not a pleb')
-        return
-
-    @pleb.command()
-    @checks.is_owner()
-    async def whois(self, ctx, *, member: discord.User):
-        
-        users = await db.disc_ids(member.id)
-        for user in users:
-            await ctx.send(f'user: {user.smmoid}, verified: {user.verified}')
-            return
-        await ctx.send("No account connected")
 
     @commands.command(hidden=True)
     @checks.is_owner()
