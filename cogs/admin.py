@@ -1,17 +1,16 @@
 import discord
 from discord.embeds import Embed
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, ui
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext.commands import Greedy, Context
 from typing import Literal, Optional
-import typing
 import time
 import logging
 import aiofiles
 import api
 import database as db
-from util import checks
+from util import checks, app_checks, mymodals
 
 dyl = 332314562575597579
 server = 444067492013408266
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class Admin(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @checks.is_owner()
@@ -39,7 +38,7 @@ class Admin(commands.Cog):
     @commands.hybrid_command(aliases=["kill"], hidden=True)
     async def restart(self,ctx: Context):
         await ctx.send("Senpai, why you kill me :3")
-        await self.close()
+        await self.bot.close()
     
     @commands.command(description="""
                     `~` - Sync everything to current guild
@@ -95,9 +94,9 @@ class Admin(commands.Cog):
     @commands.command()
     @checks.is_owner()
     async def sql(self, ctx, query: str):
-        ret = await db.execute(query)
+        ret = (await db.execute(query))
 
-        await ctx.send(embed=Embed(title="Result", description=f"'''py\n{ret}'''"))
+        await ctx.send(embed=Embed(title="Result", description=f"```json\n{ret}\n```"))
 
 
     @commands.command()
@@ -106,7 +105,8 @@ class Admin(commands.Cog):
             await ctx.message.delete()
         except discord.Forbidden:
             pass
-        async with ctx.typing:
+        
+        async with ctx.typing():
             async with aiofiles.open("assets/supporters.txt", mode='r') as f:
                 content = await f.read()
 
@@ -141,9 +141,13 @@ class Admin(commands.Cog):
         except Exception as e:
             await ctx.send("Uh oh")
             raise e
-
-    
-
+        
+   
+    @app_commands.command(name='unlink', description="Unlink your Discord account")
+    @app_checks.is_verified()
+    async def self_unlink(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(mymodals.Unlink())
+        
     @checks.is_owner()
     @admin.command(hidden=True)
     async def unlink(self, ctx: Context, member: discord.Member):
@@ -248,6 +252,26 @@ class Admin(commands.Cog):
 
         else:
             await ctx.send('**SUCCESS!**')
+        
+    @commands.command()
+    @checks.is_owner()
+    async def ispleb(self, ctx, arg):
+        smmoid = int(arg)
+        ispleb = await api.pleb_status(smmoid)
+        if ispleb:
+            await ctx.send(f'{smmoid} is a pleb')
+        else:
+            await ctx.send(f'{smmoid} is not a pleb')
+        return
+
+    @commands.command()
+    @checks.is_owner()
+    async def whois(self, ctx, *, member: discord.User):
+        users = await db.disc_ids(member.id)
+        for user in users:
+            await ctx.send(f'user: {user.smmoid}, verified: {user.verified}')
+            return
+        await ctx.send("No account connected")
 
     @commands.command(hidden=True)
     @checks.is_owner()
