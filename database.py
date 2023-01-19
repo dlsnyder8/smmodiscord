@@ -47,9 +47,9 @@ session = sessionmaker(
 async def execute(command: str):
     async with session() as con:
         try:
-            ret = await con.execute(command)
+            data = await con.execute(command)
             await con.commit()
-            return ret
+            return [r for r in data.fetchall()]
 
         except Exception as e:
             await con.rollback()
