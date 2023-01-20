@@ -1,7 +1,8 @@
-import discordflylog3
 from discord.embeds import Embed
 from discord.ext import commands, tasks
 from discord.ext.commands.core import guild_only
+from discord import app_commands
+import discord
 import api
 import string
 import random
@@ -85,72 +86,66 @@ class Friendly(commands.Cog):
     async def friendly(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
+        
+    @checks.server_configured()
+    @app_commands.command()
+    async def verification_info(self, interaction: discord.Interaction):
+        await interaction.response.send_message(
+            embed=Embed(title="Verification Process",
+            description=f"""1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page
+                            2) Run `/verify SMMOID`
+                            3) Add the verification key to your motto, then run `/verify SMMOID` again"""))
 
     @checks.server_configured()
-    @commands.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]")
-    async def verify(self, ctx, *args):
-        # needs 1 arg, smmo id
-        if len(args) != 1:
-            await ctx.send(embed=Embed(title="Verification Process",
-                                       description="1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page\n2) Run `&verify SMMOID`\n3) Add the verification key to your motto, then run `&verify SMMOID` again"))
-            return
-
-        smmoid = args[0]
-
-        try:
-            smmoid = int(smmoid)
-        except ValueError:
-            await ctx.send("Argument must be a number")
-            return
-
+    @app_commands.command(description="Connects your Discord account with your SMMO account")
+    async def verify(self, interaction: discord.Interaction, smmoid: int):
+       
         # check if verified
         if(await db.is_verified(smmoid)):
-            await ctx.reply("Hey you've already linked your account! Are you trying to get the Friendly role? If so, you need to type `&join` to get the role! \n\nOh...you weren't trying to do that? Well... this is awkward. Goodbye.")
+            await interaction.response.send_message("Hey you've already linked your account! Are you trying to get the Friendly role? If so, you need to type `&join` to get the role! \n\nOh...you weren't trying to do that? Well... this is awkward. Goodbye.")
             return
 
-        if(await db.islinked(ctx.author.id) is True):
-            await ctx.send(embed=Embed(title="Already Linked", description=f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord."))
+        if(await db.islinked(interaction.user.id) is True):
+            await interaction.response.send_message(embed=Embed(title="Already Linked", description=f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord."))
             return
 
         # check if has verification key in db
-        key = await db.verif_key(smmoid, ctx.author.id)
+        key = await db.verif_key(smmoid, interaction.user.id)
         if(key is not None):
 
             profile = await api.get_all(smmoid)
             try:
                 motto = profile['motto']
             except KeyError:
-                await ctx.send(f"A motto cannot be found for this account. This usually means you are trying to link to a deleted account")
+                await interaction.response.send_message(f"A motto cannot be found for this account. This usually means you are trying to link to a deleted account. Ask someone for help to find your ID")
                 return
 
             if motto is None:
-                await ctx.send(f'Something went wrong. Please contact <@{dyl}> on Discord for help')
+                await interaction.response.send_message(f'Something went wrong. Please contact <@{dyl}> on Discord for help')
                 return
 
             if(key in motto):
                 await db.update_verified(smmoid, True)
-                await ctx.send("You are now verified. You can remove the verification key from your motto.")
-                data = await db.server_config(ctx.guild.id)
+                await interaction.response.send_message("You are now verified. You can remove the verification key from your motto.")
+                data = await db.server_config(interaction.guild.id)
 
                 if data.guild_role is not None:
-                    await ctx.send(f"If you're in the guild, please run `{ctx.prefix}join` to be granted access to guild channels.")
-
+                    await interaction.followup.send(f"If you're in the guild, please run `/join` to be granted access to guild channels.")
                 return
 
-            await ctx.reply(f"Verification Failed. You are trying to connect your account to **{profile['name']}**. Your verification key is: `{key}`")
-            await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+            await interaction.response.send_message(f"""Verification Failed. You are trying to connect your account to **{profile['name']}**. Your verification key is: `{key}`
+                            Please add this to your motto and run `/verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>""")
             return
 
         else:
             # key in DB, but someone else tried to add it. Generate new key
             if(await db.key_init(smmoid) is not None):
-                await ctx.send("Someone tried to verify with your ID. Resetting key....")
                 letters = string.ascii_letters
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
-                await db.update_pleb(smmoid, ctx.author.id, key)
-                await ctx.reply(f'Your new verification key is: `{key}`')
-                await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                await db.update_pleb(smmoid, interaction.user.id, key)
+                await interaction.response.send_message(f"""Your new verification key is: `{key}`
+                                Please add this to your motto and run `/verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>""")
                 return
 
             # no key in db, generate and add
@@ -159,8 +154,9 @@ class Friendly(commands.Cog):
                 letters = string.ascii_letters
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
-                await db.add_new_pleb(smmoid, ctx.author.id, key)
-                await ctx.reply(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                await db.add_new_pleb(smmoid, interaction.user.id, key)
+                await interaction.response.send_message(f'Your verification key is: `{key}` \
+                                                        \nPlease add this to your motto and run `/verify {smmoid}` again!\n<https://web.simple-mmo.com/changemotto>')
                 return
 
     @commands.command()
@@ -1495,6 +1491,7 @@ class Friendly(commands.Cog):
             return
 
     @tasks.loop(hours=3, reconnect=True)
+    @tasks.Loop.add_exception_type(BaseException)
     async def flycheck(self):
         await log(self.bot, "Fly Check Started", "Friendly guild members are being checked")
         await flylog2(self.bot, "Fly Check Started", "Friendly guild members are being checked")
