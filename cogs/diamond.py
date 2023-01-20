@@ -58,9 +58,13 @@ class Diamond(commands.Cog):
         await ctx.send(embed=embed)
 
     @tasks.loop(minutes=1, reconnect=True)
+    @tasks.Loop.add_exception_type(BaseException)
     async def diamond_check(self):
         string = ""
         listings = await api.diamond_market()
+        if listings is None:
+            logging.error("Diamond Market API failed")
+            return
         allservers = await db.all_servers()
         # listings = [{"price_per_diamond": 1, "diamonds_remaining": 5}]
 
