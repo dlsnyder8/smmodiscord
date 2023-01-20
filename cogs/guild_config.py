@@ -18,13 +18,13 @@ class Config(commands.GroupCog, name="config"):
         self.bot = bot
         super().__init__()
 
-    @app_commands.command()
+    @app_commands.command(name='view')
     @app_checks.is_admin()
     async def config(self, interaction: discord.Interaction):
         
         data = await db.server_config(interaction.guild.id)
         if data is None:
-            await interaction.response.send_message(f"To view the configuration, you first need to run `/config init` to setup the server")
+            await interaction.response.send_message(f"To view the configuration, you first need to run `/config setup` to setup the server")
             return
 
         embed = Embed(title="Current Server Config")
@@ -50,7 +50,7 @@ class Config(commands.GroupCog, name="config"):
         await interaction.response.send_message(embed=embed)
         return
 
-    @app_commands.command(description="Sets up bot in server")
+    @app_commands.command(description="Sets up bot in server", name='setup')
     @app_checks.is_admin()
     async def init(self, interaction: discord.Interaction):
         guild = interaction.guild
@@ -66,12 +66,12 @@ class Config(commands.GroupCog, name="config"):
             await interaction.response.send_message(f"Something went wrong. Contact <@{dyl}> on Discord for help")
             return
 
-    @app_commands.command()
+    @app_commands.command(description='Confused? Read Me!')
     @app_checks.is_admin()
     async def guide(self, interaction: discord.Interaction):
         info = f"""Congratulations on starting your guild! To complete setting up the bot to start your member management, you need to do a few things:
-        1) Tell the bot which guild members should be in -- `/help config guilds` (You can set multiple guilds if you want to include related guilds)
-        2) Set your guild name -- `/help config guild_name`
+        1) Tell the bot which guild members should be in -- `/config guilds` (You can set multiple guilds if you want to include related guilds)
+        2) Set your guild name -- `/config guild_name`
         3) Start having your members verify with the bot -- `/verify` for more information on this process
            You can see which members would lose their guild role by running `/softcheck @GuildRole`. There is a 10 minute cooldown for this command
         4) Once enough members have verified, set your guild role and welcome channel in the configuration. **NOTE:** Setting a guild role will make the bot start removing roles from users who have not verified or are not in the guild.
@@ -85,14 +85,14 @@ class Config(commands.GroupCog, name="config"):
         1) Verify with the bot to link their Discord and SMMO Accounts together -- `/verify` for more info
         2) Type `/join` to be given the guild role if they are in the guild.
 
-        More info can be found by running `/config` to see your current configuration or `/config options` to see all of the commands for changing the config values
+        More info can be found by running `/config view` to see your current configuration or `/config options` to see all of the commands for changing the config values
         """
 
         embed = discord.Embed(title="Embed Guide")
         embed.description = info
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command()
+    @app_commands.command(description='See all options available to change')
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
@@ -110,15 +110,15 @@ class Config(commands.GroupCog, name="config"):
 
         await interaction.response.send_message(embed=Embed(title="Configuration Options", description=options))
 
-    @app_commands.command()
+    @app_commands.command(description='Set values for Diamond Ping. Amount defaults to 2m')
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
     @app_checks.premium_server()
     async def diamonds(self, interaction: discord.Interaction,
-                       active: bool = False, 
-                       role: discord.Role = None, 
-                       channel: discord.TextChannel = None, 
+                       active: bool, 
+                       role: discord.Role, 
+                       channel: discord.TextChannel, 
                        amount:int=2000000):
         if active is False:
             await db.enable_diamond_ping(interaction.guild.id)
@@ -136,7 +136,7 @@ class Config(commands.GroupCog, name="config"):
 
             await interaction.response.send_message(embed=Embed(title="Updated", description=f"Channel: {channel.mention}\nRole: {role.mention}"))
 
-    @app_commands.command()
+    @app_commands.command(description='Choose a role for guild members')
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
@@ -144,7 +144,7 @@ class Config(commands.GroupCog, name="config"):
         await db.change_guild_role(interaction.guild.id, role.id)
         await interaction.response.send_message("Role updated")
 
-    @app_commands.command()
+    @app_commands.command(description='Choose a role that will be removed when someone is granted the guild role')
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
@@ -152,11 +152,11 @@ class Config(commands.GroupCog, name="config"):
         await db.change_non_guild_role(interaction.guild.id, role.id)
         await interaction.response.send_message("Role updated")
 
-    @app_commands.command()
+    @app_commands.command(description="Saves your API token. Not entering token will delete existing token, if any.")
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
-    async def api_token(self, interaction: discord.Interaction, token: str = None):
+    async def api_token(self, interaction: discord.Interaction, token: str=None):
         if token is None:
             await db.update_token(interaction.guild.id, None)
             await interaction.response.send_message("Token deleted")
@@ -186,28 +186,34 @@ class Config(commands.GroupCog, name="config"):
         await db.update_guild_name(interaction.guild.id, name)
         await interaction.response.send_message("Guild name updated")
 
-    @app_commands.command()
+    @app_commands.command(description='Set the guilds related to this server. Numbers only, separated by spaces')
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
-    # TODO multiple guilds at once
-    async def guilds(self, interaction: discord.Interaction, guilds: int):
+    async def guilds(self, interaction: discord.Interaction, guilds: str):
+        await interaction.response.defer()
+        logger.info(guilds)
+        
+        guilds = [int(x) for x in guilds.split(' ')]
+       
+        logger.info(guilds)
         if len(guilds) < 1:
-            await interaction.response.send_message("You must specify at least 1 guild. If you're having issues, you may need to remove any punctuation between numbers")
+            await interaction.followup.send("You must specify at least 1 guild. If you're having issues, you may need to remove any punctuation between numbers")
             return
 
-        for guild in guilds:
-            if guild < 1:
-                await interaction.response.send_message(f"{guild} is an invalid ID")
-                return
+        # for guild in guilds:
+        #     if guild < 1:
+        #         await interaction.followup.send(f"{guild} is an invalid ID")
+        #         return
         if not all([isinstance(item, int) for item in guilds]):
-            await interaction.response.send_message("One of the supplied guilds is not a valid number")
+            await interaction.followup.send("One of the supplied guilds is not a valid number")
             return
 
         await db.update_guilds(interaction.guild.id, guilds)
-        await interaction.response.send_message(f"{guilds} have been added to your config")
+        val = ' and '.join([str(x) for x in guilds])
+        await interaction.followup.send(f"{val} have been added to your config")
 
-    @app_commands.command()
+    @app_commands.command(description='Sets a channel for various logging messages to go to')
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
@@ -216,7 +222,7 @@ class Config(commands.GroupCog, name="config"):
 
         await interaction.response.send_message(f"logs will now be sent to {channel.mention}")
 
-    @app_commands.command()
+    @app_commands.command(description='Sets the welcome channel for new members')
     @app_checks.is_admin()
     @app_checks.is_verified()
     @app_checks.server_configured()
