@@ -133,7 +133,7 @@ class Guilds(commands.Cog):
                 except discord.Forbidden:
                     pass
             if config.log_channel is not None:
-                await log.server_log(self.bot, interaction.guild.id, title="User has joined the guild", desc=f"**Roles given to** {interaction.user.mention}\n{roles_given}", id=ctx.author.id)
+                await log.server_log(self.bot, interaction.guild.id, title="User has joined the guild", desc=f"**Roles given to** {interaction.user.mention}\n{roles_given}", id=interaction.user.id)
             channel = self.bot.get_channel(config.welcome_channel)
             if interaction.user.id != dyl:
                 try:
