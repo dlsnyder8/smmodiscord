@@ -484,6 +484,9 @@ class Wars(commands.Cog):
         try:
             await log.log(self.bot, "Gold Ping", "Checking for friendly members with gold out....")
             channel = self.bot.get_channel(846657320184053760)
+            if channel is None:
+                logging.error('Unable to find Friendly gold channel')
+                return
             members = await db.gold_ping_users()
             for member in members:
 
@@ -499,6 +502,9 @@ class Wars(commands.Cog):
                     continue
 
                 info = await api.get_all(smmoid)
+                if info is None:
+                    logging.error("Api Call get_all has failed")
+                    continue
 
                 # Skip user if not in Friendly guild
                 try:

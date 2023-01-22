@@ -202,6 +202,9 @@ class Guild(commands.GroupCog, name="gm"):
 
             # check leader in guild
             members = await api.guild_members(guildid)
+            if members is None:
+                logging.error("API call guild_members failed")
+                continue
 
             # get leader from member list
             try:
