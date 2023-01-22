@@ -117,8 +117,8 @@ class Config(commands.GroupCog, name="config"):
     @app_checks.premium_server()
     async def diamonds(self, interaction: discord.Interaction,
                        active: bool, 
-                       role: discord.Role, 
-                       channel: discord.TextChannel, 
+                       role: discord.Role=None, 
+                       channel: discord.TextChannel=None, 
                        amount:int=2000000):
         if active is False:
             await db.enable_diamond_ping(interaction.guild.id)
@@ -167,6 +167,7 @@ class Config(commands.GroupCog, name="config"):
             return
 
         smmoid = await db.get_smmoid(interaction.user.id)
+        # TODO: API Token should be owned by leader or co-leader
         if int(smmoid) != token_id:
             await interaction.response.send_message("This API Token is not owned by the same account that you have connected to your Discord Account.")
             return
