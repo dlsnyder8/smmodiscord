@@ -3,6 +3,7 @@ import traceback
 import sys
 from discord.ext import commands
 from discord.app_commands import AppCommandError
+from discord import app_commands
 import logging
 from discord import Embed
 from util.log import *
@@ -117,6 +118,7 @@ class CommandErrorHandler(commands.Cog):
             raise error
 
         else:
+            logger.error(error)
             embed = discord.Embed(
                 title="Error", description=f"Ignoring exception in command {ctx.command}. Run by {ctx.author.mention} in channel {ctx.channel.mention}")
             # embed.add_field("Status", error.status)
@@ -130,7 +132,24 @@ class CommandErrorHandler(commands.Cog):
             #     type(error), error, error.__traceback__, file=sys.stderr)
             
     async def on_app_command_error(self, interaction: discord.Interaction, error: AppCommandError):
-        pass
+        # ignored= ()
+        
+        # if isinstance(error, ignored):
+        #     return
+        
+        if isinstance(error, app_commands.CommandOnCooldown):
+            if interaction.user.id != dyl:
+                errorembed = discord.Embed(title="Slow your roll",
+                                           description=f"You're on a cooldown. Please try again in {error.retry_after:.2f} Second(s)!")
+                await interaction.response.send_message(embed=errorembed, ephemeral=True)
+            else:
+                await interaction.response.send_message("hey dyl",ephemeral=True)
+                
+        else:
+            interaction.response.send_message("Something has gone wrong, please let dyl know")
+            logger.error(error)
+            
+        
 
 
 async def setup(bot):

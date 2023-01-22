@@ -2,10 +2,12 @@ import discord
 from discord.ext import commands, tasks
 from discord import app_commands
 from util import checks, log, app_checks
+from util.cooldowns import custom_is_me, BucketType
 import database as db
 import api
 import logging
 import config
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -24,8 +26,9 @@ class Pleb(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
         
-    @app_commands.commands()
+    @app_commands.command()
     @app_checks.is_verified()
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Member)
     async def iampleb(self, interaction: discord.Interaction):
         user = interaction.user
         smmoid = db.get_smmoid(user.id)
@@ -93,7 +96,6 @@ class Pleb(commands.Cog):
             await ctx.send(f"Pleb check finished! {in_server} linked members not in this server")
 
     @tasks.loop(hours=3, reconnect=True)
-    @tasks.Loop.add_exception_type(BaseException)
     async def update_all_plebs(self):
         await self.plebcheck(None)
         return
@@ -105,5 +107,5 @@ class Pleb(commands.Cog):
 
 async def setup(bot: commands.Bot):
     if config.main_acct:
-        await bot.add_cog(Pleb(bot), guild=discord.Object[server])
+        await bot.add_cog(Pleb(bot), guild=discord.Object(server))
         logger.info("Pleb Cog Loaded")

@@ -4,8 +4,9 @@ from discord.ext import commands
 from util import checks, log, app_checks
 import logging
 import database as db
-from discord.ext.commands.cooldowns import BucketType
 import random
+from util.cooldowns import BucketType
+from util.cooldowns import custom_is_me
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -19,7 +20,7 @@ class Arcade(commands.GroupCog, name="arcade"):
 
     @app_commands.command()
     @app_checks.is_verified()
-    @commands.cooldown(1, 5, BucketType.member)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,10),key=BucketType.Member)
     async def slots(self, interaction: discord.Interaction):
         prizes = {':yen:': 5,
                   ':dollar:': 10,
@@ -63,7 +64,7 @@ class Arcade(commands.GroupCog, name="arcade"):
 
     @app_commands.command()
     @app_checks.is_verified()
-    @commands.cooldown(1, 5, BucketType.member)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,10),key=BucketType.Member)
     @app_commands.choices(choice=[
         app_commands.Choice(name='Heads',value='heads'),
         app_commands.Choice(name='Tails',value='tails')
@@ -88,10 +89,12 @@ class Arcade(commands.GroupCog, name="arcade"):
         await interaction.response.send_message(f"You have {current_tokens} :coin: left", embed=embed)
 
 
+    
+    
     @app_commands.command()
     @checks.is_verified()
     @checks.in_main()
-    @commands.cooldown(1, 5, BucketType.member)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,10),key=BucketType.Member)
     @app_commands.choices(choices=[
         app_commands.Choice(name='Rock',value='rock'),
         app_commands.Choice(name='Paper',value='paper'),
@@ -148,7 +151,7 @@ class Arcade(commands.GroupCog, name="arcade"):
     @app_commands.command()
     @checks.is_verified()
     @checks.in_main()
-    @commands.cooldown(1, 5, BucketType.member)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,10),key=BucketType.Member)
     @app_commands.choices(choices=[
         app_commands.Choice(name='1',value='1'),
         app_commands.Choice(name='2',value='2'),
@@ -223,8 +226,7 @@ class Arcade(commands.GroupCog, name="arcade"):
             embed = discord.Embed(
                 title='Tokens Changed', description=f'{member.mention} now has {current_tokens} :tickets:')
             await interaction.response.send_message(embed=embed)
-
-
+        
 async def setup(bot):
     await bot.add_cog(Arcade(bot))
     logger.info("Arcade Cog Loaded")

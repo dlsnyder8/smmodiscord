@@ -5,6 +5,7 @@ import logging
 import api
 import database as db
 from util import checks, log, app_checks
+from util.cooldowns import BucketType, custom_is_me
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,7 @@ class Event(commands.GroupCog, name="event"):
         app_commands.Choice(name='NPC Slaughter Event',value='npc'),
         app_commands.Choice(name='Leveling Event',value='level')
     ])
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
     async def create(self, interaction: discord.Interaction, name: str, event_type: app_commands.Choice[str]):
         # if eventtype not in self.event_types:
         #     await ctx.send(embed=Embed(title="Invalid event type", description="Events must be one of the following:\n`step`,`level`,`npc`,`pvp`"))
@@ -48,6 +50,7 @@ class Event(commands.GroupCog, name="event"):
 
     @app_commands.command()
     @app_checks.is_admin()
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
     async def start(self, interaction: discord.Interaction, eventid:int):
         await interaction.response.send_message("Gathering starting stats. This may take a minute, please wait for confirmation.")
         stat_convert = {"pvp": "user_kills", "step": "steps",
@@ -91,6 +94,7 @@ class Event(commands.GroupCog, name="event"):
 
     @app_commands.command()
     @app_checks.is_admin()
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
     async def end(self, interaction: discord.Interaction, eventid: int):
         await interaction.response.send_message("Gathering final stats. Please be patient.")
         try:

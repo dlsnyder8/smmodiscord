@@ -8,7 +8,7 @@ import database as db
 import logging
 import string
 import random
-from discord.ext.commands.cooldowns import BucketType
+from util.cooldowns import BucketType, custom_is_me
 
 
 logger = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ class Guilds(commands.Cog):
     @checks.is_verified()
     @app_commands.command()
     @commands.guild_only()
-    @commands.cooldown(1, 60, BucketType.user)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,60),key=BucketType.Member)
     @checks.server_configured()
     async def join(self, interaction: discord.Interaction):
         config = await db.server_config(interaction.guild.id)
@@ -151,7 +151,7 @@ class Guilds(commands.Cog):
 
     @app_commands.command(description="Checks to see who has the guild role, but is not in the guild or has not linked")
     @checks.is_admin()
-    @commands.cooldown(1, 600, BucketType.guild)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
     async def softcheck(self, interaction: discord.Interaction, guildrole: discord.Role = None):
         await interaction.response.defer(thinking=True)
         server = await db.ServerInfo(interaction.guild.id)
