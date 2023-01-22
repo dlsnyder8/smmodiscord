@@ -9,7 +9,7 @@ from util import checks, log
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-dev = True
+dev = False
 
 TOKEN = config.TOKEN
 DEV_TOKEN = config.DEV_TOKEN
