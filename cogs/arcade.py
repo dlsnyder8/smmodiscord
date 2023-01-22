@@ -228,5 +228,5 @@ class Arcade(commands.GroupCog, name="arcade"):
             await interaction.response.send_message(embed=embed)
         
 async def setup(bot):
-    await bot.add_cog(Arcade(bot))
+    await bot.add_cog(Arcade(bot), guild=discord.Object(444067492013408266))
     logger.info("Arcade Cog Loaded")

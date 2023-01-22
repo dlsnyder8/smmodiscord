@@ -146,7 +146,7 @@ class CommandErrorHandler(commands.Cog):
                 await interaction.response.send_message("hey dyl",ephemeral=True)
                 
         else:
-            interaction.response.send_message("Something has gone wrong, please let dyl know")
+            await interaction.response.send_message("Something has gone wrong, please let dyl know")
             logger.error(error)
             
         
