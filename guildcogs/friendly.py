@@ -311,7 +311,7 @@ class Friendly(commands.Cog):
     @app_checks.is_verified()
     @app_commands.command()
     @guild_only()
-    @app_commands.check.cooldown(custom_is_me(1,60), AppBucketType.Member)
+    @app_commands.check.dynamic_cooldown(custom_is_me(1,60), AppBucketType.Member)
     @checks.server_configured()
     async def join(self, ctx):
         if ctx.author._roles.has(fly_roles[19]):
