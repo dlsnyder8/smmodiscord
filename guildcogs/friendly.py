@@ -6,7 +6,9 @@ import discord
 import api
 import string
 import random
-from util import checks, log
+from util import checks, log, app_checks
+from util.cooldowns import custom_is_me
+from util.cooldowns import BucketType as AppBucketType
 import database as db
 from discord.ext.commands.cooldowns import BucketType
 import logging
@@ -314,14 +316,13 @@ class Friendly(commands.Cog):
             await ctx.send("Here are the guild stats", file=discord.File('friendly.csv'))
             os.remove('friendly.csv')
 
-    @checks.is_verified()
-    @commands.command()
+    @app_checks.is_verified()
+    @app_commands.command()
     @guild_only()
-    @commands.cooldown(1, 60, BucketType.user)
+    @commands.cooldown(custom_is_me(1,60), AppBucketType.Member)
     @checks.server_configured()
     async def join(self, ctx):
         if ctx.author._roles.has(fly_roles[19]):
-
             await ctx.send("You've already been granted the Friendly role :)")
             return
 
@@ -1491,11 +1492,12 @@ class Friendly(commands.Cog):
             return
 
     @tasks.loop(hours=3, reconnect=True)
-    @tasks.Loop.add_exception_type(BaseException)
     async def flycheck(self):
         await log(self.bot, "Fly Check Started", "Friendly guild members are being checked")
         await flylog2(self.bot, "Fly Check Started", "Friendly guild members are being checked")
         guild = self.bot.get_guild(710258284661178418)
+        if guild is None:
+            return
         all_fly_roles = [
             # Main Fly Role
             guild.get_role(710315282920636506),
@@ -1587,6 +1589,8 @@ class Friendly(commands.Cog):
         ]
 
         fly_role = guild.get_role(710315282920636506)
+        if fly_role is None:
+            return
         members = fly_role.members
         not_in_fly = 0
         not_linked = 0
@@ -1608,6 +1612,9 @@ class Friendly(commands.Cog):
         fly4 = [x["user_id"] for x in fly4]
 
         allmembers = fly1 + fly2 + fly3 + fly4
+        if members is None:
+            logger.error("Fly check failed because of API")
+            return
         listUsers = []
 
         for member in members:
