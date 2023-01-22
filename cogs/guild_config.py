@@ -116,25 +116,28 @@ class Config(commands.GroupCog, name="config"):
     @app_checks.server_configured()
     @app_checks.premium_server()
     async def diamonds(self, interaction: discord.Interaction,
-                       active: bool, 
+                       active: bool=None, 
                        role: discord.Role=None, 
                        channel: discord.TextChannel=None, 
-                       amount:int=2000000):
-        if active is False:
-            await db.enable_diamond_ping(interaction.guild.id)
-            await interaction.response.send_message("Diamond Pings have been disabled for this guild")
+                       amount:int=None):
+        if active is None and role is None and channel is None and amount is None:
+            await interaction.response.send_message("Hey you have to update AT LEAST one thing to run this command",ephemeral=True)
             return
-
-        else:
-            if role is None or channel is None:
-                await interaction.response.send_message("You must specify both the role to be pinged and the channel to put notifications in")
-                return
-            await db.enable_diamond_ping(interaction.guild.id, True)
-            await db.add_diamond_channel(interaction.guild.id, channel.id)
+        
+        if active is not None:
+            await db.enable_diamond_ping(interaction.guild.id, active)
+        if role is not None:
             await db.add_diamond_role(interaction.guild.id, role.id)
+        if channel is not None:
+            await db.add_diamond_channel(interaction.guild.id, channel.id)
+        if amount is not None:
             await db.change_diamond_amount(interaction.guild.id, amount)
 
-            await interaction.response.send_message(embed=Embed(title="Updated", description=f"Channel: {channel.mention}\nRole: {role.mention}"))
+        await interaction.response.send_message(embed=Embed(title="Updated", 
+                                                description=f"Active: {'enabled' if active else 'disabled'}\
+                                                Channel: {channel.mention if channel is not None else 'Not Updated'}\n\
+                                                Role: {role.mention if role is not None else 'Not Updated'}\n\
+                                                Amount: {amount if amount is not None else 'Not Updated'}"))
 
     @app_commands.command(description='Choose a role for guild members')
     @app_checks.is_admin()

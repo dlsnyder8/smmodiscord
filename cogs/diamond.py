@@ -62,6 +62,9 @@ class Diamond(commands.Cog):
         if listings is None:
             logging.error("Diamond Market API failed")
             return
+        elif listings == []:
+            logging.error("Diamond Market returned empty string")
+            return
         allservers = await db.all_servers()
         # listings = [{"price_per_diamond": 1, "diamonds_remaining": 5}]
 
@@ -70,20 +73,22 @@ class Diamond(commands.Cog):
             x for x in allservers if x.premium and x.diamond_ping and x.diamond_role is not None and x.diamond_channel is not None]
 
         for server in filtered:
+            guild = self.bot.get_guild(server.serverid)
+            if guild is None:
+                continue
             diamond = [x for x in listings if x['price_per_diamond']
                        < server.diamond_amount]
-            logger.info(diamond)
+            
 
-            if diamond is not []:
+            if diamond != []:
+                logger.info(f'Would have pinged in server {server.full_name}')
                 embed = Embed(title="Cheap Diamonds!!!")
                 string = ""
                 for list in diamond:
                     string += f"There are {list['diamonds_remaining']} diamonds left at {list['price_per_diamond']:,} each.\n"
 
                 embed.description = string
-                guild = self.bot.get_guild(server.serverid)
-                if guild is None:
-                    continue
+                
                 chan = self.bot.get_channel(server.diamond_channel)
                 role = guild.get_role(server.diamond_role)
 
@@ -101,7 +106,6 @@ class Diamond(commands.Cog):
                 if plus30min < datetime.now(timezone.utc):
                     await chan.send(f'{role.mention}', embed=embed)
                     await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
-
     @diamond_check.before_loop
     async def before_diamond_check(self):
         await self.bot.wait_until_ready()
