@@ -2,22 +2,14 @@ from discord.embeds import Embed
 from discord.ext import commands, tasks
 from discord.ext.commands.core import guild_only
 from discord import app_commands
-import discord
-import api
-import string
-import random
+import discord, api, string, random, csv, os, logging,traceback, database as db
 from util import checks, log, app_checks
-from util.cooldowns import custom_is_me
-from util.cooldowns import BucketType as AppBucketType
-import database as db
+from util.cooldowns import custom_is_me, BucketType as AppBucketType
 from discord.ext.commands.cooldowns import BucketType
-import logging
 from util.log import flylog, log, flylog2, flylog3
-import traceback
 from datetime import datetime, timezone
 from dateutil import parser
-import csv
-import os
+
 
 
 logger = logging.getLogger(__name__)

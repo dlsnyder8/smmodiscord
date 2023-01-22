@@ -6,8 +6,6 @@ import database as db
 from util import checks, log
 import logging
 from datetime import datetime, timezone, timedelta
-from dateutil import parser
-import pytz
 
 
 logger = logging.getLogger(__name__)
