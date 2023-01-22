@@ -286,7 +286,8 @@ class Admin(commands.Cog):
 
         await ctx.send(string)
 
-    @commands.hybrid_command()
+    @commands.command(hidden=True)
+    @checks.is_owner()
     @commands.cooldown(1, 30, BucketType.member)
     async def id(self, ctx:Context, members: commands.Greedy[discord.Member]):
         out = ""
