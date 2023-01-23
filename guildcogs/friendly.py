@@ -71,7 +71,7 @@ dyl = 332314562575597579
 
 
 class Friendly(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.flycheck.start()
 
@@ -313,6 +313,7 @@ class Friendly(commands.Cog):
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,60), key=AppBucketType.Member)
     @app_checks.server_configured()
     async def join(self, interaction:discord.Interaction):
+        await interaction.response.defer()
         if interaction.user._roles.has(fly_roles[19]):
             await interaction.response.send_message("You've already been granted the Friendly role :)")
             return
@@ -324,7 +325,7 @@ class Friendly(commands.Cog):
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
-            await interaction.response.send_message("You are not in a guild")
+            await interaction.followup.send("You are not in a guild")
             return
 
         # if user is in a fly guild....
@@ -340,7 +341,8 @@ class Friendly(commands.Cog):
             await interaction.user.add_roles(interaction.guild.get_role(fly_roles[19]))
             await interaction.user.add_roles(interaction.guild.get_role(traveler))
             await interaction.user.remove_roles(interaction.guild.get_role(acquaintance))
-            await interaction.response.send_message(f"Welcome to Friendly :)\nYou can run `&fly eligibility` (`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
+            await interaction.followup.send(f"Welcome to Friendly :)\nYou can run `&fly eligibility` \
+                                            (`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
             roles_given += f"<@&{fly_roles[19]}>"
             # if user is in NSF
             if guildid == 541:
@@ -349,11 +351,10 @@ class Friendly(commands.Cog):
                 roles_given += f" ,<@&783930500732551219>"
 
             await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {interaction.user.mention}\n{roles_given}", interaction.user.id)
-            # await self.bot.get_channel(934284308112375808).send(embed=Embed(title="Beginning of year stats", description=f'{profile}'))
+            await self.bot.get_channel(934284308112375808).send(embed=Embed(title="Beginning of year stats", description=f'{profile}'))
             channel = self.bot.get_channel(728355657283141735)
             if interaction.user.id != dyl:
                 await channel.send(f"Welcome {interaction.user.mention} to the Friendliest guild in SimpleMMO!")
-
             await interaction.followup.send(f"<@581061608357363712> <@307328265129820160>\n ;adminlink {interaction.user.id} {smmoid}")
 
         else:
