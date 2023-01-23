@@ -92,8 +92,7 @@ class Arcade(commands.GroupCog, name="arcade"):
     
     
     @app_commands.command()
-    @checks.is_verified()
-    @checks.in_main()
+    @app_checks.is_verified()
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,10),key=BucketType.Member)
     @app_commands.choices(choices=[
         app_commands.Choice(name='Rock',value='rock'),
@@ -149,8 +148,7 @@ class Arcade(commands.GroupCog, name="arcade"):
             await interaction.response.send_message(f"You have {cur_tokens} :coin: remaining", embed=embed)
 
     @app_commands.command()
-    @checks.is_verified()
-    @checks.in_main()
+    @app_checks.is_verified()
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,10),key=BucketType.Member)
     @app_commands.choices(choices=[
         app_commands.Choice(name='1',value='1'),
@@ -209,7 +207,7 @@ class Arcade(commands.GroupCog, name="arcade"):
         await interaction.response.send_message(embed=embed,ephemeral=hidden)
 
     @app_commands.command(name="addtokens")
-    @checks.is_owner()
+    @app_checks.is_owner()
     async def token_add(self, interaction: discord.Interaction, tokens: int, members: discord.Member):
 
         for member in members:
@@ -219,7 +217,7 @@ class Arcade(commands.GroupCog, name="arcade"):
             await interaction.response.send_message(embed=embed)
 
     @app_commands.command()
-    @checks.is_owner()
+    @app_checks.is_owner()
     async def ticket_add(self, interaction: discord.Interaction, tokens: int, members: discord.Member):
         for member in members:
             current_tokens = await db.update_arcade_tickets(member.id, tokens)

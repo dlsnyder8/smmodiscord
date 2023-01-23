@@ -1,10 +1,11 @@
 import discord
 from discord import Embed, app_commands
 from discord.ext import commands
-from util import checks
+from util import checks, app_checks
 from discord.embeds import Embed
 from discord.ext.commands import Context
 from discord.ext.commands.cooldowns import BucketType
+from util.cooldowns import custom_is_me, BucketType as AppBucketType
 import logging
 import database as db
 import api
@@ -43,7 +44,7 @@ class Utilities(commands.Cog):
             await ctx.send("HTTP Error")
             
     @app_commands.command(name="send_gold", description="Generate a link to the web app 'Send Gold' page if the mentioned user is linked")
-    @commands.cooldown(1, 30, BucketType.guild)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
     async def sendgold(self, interaction: discord.Interaction, members: discord.Member):
         out = ""
         await interaction.response.defer(thinking=True)
@@ -60,14 +61,14 @@ class Utilities(commands.Cog):
         await interaction.followup.send(out)
 
     @app_commands.command(name='mushroom', description="Sends the link so people can easily send you mushrooms")
-    @checks.is_verified()
-    @commands.cooldown(1, 30, BucketType.member)
+    @app_checks.is_verified()
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
     async def mushroom(self, interaction: discord.Interaction):
         smmoid = await db.get_smmoid(interaction.user.id)
         await interaction.response.send_message(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
 
     @app_commands.command(name="item_link", description="Generates the link to send an item to any number of users who are linked.")
-    @commands.cooldown(1, 30, BucketType.member)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
     async def give(self, interaction: discord.Interaction, itemid: int, members: discord.Member):
         await interaction.response.defer(thinking=True)
         out = ""
@@ -80,7 +81,7 @@ class Utilities(commands.Cog):
         await interaction.followup.send(out)
 
     @app_commands.command(description="Generates the trade link for linked members")
-    @commands.cooldown(1, 30, BucketType.member)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
     async def trade(self, interaction: discord.Interaction, members: discord.Member):
         await interaction.response.defer(thinking=True)
         out = ""
@@ -93,7 +94,8 @@ class Utilities(commands.Cog):
                 out += f"{member.display_name} is not linked\n"
         await interaction.followup.send(out)
             
-    @commands.cooldown(1, 300, BucketType.guild)
+    
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,300),key=AppBucketType.Member)
     @app_commands.command()
     async def topic(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
@@ -106,9 +108,9 @@ class Utilities(commands.Cog):
         await interaction.followup.send(line)
 
     
-    # TODO Make an app_command
+   
     @app_commands.command()
-    @checks.is_verified()
+    @app_checks.is_verified()
     async def mytoken(self,interaction: discord.Interaction):
         token = await db.get_yearly_token(interaction.user.id)
         if not token:

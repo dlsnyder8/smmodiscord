@@ -81,7 +81,7 @@ class Friendly(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
         
-    @checks.server_configured()
+    @app_checks.server_configured()
     @app_commands.command()
     async def verification_info(self, interaction: discord.Interaction):
         await interaction.response.send_message(
@@ -90,7 +90,7 @@ class Friendly(commands.Cog):
                             2) Run `/verify SMMOID`
                             3) Add the verification key to your motto, then run `/verify SMMOID` again"""))
 
-    @checks.server_configured()
+    @app_checks.server_configured()
     @app_commands.command(description="Connects your Discord account with your SMMO account")
     async def verify(self, interaction: discord.Interaction, smmoid: int):
        
@@ -310,55 +310,54 @@ class Friendly(commands.Cog):
 
     @app_checks.is_verified()
     @app_commands.command()
-    @guild_only()
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,60), key=AppBucketType.Member)
-    @checks.server_configured()
-    async def join(self, ctx):
-        if ctx.author._roles.has(fly_roles[19]):
-            await ctx.send("You've already been granted the Friendly role :)")
+    @app_checks.server_configured()
+    async def join(self, interaction:discord.Interaction):
+        if interaction.user._roles.has(fly_roles[19]):
+            await interaction.response.send_message("You've already been granted the Friendly role :)")
             return
 
-        smmoid = await db.get_smmoid(ctx.author.id)
+        smmoid = await db.get_smmoid(interaction.user.id)
 
         # get guild from profile (get_all())
         profile = await api.get_all(smmoid)
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
-            await ctx.send("You are not in a guild")
+            await interaction.response.send_message("You are not in a guild")
             return
 
         # if user is in a fly guild....
-        if guildid in fly or ctx.author.id == dyl:
+        if guildid in fly or interaction.user.id == dyl:
 
             roles_given = ""
             try:
                 ingamename = profile["name"]
             except Exception as e:
-                await ctx.send(e)
+                logger.error(e)
 
             # add fly role
-            await ctx.author.add_roles(ctx.guild.get_role(fly_roles[19]))
-            await ctx.author.add_roles(ctx.guild.get_role(traveler))
-            await ctx.author.remove_roles(ctx.guild.get_role(acquaintance))
-            await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly eligibility` (`{ctx.prefix}f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
+            await interaction.user.add_roles(interaction.guild.get_role(fly_roles[19]))
+            await interaction.user.add_roles(interaction.guild.get_role(traveler))
+            await interaction.user.remove_roles(interaction.guild.get_role(acquaintance))
+            await interaction.response.send_message(f"Welcome to Friendly :)\nYou can run `&fly eligibility` (`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
             roles_given += f"<@&{fly_roles[19]}>"
             # if user is in NSF
             if guildid == 541:
-                nsf_role = ctx.guild.get_role(783930500732551219)
-                await ctx.author.add_roles(nsf_role)
+                nsf_role = interaction.guild.get_role(783930500732551219)
+                await interaction.user.add_roles(nsf_role)
                 roles_given += f" ,<@&783930500732551219>"
 
-            await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {ctx.author.mention}\n{roles_given}", ctx.author.id)
+            await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {interaction.user.mention}\n{roles_given}", interaction.user.id)
             # await self.bot.get_channel(934284308112375808).send(embed=Embed(title="Beginning of year stats", description=f'{profile}'))
             channel = self.bot.get_channel(728355657283141735)
-            if ctx.author.id != dyl:
-                await channel.send(f"Welcome {ctx.author.mention} to the Friendliest guild in SimpleMMO!")
+            if interaction.user.id != dyl:
+                await channel.send(f"Welcome {interaction.user.mention} to the Friendliest guild in SimpleMMO!")
 
-            await ctx.send(f"<@581061608357363712> <@307328265129820160>\n ;adminlink {ctx.author.id} {smmoid}")
+            await interaction.followup.send(f"<@581061608357363712> <@307328265129820160>\n ;adminlink {interaction.user.id} {smmoid}")
 
         else:
-            await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
+            await interaction.response.send_message("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
     @checks.in_fly()

@@ -2,13 +2,14 @@ import discord
 from discord.ext import commands, tasks
 from discord import Embed, app_commands
 from discord.ext.commands import Context
-from util import checks, log
+from util import checks, log, app_checks
 import api
 import database as db
 import logging
 import string
 import random
 from util.cooldowns import BucketType, custom_is_me
+
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class Guilds(commands.Cog):
         self.bot = bot
         self.guild_member_check.start()
         
-    @checks.server_configured()
+    @app_checks.server_configured()
     @app_commands.command()
     async def verification_info(self, interaction: discord.Interaction):
         await interaction.response.send_message(
@@ -31,7 +32,7 @@ class Guilds(commands.Cog):
                             2) Run `/verify SMMOID`
                             3) Add the verification key to your motto, then run `/verify SMMOID` again"""))
 
-    @checks.server_configured()
+    @app_checks.server_configured()
     @app_commands.command(description="Connects your Discord account with your SMMO account")
     async def verify(self, interaction: discord.Interaction, smmoid: int):
         # check if verified
@@ -90,11 +91,10 @@ class Guilds(commands.Cog):
                 return
 
 
-    @checks.is_verified()
+    @app_checks.is_verified()
     @app_commands.command()
-    @commands.guild_only()
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,60),key=BucketType.Member)
-    @checks.server_configured()
+    @app_checks.server_configured()
     async def join(self, interaction: discord.Interaction):
         config = await db.server_config(interaction.guild.id)
         if config.guild_role is None:
@@ -150,7 +150,7 @@ class Guilds(commands.Cog):
             return
 
     @app_commands.command(description="Checks to see who has the guild role, but is not in the guild or has not linked")
-    @checks.is_admin()
+    @app_checks.is_admin()
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
     async def softcheck(self, interaction: discord.Interaction, guildrole: discord.Role = None):
         await interaction.response.defer(thinking=True)
