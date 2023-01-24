@@ -69,6 +69,9 @@ class Utilities(commands.Cog):
         except discord.NotFound:
             await interaction.followup.send("Invalid message id passed")
             return
+        except discord.HTTPException:
+            await interaction.followup.send("Invalid message id passed")
+            return
         members = message.mentions
         out = ""
         for member in members:
@@ -115,6 +118,9 @@ class Utilities(commands.Cog):
         except discord.NotFound:
             await interaction.followup.send("Invalid message id passed")
             return
+        except discord.HTTPException:
+            await interaction.followup.send("Invalid message id passed")
+            return
         
         members = message.mentions
         out = ""
@@ -151,6 +157,9 @@ class Utilities(commands.Cog):
         try:
             message = await channel.fetch_message(message)
         except discord.NotFound:
+            await interaction.followup.send("Invalid message id passed")
+            return
+        except discord.HTTPException:
             await interaction.followup.send("Invalid message id passed")
             return
         
