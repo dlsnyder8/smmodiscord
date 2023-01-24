@@ -43,23 +43,44 @@ class Utilities(commands.Cog):
         except discord.HTTPException:
             await ctx.send("HTTP Error")
             
-    @app_commands.command(name="send_gold", description="Generate a link to the web app 'Send Gold' page if the mentioned user is linked")
+    @app_commands.command(name="gold", description="Generate a link to the web app 'Send Gold' page if the mentioned user is linked")
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
-    async def sendgold(self, interaction: discord.Interaction, members: discord.Member):
+    async def gold(self, interaction: discord.Interaction, member: discord.Member):
         out = ""
         await interaction.response.defer(thinking=True)
-        for member in members:
-            smmoid = await db.get_smmoid(member.id)
-            if smmoid is not None:
-                if await api.safemode_status(smmoid):
-                    out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
-                else:
-                    out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
+        
+        smmoid = await db.get_smmoid(member.id)
+        if smmoid is not None:
+            if await api.safemode_status(smmoid):
+                out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
             else:
-                out += f"{member.display_name} is not linked. No gold for them\n"
+                out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
+        else:
+            out += f"{member.display_name} is not linked. No gold for them\n"
 
         await interaction.followup.send(out)
-
+        
+    @app_commands.command(name='gold_list', description='Generates links to gold pages given a channel and message using the mentions in that message')
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
+    async def gold_list(self, interaction: discord.Interaction, channel: discord.TextChannel, message: discord.Message):
+        await interaction.response.defer(thinking=True)
+        message = await channel.fetch_message(message)
+        members = message.mentions
+        out = ""
+        for member in members:
+            smmoid = await db.get_smmoid(member.id)
+        if smmoid is not None:
+            if await api.safemode_status(smmoid):
+                out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
+            else:
+                out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
+        else:
+            out += f"{member.display_name} is not linked. No gold for them\n"
+            
+        await interaction.followup.send(out if out != "" else 'No user mentions found in that message')
+        
+        
+        
     @app_commands.command(name='mushroom', description="Sends the link so people can easily send you mushrooms")
     @app_checks.is_verified()
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
@@ -67,10 +88,26 @@ class Utilities(commands.Cog):
         smmoid = await db.get_smmoid(interaction.user.id)
         await interaction.response.send_message(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
 
-    @app_commands.command(name="item_link", description="Generates the link to send an item to any number of users who are linked.")
+    @app_commands.command(name="give", description="Generates the link to send an item to the mentioned user if linked")
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
-    async def give(self, interaction: discord.Interaction, itemid: int, members: discord.Member):
+    async def give(self, interaction: discord.Interaction, itemid: int, member: discord.Member):
         await interaction.response.defer(thinking=True)
+        out = ""
+       
+        smmoid = await db.get_smmoid(member.id)
+        if smmoid is not None:
+            out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{itemid}>\n"
+        else:
+            out += f"{member.display_name} is not linked\n"
+        await interaction.followup.send(out)
+        
+        
+    @app_commands.command(name="give_list", description="Generates the link to send an item to any number of users who are linked.")
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
+    async def give_list(self, interaction: discord.Interaction, itemid: int, channel: discord.TextChannel, message: discord.Message):
+        await interaction.response.defer(thinking=True)
+        message = await channel.fetch_message(message)
+        members = message.mentions
         out = ""
         for member in members:
             smmoid = await db.get_smmoid(member.id)
@@ -78,12 +115,32 @@ class Utilities(commands.Cog):
                 out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{itemid}>\n"
             else:
                 out += f"{member.display_name} is not linked\n"
-        await interaction.followup.send(out)
+        await interaction.followup.send(out if out != "" else 'No user mentions found in that message')
+        
+        
+    
 
-    @app_commands.command(description="Generates the trade link for linked members")
-    @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
-    async def trade(self, interaction: discord.Interaction, members: discord.Member):
+    @app_commands.command(description="Generates the trade link for member if they are linked")
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,5),key=AppBucketType.Member)
+    async def trade(self, interaction: discord.Interaction, member: discord.Member):
         await interaction.response.defer(thinking=True)
+        out = ""
+        
+        smmoid = await db.get_smmoid(member.id)
+
+        if smmoid is not None:
+            out += f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
+        else:
+            out += f"{member.display_name} is not linked\n"
+        await interaction.followup.send(out)
+        
+        
+    @app_commands.command(name='trade_list', description='Generates links to trade pages given a channel and message using the mentions in that message')
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
+    async def trade_list(self, interaction: discord.Interaction, channel: discord.TextChannel, message: discord.Message):
+        await interaction.response.defer(thinking=True)
+        message = await channel.fetch_message(message)
+        members = message.mentions
         out = ""
         for member in members:
             smmoid = await db.get_smmoid(member.id)
@@ -92,7 +149,7 @@ class Utilities(commands.Cog):
                 out += f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
             else:
                 out += f"{member.display_name} is not linked\n"
-        await interaction.followup.send(out)
+        await interaction.followup.send(out if out != "" else 'No user mentions found in that message')
             
     
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,300),key=AppBucketType.Member)
