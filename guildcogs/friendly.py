@@ -342,7 +342,7 @@ class Friendly(commands.Cog):
             await interaction.user.add_roles(interaction.guild.get_role(traveler))
             await interaction.user.remove_roles(interaction.guild.get_role(acquaintance))
             await interaction.followup.send(f"Welcome to Friendly :)\nYou can run `&fly eligibility` \
-                                            (`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
+            (`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
             roles_given += f"<@&{fly_roles[19]}>"
             # if user is in NSF
             if guildid == 541:
