@@ -62,9 +62,12 @@ class Utilities(commands.Cog):
         
     @app_commands.command(name='gold_list', description='Generates links to gold pages given a channel and message using the mentions in that message')
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
-    async def gold_list(self, interaction: discord.Interaction, channel: discord.TextChannel, message: discord.Message):
+    async def gold_list(self, interaction: discord.Interaction, channel: discord.TextChannel, message: int):
         await interaction.response.defer(thinking=True)
         message = await channel.fetch_message(message)
+        if message is None:
+            await interaction.followup.send("Invalid message id passed")
+            return
         members = message.mentions
         out = ""
         for member in members:
@@ -104,9 +107,12 @@ class Utilities(commands.Cog):
         
     @app_commands.command(name="give_list", description="Generates the link to send an item to any number of users who are linked.")
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
-    async def give_list(self, interaction: discord.Interaction, itemid: int, channel: discord.TextChannel, message: discord.Message):
+    async def give_list(self, interaction: discord.Interaction, itemid: int, channel: discord.TextChannel, message: int):
         await interaction.response.defer(thinking=True)
         message = await channel.fetch_message(message)
+        if message is None:
+            await interaction.followup.send("Invalid message id passed")
+            return
         members = message.mentions
         out = ""
         for member in members:
@@ -137,9 +143,12 @@ class Utilities(commands.Cog):
         
     @app_commands.command(name='trade_list', description='Generates links to trade pages given a channel and message using the mentions in that message')
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
-    async def trade_list(self, interaction: discord.Interaction, channel: discord.TextChannel, message: discord.Message):
+    async def trade_list(self, interaction: discord.Interaction, channel: discord.TextChannel, message: int):
         await interaction.response.defer(thinking=True)
         message = await channel.fetch_message(message)
+        if message is None:
+            await interaction.followup.send("Invalid message id passed")
+            return
         members = message.mentions
         out = ""
         for member in members:
