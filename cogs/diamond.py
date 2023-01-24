@@ -83,7 +83,7 @@ class Diamond(commands.Cog):
             if diamond != []:
                 logger.info(f'Would have pinged in server {server.full_name}')
                 embed = Embed(title="Cheap Diamonds!!!")
-                string = ""
+                string = "(Diamond Market)[https://web.simple-mmo.com/diamond-market]\n"
                 for list in diamond:
                     string += f"There are {list['diamonds_remaining']} diamonds left at {list['price_per_diamond']:,} each.\n"
 
