@@ -21,27 +21,27 @@ class Utilities(commands.Cog):
         self.bot = bot
         
         
-    @commands.hybrid_command()
-    @checks.is_verified()
-    async def findmentions(self, ctx: Context, channel: discord.TextChannel, messageid: int):
-        try:
-            message = await channel.fetch_message(messageid)
-            users = message.raw_mentions
+    # @commands.hybrid_command()
+    # @checks.is_verified()
+    # async def findmentions(self, ctx: Context, channel: discord.TextChannel, messageid: int):
+    #     try:
+    #         message = await channel.fetch_message(messageid)
+    #         users = message.raw_mentions
 
-            string = ""
+    #         string = ""
 
-            for user in users:
-                string += f"{user} "
+    #         for user in users:
+    #             string += f"{user} "
 
-            await ctx.send(string)
-        except discord.NotFound:
-            await ctx.send("Message not found")
+    #         await ctx.send(string)
+    #     except discord.NotFound:
+    #         await ctx.send("Message not found")
 
-        except discord.Forbidden:
-            await ctx.send("Not enough permissions")
+    #     except discord.Forbidden:
+    #         await ctx.send("Not enough permissions")
 
-        except discord.HTTPException:
-            await ctx.send("HTTP Error")
+    #     except discord.HTTPException:
+    #         await ctx.send("HTTP Error")
             
     @app_commands.command(name="gold", description="Generate a link to the web app 'Send Gold' page if the mentioned user is linked")
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
@@ -203,7 +203,6 @@ class Utilities(commands.Cog):
             await interaction.response.send_message(f"Your access token is: `{token}`. Keep this secret and do not share it with anyone else",ephemeral=True)
            
         
-
     @commands.hybrid_command()
     async def premium(self, ctx: Context):
         embed = Embed(title="Premium Information")
