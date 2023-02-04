@@ -77,7 +77,7 @@ class Diamond(commands.Cog):
             if guild is None:
                 continue
             diamond = [x for x in listings if x['price_per_diamond']
-                       < server.diamond_amount]
+                       <= server.diamond_amount]
             
 
             if diamond != []:
