@@ -96,7 +96,7 @@ class Friendly(commands.Cog):
        
         # check if verified
         if(await db.is_verified(smmoid)):
-            await interaction.response.send_message("Hey you've already linked your account! Are you trying to get the Friendly role? If so, you need to type `&join` to get the role! \n\nOh...you weren't trying to do that? Well... this is awkward. Goodbye.")
+            await interaction.response.send_message("Hey you've already linked your account! Are you trying to get the Friendly role? If so, you need to type `/join` to get the role! \n\nOh...you weren't trying to do that? Well... this is awkward. Goodbye.")
             return
 
         if(await db.islinked(interaction.user.id) is True):
@@ -341,8 +341,7 @@ class Friendly(commands.Cog):
             await interaction.user.add_roles(interaction.guild.get_role(fly_roles[19]))
             await interaction.user.add_roles(interaction.guild.get_role(traveler))
             await interaction.user.remove_roles(interaction.guild.get_role(acquaintance))
-            await interaction.followup.send(f"Welcome to Friendly :)\nYou can run `&fly eligibility` \
-            (`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
+            await interaction.followup.send(f"Welcome to Friendly :)\nYou can run `&fly eligibility` \n(`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
             roles_given += f"<@&{fly_roles[19]}>"
             # if user is in NSF
             if guildid == 541:
