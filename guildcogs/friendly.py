@@ -301,7 +301,7 @@ class Friendly(commands.Cog):
                     smmoid = await db.get_smmoid(member.id)
                     x = await api.get_all(smmoid)
 
-                    data = [smmoid, x['name'], x['npc_kills'], x['user_kills'], x['quests_complete'], x['level'], x['tasks_completed'],
+                    data = [smmoid, x['name'], x['npc_kills'], x['user_kills'], x['quests_performed'], x['level'], x['tasks_completed'],
                             x['boss_kills'], x['market_trades'], x['reputation'], x['bounties_completed'], x['dailies_unlocked'], x['chests_opened'], x['steps']]
                     writer.writerow(data)
             file_csv = open('friendly.csv')
