@@ -109,7 +109,7 @@ class Event(commands.GroupCog, name="event"):
             await self.stat_update(interaction.guild.id)
             await db.end_event(eventid, interaction.guild.id)
             await interaction.followup.send(f"Event {eventid} has concluded. Make sure to clean up the event with `/event cleanup {eventid}`")
-            self.cleanup()
+            
         except Exception as e:
             await interaction.followup.send(embed=Embed(title="Error", description=e))
             raise e
