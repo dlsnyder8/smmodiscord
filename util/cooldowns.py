@@ -2,7 +2,7 @@ import discord
 import typing
 
 def custom_is_me(rate: int, per: float):
-    def is_me(interaction: discord.Interaction) -> typing.Optional[discord.app_commands.Cooldown]:
+    def is_me(interaction: discord.Interaction) -> typing.Optional[discord.app_commands.Cooldown] | None:
         if interaction.user.id == 332314562575597579:
             return None
         else:

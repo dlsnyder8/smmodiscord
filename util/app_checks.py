@@ -66,7 +66,7 @@ def is_admin():
     async def predicate(interaction: discord.Interaction):
         if interaction.user.id == dyl:
             return True
-        if interaction.message.author.guild_permissions.administrator:
+        if interaction.user.guild_permissions.administrator:
             return True
         else:
             await interaction.response.send_message(embed=Embed(
