@@ -140,7 +140,7 @@ class Event(commands.GroupCog, name="event"):
     @app_commands.command()
     @app_checks.is_admin()
     async def results(self, interaction:discord.Interaction, eventid: int):
-        valid = await db.valid_event(eventid, 745682379322163229)
+        valid = await db.valid_event(eventid, interaction.guild_id)
         if valid is False:
             await interaction.response.send_message("Invalid event ID")
             return
