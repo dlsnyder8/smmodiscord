@@ -141,12 +141,21 @@ class CommandErrorHandler(commands.Cog):
             if interaction.user.id != dyl:
                 errorembed = discord.Embed(title="Slow your roll",
                                            description=f"You're on a cooldown. Please try again in {error.retry_after:.2f} Second(s)!")
-                await interaction.response.send_message(embed=errorembed, ephemeral=True)
+                if interaction.response.is_done():
+                    await interaction.followup.send(embed=errorembed, ephemeral=True)
+                else:
+                    await interaction.response.send_message(embed=errorembed, ephemeral=True)
             else:
-                await interaction.response.send_message("hey dyl",ephemeral=True)
+                if interaction.response.is_done():
+                    await interaction.followup.send("hey dyl", ephemeral=True)
+                else:
+                    await interaction.response.send_message("hey dyl",ephemeral=True)
                 
         else:
-            await interaction.response.send_message("Something has gone wrong, please let dyl know")
+            if interaction.response.is_done():
+                await interaction.followup.send("Something has gone wrong, please let dyl know")
+            else:
+                await interaction.response.send_message("Something has gone wrong, please let dyl know")
             logger.error(error)
             
         
