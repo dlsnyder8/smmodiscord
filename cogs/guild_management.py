@@ -24,6 +24,9 @@ class Guild(commands.GroupCog, name="gm"):
     @app_commands.command(description="Gives you the leader role if you're the leader of a guild. You must verify with the bot first.")
     @app_checks.is_verified()
     async def connect(self, interaction: discord.Interaction):
+        if interaction.user._roles.has(846649715538133014):
+            await interaction.response.send_message("You already have the guild leader role")
+            return
         # get smmo id
         smmoid = await db.get_smmoid(interaction.user.id)
 
@@ -58,9 +61,10 @@ class Guild(commands.GroupCog, name="gm"):
 
     @app_checks.is_guild_banned()
     @app_checks.is_verified()
+    @app_checks.is_leader()
     @app_commands.command(description="Adds a user as an ambassador for your guild. They must verify with the bot first.")
     async def addambassador(self, interaction: discord.Interaction, member: discord.Member):
-        # TODO Add check for if they're leader
+       
 
         # get member smmoid and check if verified
         smmoid = await db.get_smmoid(member.id)
@@ -104,6 +108,7 @@ class Guild(commands.GroupCog, name="gm"):
         return
 
     @app_checks.is_verified()
+    @app_checks.is_leader()
     @app_commands.command(description="Removes an ambassador for your guild.")
     async def removeambassador(self, interaction: discord.Interaction, member: discord.Member):
         # check if member is an ambassador
@@ -127,8 +132,8 @@ class Guild(commands.GroupCog, name="gm"):
             await interaction.response.send_message(f"{member.display_name} is not an ambassador")
             return
 
-    @checks.is_verified()
-    @checks.is_leader()
+    @app_checks.is_verified()
+    @app_checks.is_leader()
     @app_commands.command(description="Lists all current ambassadors for your guild.")
     async def currentambassadors(self, interaction: discord.Interaction):
         lguild, _ = await db.ret_guild_smmoid(interaction.user.id)
@@ -146,7 +151,7 @@ class Guild(commands.GroupCog, name="gm"):
 
         await interaction.response.send_message(embed=embed)
 
-    @checks.is_owner()
+    @app_checks.is_owner()
     @app_commands.command()
     async def leaderrole(self, interaction: discord.Interaction, role: discord.Role):
         if not await db.server_added(interaction.guild.id):
@@ -159,7 +164,7 @@ class Guild(commands.GroupCog, name="gm"):
 
         
 
-    @checks.is_owner()
+    @app_checks.is_owner()
     @app_commands.command()
     async def ambrole(self, interaction: discord.Interaction, role: discord.Role):
         if not await db.server_added(interaction.guild.id):

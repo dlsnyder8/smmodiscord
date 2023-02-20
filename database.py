@@ -630,7 +630,8 @@ async def all_servers():
 async def is_banned(discid):
     async with session() as con:
         try:
-            return (await con.execute(select(Plebs.guild_ban).filter_by(discid=discid))).first()[0]
+            ret = (await con.execute(select(Plebs.guild_ban).filter_by(discid=discid))).first()[0]
+            return False if ret is None else ret
         finally:
             await con.close()
 
@@ -1298,7 +1299,7 @@ async def rollback():
 
 async def main():
     # async with engine.begin() as conn:
-    print(sum(await all_arcade_info()))
+    print(await is_banned(302100896249282571))
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)
     # await add_server(1234,"testtest server")
@@ -1306,6 +1307,6 @@ async def main():
     # print(server.serverid)
 
 if __name__ == "__main__":
-    pass
+    
 
     asyncio.run(main())

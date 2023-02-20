@@ -321,8 +321,13 @@ async def diamond_market():
                 print("Diamond Market Request Failed\n")
                 return None
 
-
+async def main():
+    members = await guild_members(1776)
+    for mem in members:
+        print(mem)
+        
 if __name__ == "__main__":
+    asyncio.run(main())
     # profile = get_all(385801)
     # print(profile)
     # #print(guild_members(828)[0])
@@ -350,3 +355,5 @@ if __name__ == "__main__":
     # status = await pleb_status(385801)
     # await get_all(385801)
     pass
+
+

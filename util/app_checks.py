@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.embeds import Embed
 import database as db
+import api
 
 dyl = 332314562575597579
 
@@ -59,6 +60,40 @@ def server_configured():
         message = await interaction.response.send_message(f"This server is not initialized. Contact a server admin about this or run `/config init` to setup the server if you are an admin")
         await message.delete(delay=10)
         return False
+    return app_commands.check(predicate)
+
+def is_leader():
+    async def predicate(interaction: discord.Interaction):
+        smmoid = (await db.get_smmoid(interaction.user.id))
+        # get guild from profile (get_all())
+        profile = await api.get_all(smmoid)
+        try:
+            guildid = profile["guild"]["id"]
+        except KeyError as e:
+            await interaction.response.send_message("You are not in a guild")
+            return
+
+        members = await api.guild_members(guildid)
+        for member in members:
+            if member["user_id"] == smmoid:
+                if member["position"] == "Leader":
+                    if await db.is_leader(interaction.user.id):
+                        return True
+                    else:
+                        embed = discord.Embed(
+                            title="Not Verified",
+                            description=f"You have not been verified. Run `/gm connect` if you're a guild leader",
+                            color=0x00ff00)
+
+                        await interaction.response.send(
+                            embed=embed
+                        )
+                        return False
+                else:
+                    await interaction.response.send(f"You are only a member of your guild. If you want the Ambassador role, your guild leader will need to connect and run `{ctx.prefix}g aa <ID/@mention>`")
+                    return False
+
+        await interaction.response.send("The code is probably broken. Cry to dyl")
     return app_commands.check(predicate)
 
 
