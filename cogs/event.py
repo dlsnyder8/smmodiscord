@@ -177,7 +177,7 @@ class Event(commands.GroupCog, name="event"):
                 embed = Embed(title=f"Results for {eventinfo.name}")
 
             i += 1
-
+        embeds.append(embed)
         if len(string) > 0:
             embed.add_field(name=f'Users {last} - {i-1}', value=string)
             await interaction.followup.send(embeds=embeds)
