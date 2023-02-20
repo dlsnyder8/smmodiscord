@@ -31,7 +31,11 @@ class Pleb(commands.Cog):
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Member)
     async def iampleb(self, interaction: discord.Interaction):
         user = interaction.user
-        smmoid = db.get_smmoid(user.id)
+        if user._roles.has(832878414839021598):
+            await interaction.response.send_message("Hey dude you've already got the role.", ephemeral=True)
+            return
+        
+        smmoid = await db.get_smmoid(user.id)
         isPleb = await api.pleb_status(smmoid)
         if isPleb is None:
             logging.error("THE API IS STUPID")
@@ -47,8 +51,7 @@ class Pleb(commands.Cog):
                     return
                 await user.add_roles(pleb_role)  # give user pleb role
                 await interaction.response.send_message("Role Given!", ephemeral=True)
-            else:
-                await interaction.response.send_message("Hey dude you've already got the role.")
+           
             
 
     @commands.command(hidden=True)
@@ -107,5 +110,5 @@ class Pleb(commands.Cog):
 
 async def setup(bot: commands.Bot):
     if config.main_acct:
-        await bot.add_cog(Pleb(bot), guild=discord.Object(server))
+        await bot.add_cog(Pleb(bot))
         logger.info("Pleb Cog Loaded")
