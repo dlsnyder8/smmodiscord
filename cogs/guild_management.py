@@ -277,7 +277,6 @@ class Guild(commands.GroupCog, name="gm"):
 
 async def setup(bot: commands.Bot):
     if config.main_acct:
-        await bot.add_cog(Guild(bot), guild=discord.Object(server))
-        
+        await bot.add_cog(Guild(bot))
         # await add_cog(cog, /, *, override=False, guild=..., guilds=...)
         logger.info("Guild management Cog Loaded")
