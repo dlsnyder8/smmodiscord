@@ -293,8 +293,8 @@ class Admin(commands.Cog):
         ambassadorrole = ctx.guild.get_role(846649800732442635)
         
         for member in leaderrole.members:
-            smmoid = await db.get_smmoid()
-            info = await api.get_all()
+            smmoid = await db.get_smmoid(member.id)
+            info = await api.get_all(smmoid)
             try:
                 guildid = info['guild']['id']
             except ValueError:
@@ -306,8 +306,8 @@ class Admin(commands.Cog):
             await db.guild_leader_update(member.id, True, guildid, smmoid)
             
         for member in ambassadorrole.members:
-            smmoid = await db.get_smmoid()
-            info = await api.get_all()
+            smmoid = await db.get_smmoid(member.id)
+            info = await api.get_all(smmoid)
             try:
                 guildid = info['guild']['id']
             except ValueError:
