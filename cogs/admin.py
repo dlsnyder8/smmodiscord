@@ -285,6 +285,40 @@ class Admin(commands.Cog):
                 string += f"{member.name} is not a pleb anymore\n"
 
         await ctx.send(string)
+        
+    @commands.command(hidden=True)
+    @checks.is_owner()
+    async def guildfix(self, ctx: Context):
+        leaderrole = ctx.guild.get_role(846649715538133014)
+        ambassadorrole = ctx.guild.get_role(846649800732442635)
+        
+        for member in leaderrole.members:
+            smmoid = await db.get_smmoid()
+            info = await api.get_all()
+            try:
+                guildid = info['guild']['id']
+            except ValueError:
+                await member.remove_roles(leaderrole)
+                print(f"{member.name} is not in a guild")
+                continue
+            
+            await db.add_guild_person(member.id, smmoid)
+            await db.guild_leader_update(member.id, True, guildid, smmoid)
+            
+        for member in ambassadorrole.members:
+            smmoid = await db.get_smmoid()
+            info = await api.get_all()
+            try:
+                guildid = info['guild']['id']
+            except ValueError:
+                await member.remove_roles(ambassadorrole)
+                print(f"{member.name} is not in a guild")
+                continue
+            
+            await db.add_guild_person(member.id, smmoid)
+            await db.guild_ambassador_update(member.id, True, guildid)
+            
+            
 
     @commands.command(hidden=True)
     @checks.is_owner()

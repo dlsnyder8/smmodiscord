@@ -68,6 +68,9 @@ class Guild(commands.GroupCog, name="gm"):
 
         # get member smmoid and check if verified
         smmoid = await db.get_smmoid(member.id)
+        if smmoid is None:
+            await interaction.response.send_message(f"{member.display_name} needs to verify their account with the bot")
+            return
 
         if await db.is_banned(member.id):
             await interaction.response.send_message(embed=discord.Embed(title="Banned", description=f"{member.mention} has been banned from the guild portion of this bot and cannot be added as an ambassador."))
@@ -262,8 +265,7 @@ class Guild(commands.GroupCog, name="gm"):
                         if len([x for x in members if int(x["user_id"]) == int(amb[1])]) == 0:
                             user = guild.get_member(int(amb[0]))
                             if user is not None:
-                                logging.info(f"{user.name} is not an ambassador")
-
+                                logging.info(f"cannot find {user.name} in guild. Removing ambassador role")
                                 await user.remove_roles(ambassadorrole)
                             await db.guild_ambassador_update(amb[0], False, 0)
 
