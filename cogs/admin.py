@@ -297,12 +297,14 @@ class Admin(commands.Cog):
             info = await api.get_all(smmoid)
             try:
                 guildid = info['guild']['id']
-            except ValueError:
+            except KeyError:
                 await member.remove_roles(leaderrole)
                 print(f"{member.name} is not in a guild")
                 continue
-            
-            await db.add_guild_person(member.id, smmoid)
+            try:
+                await db.add_guild_person(member.id, smmoid)
+            except:
+                pass
             await db.guild_leader_update(member.id, True, guildid, smmoid)
             
         for member in ambassadorrole.members:
@@ -310,12 +312,14 @@ class Admin(commands.Cog):
             info = await api.get_all(smmoid)
             try:
                 guildid = info['guild']['id']
-            except ValueError:
+            except KeyError:
                 await member.remove_roles(ambassadorrole)
                 print(f"{member.name} is not in a guild")
                 continue
-            
-            await db.add_guild_person(member.id, smmoid)
+            try:
+                await db.add_guild_person(member.id, smmoid)
+            except:
+                pass
             await db.guild_ambassador_update(member.id, True, guildid)
             
             
