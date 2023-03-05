@@ -228,6 +228,28 @@ class Admin(commands.Cog):
         await db.rollback()
         await ctx.send("Database Rollback in progress")
         return
+    
+    @commands.command()
+    @checks.is_owner()
+    async def findmentions(self, ctx : Context, channel : discord.TextChannel, messageid : int):
+        try:
+            message = await channel.fetch_message(messageid)
+            users = message.raw_mentions
+
+            string = ""
+
+            for user in users:
+                string += f"{user} "
+
+            await ctx.send(string)
+        except discord.NotFound:
+            await ctx.send("Message not found")
+
+        except discord.Forbidden:
+            await ctx.send("Not enough permissions")
+
+        except discord.HTTPException:
+            await ctx.send("HTTP Error")
 
     @commands.command(hidden=True)
     @checks.is_owner()
