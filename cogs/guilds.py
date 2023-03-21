@@ -219,6 +219,9 @@ class Guilds(commands.Cog):
             for x in guilds:
                 allmembers.extend([x['user_id'] for x in (await api.guild_members(x, server.api_token))])
 
+            if allmembers == []:
+                continue
+            
             guild = self.bot.get_guild(server.serverid)
             if guild is None:
                 continue
