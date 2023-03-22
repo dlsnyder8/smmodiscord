@@ -1603,7 +1603,7 @@ class Friendly(commands.Cog):
         fly4 = [x["user_id"] for x in fly4]
 
         allmembers = fly1 + fly2 + fly3 + fly4
-        if members is None:
+        if members is []:
             logger.error("Fly check failed because of API")
             return
         listUsers = []
