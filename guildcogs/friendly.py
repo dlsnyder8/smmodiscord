@@ -1484,7 +1484,7 @@ class Friendly(commands.Cog):
 
     @app_commands.command(description="Checks to see who has the guild role, but is not in the guild or has not linked")
     @app_checks.is_admin()
-    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=AppBucketType.Guild)
     async def softcheck(self, interaction: discord.Interaction, guildrole: discord.Role = None):
         await interaction.response.defer(thinking=True)
         server = await db.ServerInfo(interaction.guild.id)
