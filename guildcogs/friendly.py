@@ -1628,8 +1628,8 @@ class Friendly(commands.Cog):
                     for role in member.roles:
                         memberroles += f"{role.mention}\n"
                     await flylog3(self.bot, Embed(title=f"{member.display_name}'s Roles", description=memberroles))
-                    await member.remove_roles(*all_fly_roles, reason="User left fly")
-                    await member.add_roles(guild.get_role(acquaintance))
+                    # await member.remove_roles(*all_fly_roles, reason="User left fly")
+                    # await member.add_roles(guild.get_role(acquaintance))
 
             else:
                 # unlinked. remove roles
@@ -1640,8 +1640,8 @@ class Friendly(commands.Cog):
                 await flylog3(self.bot, Embed(title=f"{member.display_name}'s Roles", description=memberroles))
 
                 listUsers.append(f"{member.mention}")
-                await member.remove_roles(*all_fly_roles, reason="User left fly")
-                await member.add_roles(guild.get_role(acquaintance))
+                # await member.remove_roles(*all_fly_roles, reason="User left fly")
+                # await member.add_roles(guild.get_role(acquaintance))
 
         await flylog2(self.bot, "Friendly Check", f"{len(members)} Friendly members checked.\n{not_in_fly} member(s) not in fly\n{not_linked} member(s) not linked to bot :(")
         splitUsers = [listUsers[i:i+33]
