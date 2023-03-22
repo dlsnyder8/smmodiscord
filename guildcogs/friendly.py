@@ -1482,6 +1482,56 @@ class Friendly(commands.Cog):
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
+    @app_commands.command(description="Checks to see who has the guild role, but is not in the guild or has not linked")
+    @app_checks.is_admin()
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
+    async def softcheck(self, interaction: discord.Interaction, guildrole: discord.Role = None):
+        await interaction.response.defer(thinking=True)
+        server = await db.ServerInfo(interaction.guild.id)
+        guilds = server.guilds
+        allmembers = []
+        for x in guilds:
+            allmembers.extend([x['user_id'] for x in (await api.guild_members(x, server.api_token))])
+
+        guild = self.bot.get_guild(server.serverid)
+        if guild is None:
+            return
+
+        if guildrole is None:
+            guild_role = guild.get_role(server.guild_role)
+        else:
+            guild_role = guildrole
+
+        if guild_role is None:
+            embed = discord.Embed(title="Guild Member Check Failed",
+                                    description="It appears that my config is wrong and I cannot find the guild role")
+            await interaction.followup.send(embed=embed)
+            return
+
+        removed = []
+        for member in guild_role.members:
+            if await db.islinked(member.id):
+                smmoid = await db.get_smmoid(member.id)
+                if smmoid not in allmembers:
+                    removed.append(f"{member.mention}")
+            else:
+                removed.append(f'{member.mention}')
+
+        if len(removed) > 0:
+            embed = Embed(
+                title="Users not in guild"
+            )
+            splitUsers = [removed[i:i+33]
+                            for i in range(0, len(removed), 33)]
+
+            for split in splitUsers:
+                embed.add_field(name="Users", value=' '.join(split))
+            await interaction.followup.send(embed=embed)
+
+        else:
+            await interaction.followup.send("Everyone is linked and in the guild")
+            
+            
     @tasks.loop(hours=3, reconnect=True)
     async def flycheck(self):
         await log(self.bot, "Fly Check Started", "Friendly guild members are being checked")
