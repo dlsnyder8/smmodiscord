@@ -55,7 +55,7 @@ class MyBot(commands.Bot):
         for channel in guild.text_channels:
             if channel.permissions_for(guild.me).send_messages:
                 await log.joinlog(self, guild, channel)
-                await channel.send("Thanks for inviting me! To start using my features, please run `&config init` to add your server to my database")
+                await channel.send("Thanks for inviting me! To start using my features, please run `/config setup` to add your server to my database")
                 return
 
         await log.joinlog(self, guild, None)
