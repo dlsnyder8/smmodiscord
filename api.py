@@ -235,7 +235,7 @@ async def guild_members(guildid, token=None):
 
     url = "https://api.simple-mmo.com/v1/guilds/members/" + str(guildid)
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, data=key) as ret:
+        async with session.post(url, data=key) as ret:
 
             if ret.status == 200:
                 content = ret.content
