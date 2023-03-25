@@ -76,13 +76,13 @@ class Utilities(commands.Cog):
         out = ""
         for member in members:
             smmoid = await db.get_smmoid(member.id)
-        if smmoid is not None:
-            if await api.safemode_status(smmoid):
-                out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
+            if smmoid is not None:
+                if await api.safemode_status(smmoid):
+                    out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
+                else:
+                    out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
             else:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
-        else:
-            out += f"{member.display_name} is not linked. No gold for them\n"
+                out += f"{member.display_name} is not linked. No gold for them\n"
             
         await interaction.followup.send(out if out != "" else 'No user mentions found in that message')
         
