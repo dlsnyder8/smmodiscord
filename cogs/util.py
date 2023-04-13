@@ -88,7 +88,7 @@ class Utilities(commands.Cog):
         
         
         
-    @app_commands.command(name='mushroom', description="Sends the link so people can easily send you mushrooms")
+    @app_commands.command(name='mushroom', description="Sends a link so people can easily send you mushrooms")
     @app_checks.is_verified()
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,30),key=AppBucketType.Member)
     async def mushroom(self, interaction: discord.Interaction):
@@ -176,7 +176,7 @@ class Utilities(commands.Cog):
             
     
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,300),key=AppBucketType.Member)
-    @app_commands.command()
+    @app_commands.command(description="Generates a random topic question from a list of millions(259) of questions")
     async def topic(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         async with aiofiles.open("assets/starters.txt", mode='r') as f:

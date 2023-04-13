@@ -24,13 +24,13 @@ class Guilds(commands.Cog):
         self.guild_member_check.start()
         
     @app_checks.server_configured()
-    @app_commands.command()
+    @app_commands.command(description="Displays an embed with details on how to verify")
     async def verification_info(self, interaction: discord.Interaction):
         await interaction.response.send_message(
             embed=Embed(title="Verification Process",
-            description=f"""1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page
-                            2) Run `/verify SMMOID`
-                            3) Add the verification key to your motto, then run `/verify SMMOID` again"""))
+            description=f"1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page" \
+                        "2) Run `/verify SMMOID`"\
+                        "3) Add the verification key to your motto, then run `/verify SMMOID` again"))
 
     @app_checks.server_configured()
     @app_commands.command(description="Connects your Discord account with your SMMO account")
@@ -66,8 +66,7 @@ class Guilds(commands.Cog):
                 if data.guild_role is not None:
                     await interaction.followup.send(f"If you're in the guild, please run `/join` to be granted access to guild channels.")
                 return
-            await interaction.response.send_message(f"""Verification Failed. You are trying to connect your account to **{profile['name']}**. Your verification key is: `{key}`
-                            Please add this to your motto and run `/verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>""")
+            await interaction.response.send_message(f"""Verification Failed. You are trying to connect your account to **{profile['name']}**. Your verification key is: `{key}` \nPlease add this to your motto and run `/verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>""")
             return
         else:
             # key in DB, but someone else tried to add it. Generate new key
@@ -76,8 +75,7 @@ class Guilds(commands.Cog):
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
                 await db.update_pleb(smmoid, interaction.user.id, key)
-                await interaction.response.send_message(f"""Your new verification key is: `{key}`
-                                Please add this to your motto and run `/verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>""")
+                await interaction.response.send_message(f"""Your new verification key is: `{key}` \nPlease add this to your motto and run `/verify {smmoid}` again! \n<https://web.simple-mmo.com/changemotto>""")
                 return
 
             # no key in db, generate and add
@@ -87,12 +85,12 @@ class Guilds(commands.Cog):
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
                 await db.add_new_pleb(smmoid, interaction.user.id, key)
-                await interaction.response.send_message(f'Your verification key is: `{key}` \nPlease add this to your motto and run `/verify {smmoid}` again!\n<https://web.simple-mmo.com/changemotto>')
+                await interaction.response.send_message(f'Your verification key is: `{key}` \nPlease add this to your motto and run `/verify {smmoid}` again! \n<https://web.simple-mmo.com/changemotto>')
                 return
 
 
     @app_checks.is_verified()
-    @app_commands.command()
+    @app_commands.command(description="Give yourself the guild role if you're in this server's guild")
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,60),key=BucketType.Member)
     @app_checks.server_configured()
     async def join(self, interaction: discord.Interaction):

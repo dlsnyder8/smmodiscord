@@ -18,7 +18,7 @@ class Config(commands.GroupCog, name="config"):
         self.bot = bot
         super().__init__()
 
-    @app_commands.command(name='view')
+    @app_commands.command(name='view', description="[Admin Command] view config")
     @app_checks.is_admin()
     async def config(self, interaction: discord.Interaction):
         

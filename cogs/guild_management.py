@@ -155,7 +155,7 @@ class Guild(commands.GroupCog, name="gm"):
         await interaction.response.send_message(embed=embed)
 
     @app_checks.is_owner()
-    @app_commands.command()
+    @app_commands.command(description="[OWNER COMMAND] sets leader role")
     async def leaderrole(self, interaction: discord.Interaction, role: discord.Role):
         if not await db.server_added(interaction.guild.id):
             await interaction.response.send_message(f"Please run `/a init` before you run this command!")
@@ -168,7 +168,7 @@ class Guild(commands.GroupCog, name="gm"):
         
 
     @app_checks.is_owner()
-    @app_commands.command()
+    @app_commands.command(description="[OWNER COMMAND] sets amb role")
     async def ambrole(self, interaction: discord.Interaction, role: discord.Role):
         if not await db.server_added(interaction.guild.id):
             await interaction.response.send_message("Please run `^a init` before you run this command!")

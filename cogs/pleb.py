@@ -26,7 +26,7 @@ class Pleb(commands.Cog):
         if ctx.invoked_subcommand is None:
             pass
         
-    @app_commands.command()
+    @app_commands.command(description="Declare that you are a plebian member!")
     @app_checks.is_verified()
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Member)
     async def iampleb(self, interaction: discord.Interaction):
@@ -51,6 +51,8 @@ class Pleb(commands.Cog):
                     return
                 await user.add_roles(pleb_role)  # give user pleb role
                 await interaction.response.send_message("Role Given!", ephemeral=True)
+        else:
+            interaction.response.send_message("You wish that you were a pleb! Get back in your hole simpleton")
            
             
 
