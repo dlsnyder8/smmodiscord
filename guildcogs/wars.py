@@ -516,7 +516,7 @@ class Wars(commands.Cog):
                 if info['safeMode'] == 0 and info['gold'] >= goldamount and info['hp']/info['max_hp'] > 0.5:
 
                     embed = Embed(
-                        title="Actions", description=f":bank: [Quick, bank your gold!](https://web.simple-mmo.com/bank/deposit) \n \u200b \n:shield: [Help! Stab to protect their gold!](https://web.simple-mmo.com/user/attack/{smmoid})")
+                        title="Actions", description=f":bank: [Quick, bank your gold!](https://web.simple-mmo.com/bank) \n \u200b \n:shield: [Help! Stab to protect their gold!](https://web.simple-mmo.com/user/attack/{smmoid})")
                     await channel.send(f"<@{discordid}> gold ping! {info['gold']:,} gold out!", embed=embed)
                     await db.warinfo_ping_update(discordid)
         except Exception as e:
