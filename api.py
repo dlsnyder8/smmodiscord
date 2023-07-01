@@ -254,7 +254,7 @@ async def guild_members(guildid, token=None):
                 return await guild_members(guildid)
 
             else:
-                print("Guild Members failed")
+                print("Guild Members API failed")
                 return []
 
 
