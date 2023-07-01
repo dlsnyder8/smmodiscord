@@ -14,7 +14,7 @@ from config import friendly_enable_role_removal
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 # fly guilds
