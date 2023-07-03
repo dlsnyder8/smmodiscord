@@ -1649,10 +1649,10 @@ class Friendly(commands.Cog):
         fly4 = await api.guild_members(fly4)
         
         # debugging
-        logger.debug("Fly1 = " + ' '.join(fly1))
-        logger.debug("Fly2 = " + ' '.join(fly2))
-        logger.debug("Fly3 = " + ' '.join(fly3))
-        logger.debug("Fly4 = " + ' '.join(fly4))
+        logger.debug(fly1)
+        logger.debug(fly2)
+        logger.debug(fly3)
+        logger.debug(fly4)
 
         fly1 = [x["user_id"] for x in fly1]
         fly2 = [x["user_id"] for x in fly2]
