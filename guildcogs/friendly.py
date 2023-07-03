@@ -1649,10 +1649,10 @@ class Friendly(commands.Cog):
         fly4 = await api.guild_members(fly4)
         
         # debugging
-        logger.debug("Fly1 = " + fly1)
-        logger.debug("Fly2 = " + fly2)
-        logger.debug("Fly3 = " + fly3)
-        logger.debug("Fly4 = " + fly4)
+        logger.debug("Fly1 = " + ' '.join(fly1))
+        logger.debug("Fly2 = " + ' '.join(fly2))
+        logger.debug("Fly3 = " + ' '.join(fly3))
+        logger.debug("Fly4 = " + ' '.join(fly4))
 
         fly1 = [x["user_id"] for x in fly1]
         fly2 = [x["user_id"] for x in fly2]
@@ -1660,7 +1660,7 @@ class Friendly(commands.Cog):
         fly4 = [x["user_id"] for x in fly4]
 
         allmembers = fly1 + fly2 + fly3 + fly4
-        logger.debug(allmembers)
+        logger.debug(' '.join(allmembers))
         if members is []:
             logger.error("Fly check failed because of API")
             return
