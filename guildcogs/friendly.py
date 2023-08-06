@@ -1416,12 +1416,12 @@ class Friendly(commands.Cog):
     async def remove_all_roles(self, ctx, member: discord.Member):
         async with ctx.typing():
             if member is not None:
-                for roleid in fly_roles[:18]:
+                roles = [x.id for x in member.roles if x.id in fly_roles]
+                print(roles)
+                for roleid in roles:
                     role = (ctx.guild.get_role(roleid))
                     await member.remove_roles(role, reason="Admin role removal")
-                for roleid in fly_roles[21:]:
-                    role = (ctx.guild.get_role(roleid))
-                    await member.remove_roles(role, reason="Admin role removal")
+                await member.add_roles(ctx.guild.get_role(acquaintance), reason="Admin role removal")
 
             await ctx.send(f"Roles have been removed from {member.display_name}")
 
