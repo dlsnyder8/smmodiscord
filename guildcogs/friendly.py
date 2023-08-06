@@ -1414,14 +1414,100 @@ class Friendly(commands.Cog):
     @checks.is_fly_admin()
     @commands.cooldown(1, 30, BucketType.user)
     async def remove_all_roles(self, ctx, member: discord.Member):
+        
+        all_fly_roles = [
+            # Main Fly Role
+            ctx.guild.get_role(710315282920636506),
+            # NSF Role
+            ctx.guild.get_role(722110578516164670), ctx.guild.get_role(
+                783930500732551219),
+            # Thicc (Levels)
+            ctx.guild.get_role(727719624434778124), ctx.guild.get_role(
+                727722577908334662), ctx.guild.get_role(727722769785028672),
+            # Stepper
+            ctx.guild.get_role(710290715787264041), ctx.guild.get_role(720049949865279559), ctx.guild.get_role(
+                727947354929365003), ctx.guild.get_role(829700204357877812),
+            # Gladiator (NPC)
+            ctx.guild.get_role(724649998985461841), ctx.guild.get_role(
+                724650153218277457), ctx.guild.get_role(752699779888316417),
+            # Monster (PVP)
+            ctx.guild.get_role(710293875289489458), ctx.guild.get_role(
+                720052795679703138), ctx.guild.get_role(752703370510336080),
+            # Quester
+            ctx.guild.get_role(752700240213311580), ctx.guild.get_role(
+                752700554672865290), ctx.guild.get_role(752700633920045139),
+            # Forager
+            ctx.guild.get_role(767163012132896808), ctx.guild.get_role(
+                829700288976781312), ctx.guild.get_role(829700338893979718),
+            # Tasker
+            ctx.guild.get_role(752706107985625139), ctx.guild.get_role(
+                752706496315261068), ctx.guild.get_role(763043799869030400),
+            # Slayer
+            ctx.guild.get_role(752702198303031376), ctx.guild.get_role(
+                752702447662923777),
+            # Decorated
+            ctx.guild.get_role(731018776648089670), ctx.guild.get_role(
+                731019364068753449),
+            # Trader
+            ctx.guild.get_role(710277160857763860), ctx.guild.get_role(
+                829692366092238858), ctx.guild.get_role(720048172399067200),
+            # Celebrity
+            ctx.guild.get_role(710307235124871189), ctx.guild.get_role(
+                720062633281192008), ctx.guild.get_role(752701722719289398),
+            # Veteran
+            ctx.guild.get_role(752705054351556658),
+            # Suggester
+            ctx.guild.get_role(720047404996624487),
+            # Storyteller
+            ctx.guild.get_role(774361923218309130),
+            # Looter
+            ctx.guild.get_role(720049700782342215),
+            # Collector
+            ctx.guild.get_role(710290631855177739), ctx.guild.get_role(
+                720050166396354671), ctx.guild.get_role(752699424735494175),
+            # Tycoon
+            ctx.guild.get_role(723955238385746030), ctx.guild.get_role(
+                723955584038076486),
+            # Thief
+            ctx.guild.get_role(734573085637869651), ctx.guild.get_role(
+                734573239249928222),
+            # Sniper
+            ctx.guild.get_role(713281314882846730), ctx.guild.get_role(
+                720053096855896084),
+            # Diamond
+            ctx.guild.get_role(717579223174348900), ctx.guild.get_role(
+                720061797838618660),
+            # Hero
+            ctx.guild.get_role(710317545340797068), ctx.guild.get_role(
+                720049289187033188),
+            # Meme'd
+            ctx.guild.get_role(710325364756447306), ctx.guild.get_role(
+                720053250669281301),
+            # Hunter
+            ctx.guild.get_role(720052696757043294), ctx.guild.get_role(
+                774354836614545419),
+            # Enforcer
+            ctx.guild.get_role(719173436856991804), ctx.guild.get_role(
+                720052932971593800),
+            # Contributor
+            ctx.guild.get_role(868508713525334066), ctx.guild.get_role(
+                720683761959960627), ctx.guild.get_role(720684106551132263),
+            # Secret CF/BF
+            ctx.guild.get_role(756119028543651951), ctx.guild.get_role(
+                894229709192314920),
+            # CF/BF/BFF (non-secret)
+            ctx.guild.get_role(719181452855738400), ctx.guild.get_role(
+                720041551069446225), ctx.guild.get_role(723506672944807946),
+            # charity
+            ctx.guild.get_role(713069407261425724),
+            # ping roles
+            ctx.guild.get_role(840696114537431080), ctx.guild.get_role(
+                897118429629251584), ctx.guild.get_role(840694858259890196)
+        ]
         async with ctx.typing():
             if member is not None:
-                roles = [x.id for x in member.roles if x.id in fly_roles]
-                print(roles)
-                for roleid in roles:
-                    role = (ctx.guild.get_role(roleid))
-                    await member.remove_roles(role, reason="Admin role removal")
-                await member.add_roles(ctx.guild.get_role(acquaintance), reason="Admin role removal")
+                sub_roles = [role for role in all_fly_roles if role.id in [x.id for x in member.roles]]
+                await member.remove_roles(*sub_roles, reason="Admin role removal")
 
             await ctx.send(f"Roles have been removed from {member.display_name}")
 
