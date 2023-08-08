@@ -1508,7 +1508,7 @@ class Friendly(commands.Cog):
             if member is not None:
                 sub_roles = [role for role in all_fly_roles if role.id in [x.id for x in member.roles]]
                 await member.remove_roles(*sub_roles, reason="Admin role removal")
-
+                await member.add_roles(ctx.guild.get_role(acquaintance))
             await ctx.send(f"Roles have been removed from {member.display_name}")
 
     @friendly.command(aliases=["traveler"])
