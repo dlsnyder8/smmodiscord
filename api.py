@@ -255,6 +255,7 @@ async def guild_members(guildid, token=None):
 
             else:
                 print("Guild Members API failed")
+                print(ret)
                 return []
 
 

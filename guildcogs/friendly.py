@@ -1739,6 +1739,10 @@ class Friendly(commands.Cog):
         logger.debug(fly2)
         logger.debug(fly3)
         logger.debug(fly4)
+        if (fly1 is [] or fly2 is [] or fly3 is [] or fly4 is []):
+            await flylog2(self.bot, "Fly Check Error", "API Error: Guild is None")
+            logger.error("API ERROR")
+            return
 
         fly1 = [x["user_id"] for x in fly1]
         fly2 = [x["user_id"] for x in fly2]
