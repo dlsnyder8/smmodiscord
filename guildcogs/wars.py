@@ -520,7 +520,7 @@ class Wars(commands.Cog):
                     await channel.send(f"<@{discordid}> gold ping! {info['gold']:,} gold out!", embed=embed)
                     await db.warinfo_ping_update(discordid)
         except Exception as e:
-            raise e
+            logging.error(e)
 
     @gold_ping.before_loop
     async def before_gold_ping(self):
