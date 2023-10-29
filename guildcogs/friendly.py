@@ -316,7 +316,7 @@ class Friendly(commands.Cog):
     async def join(self, interaction:discord.Interaction):
         await interaction.response.defer()
         if interaction.user._roles.has(fly_roles[19]):
-            await interaction.response.send_message("You've already been granted the Friendly role :)")
+            await interaction.followup.send("You've already been granted the Friendly role :)")
             return
 
         smmoid = await db.get_smmoid(interaction.user.id)
