@@ -94,13 +94,14 @@ class Guilds(commands.Cog):
     @app_commands.checks.dynamic_cooldown(custom_is_me(1,60),key=BucketType.Member)
     @app_checks.server_configured()
     async def join(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         config = await db.server_config(interaction.guild.id)
         if config.guild_role is None:
-            await interaction.response.send_message("The guild role for this server has not been set up. Please contact an administrator on this server", ephemeral=True)
+            await interaction.followup.send("The guild role for this server has not been set up. Please contact an administrator on this server", ephemeral=True)
             return
         if interaction.user._roles.has(config.guild_role):
 
-            await interaction.response.send_message(f"You've already been granted the {config.guild_name} role :)", ephemeral=True)
+            await interaction.followup.send(f"You've already been granted the {config.guild_name} role :)", ephemeral=True)
             return
 
         smmoid = await db.get_smmoid(interaction.user.id)
@@ -110,18 +111,18 @@ class Guilds(commands.Cog):
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
-            await interaction.response.send_message("You are not in a guild", ephemeral=True)
+            await interaction.followup.send("You are not in a guild", ephemeral=True)
             return
 
         # if user is in a fly guild....
         if guildid in config.guilds or interaction.user.id == dyl:
             roles_given = ""
 
-            # add fly role
+            # add guild role
             try:
                 await interaction.user.add_roles(interaction.guild.get_role(config.guild_role))
             except discord.Forbidden:
-                await interaction.response.send_message("I am unable to add roles to this user because either I do not have proper permissions, or my role is not high enough.")
+                await interaction.followup.send("I am unable to add roles to this user because either I do not have proper permissions, or my role is not high enough.")
                 return
             roles_given += f"<@&{config.guild_role}>"
 
@@ -139,12 +140,12 @@ class Guilds(commands.Cog):
                 except discord.HTTPException:
                     pass
                 except AttributeError:
-                    await interaction.response.send_message(f'Welcome to the guild!')
+                    await interaction.followup.send(f'Welcome to the guild!')
                     message = await interaction.followup.send(f"This message can be moved to another channel by using `/config update_welcome #channel`")
                     await message.delete(delay=5)
 
         else:
-            await interaction.response.send_message("You are not in the guild. If you think this is a mistake, try contacting your guild leader")
+            await interaction.followup.send("You are not in the guild. If you think this is a mistake, try contacting your guild leader")
             return
 
     @app_commands.command(description="Checks to see who has the guild role, but is not in the guild or has not linked")
