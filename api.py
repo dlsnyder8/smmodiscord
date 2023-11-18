@@ -323,9 +323,7 @@ async def diamond_market():
                 return None
 
 async def main():
-    members = await guild_members(1776)
-    for mem in members:
-        print(mem)
+    print(await get_all(385801))
         
 if __name__ == "__main__":
     asyncio.run(main())

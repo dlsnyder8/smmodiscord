@@ -463,9 +463,12 @@ class Event(commands.GroupCog, name="event"):
 
                 smmoid = await db.get_smmoid(participant.discordid)
                 profile = await api.get_all(smmoid)
-                await db.update_stat(event.id,
+                try:
+                    await db.update_stat(event.id,
                                      participant.discordid,
                                      profile[stat_convert[event.type]])
+                except KeyError:
+                    logger.error(f"KeyError for {participant.discordid} in {event.id} with {profile}")
 
     @stat_update.before_loop
     async def before_stat_update(self):
