@@ -150,7 +150,9 @@ class CommandErrorHandler(commands.Cog):
                     await interaction.followup.send("hey dyl", ephemeral=True)
                 else:
                     await interaction.response.send_message("hey dyl",ephemeral=True)
-                
+        
+        elif isinstance(error, app_commands.CheckFailure):
+            pass
         else:
             if interaction.response.is_done():
                 await interaction.followup.send("Something has gone wrong, please let dyl know")

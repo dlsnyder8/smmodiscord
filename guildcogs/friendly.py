@@ -311,8 +311,8 @@ class Friendly(commands.Cog):
 
     @app_checks.is_verified()
     @app_commands.command()
-    # @app_commands.checks.dynamic_cooldown(custom_is_me(1,60), key=AppBucketType.Member)
-    # @app_checks.server_configured()
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,60), key=AppBucketType.Member)
+    @app_checks.server_configured()
     async def join(self, interaction:discord.Interaction):
         await interaction.response.defer()
         if interaction.user._roles.has(fly_roles[19]):
