@@ -22,7 +22,7 @@ if dev is True:
 
 class MyBot(commands.Bot):
     def __init__(self):
-        game = discord.Game("Contact dyl#8008 with questions")
+        game = discord.Game("Contact @wiredcoding with questions")
         intents = Intents.all()
         if not dev:
             super().__init__(command_prefix='&',intents=intents, activity=game)
