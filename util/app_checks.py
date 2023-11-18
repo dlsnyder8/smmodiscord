@@ -52,8 +52,7 @@ def is_verified():
                 )
             
             return False
-        else:
-            return True
+        return True
 
     return app_commands.check(predicate)
 
