@@ -136,7 +136,7 @@ def is_leader():
                         )
                         return False
                 else:
-                    await interaction.response.send(f"You are only a member of your guild. If you want the Ambassador role, your guild leader will need to connect and run `{ctx.prefix}g aa <ID/@mention>`")
+                    await interaction.response.send(f"You are only a member of your guild. If you want the Ambassador role, your guild leader will need to connect and run `/g aa <ID/@mention>`")
                     return False
 
         await interaction.response.send("The code is probably broken. Cry to dyl")
