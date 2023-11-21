@@ -46,6 +46,7 @@ async def get_all(smmoid):
                 content = ret.content
                 x = await content.read()
                 info = json.loads(x)
+                await db.store_data(smmoid, info)
 
                 return info
 

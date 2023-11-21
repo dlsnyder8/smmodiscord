@@ -102,4 +102,17 @@ CREATE TABLE "drifters" {
   "pvp_today" numeric,
   "update_yesterday" timestamp,
   "update_today" timestamp
-}
+};
+
+-- add index to "data" column
+CREATE TABLE "profile_data" (
+  "entry" SERIAL PRIMARY KEY,
+  "smmoid" int,
+  "data" jsonb,
+  "timestamp" timestamptz
+);
+CREATE INDEX idx_profile_data_data ON profile_data (data);
+
+
+
+ 

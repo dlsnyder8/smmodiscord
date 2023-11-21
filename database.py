@@ -31,6 +31,7 @@ Events = Base.classes.events
 Event_info = Base.classes.event_info
 Warinfo = Base.classes.warinfo
 Smackback = Base.classes.smackback
+Profile_Data = Base.classes.profile_data
 engine.dispose()
 
 if config.main_acct:
@@ -1263,6 +1264,17 @@ async def warinfo_ping_update(discordid):
 async def rollback():
     async with session() as con:
         await con.rollback()
+        
+async def store_data(smmoid, data):
+    async with session() as con:
+        try:
+            await con.execute(insert(Profile_Data).values(smmoid=smmoid, data=data, timestamp = datetime.now(timezone.utc)))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
+        finally:
+            await con.close()
 
 # async def warinfo_test():
 #     async with session() as con:
