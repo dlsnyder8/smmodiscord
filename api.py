@@ -5,6 +5,7 @@ import database as db
 import itertools
 import aiohttp
 import asyncio
+from sqlalchemy import exc
 
 
 tokens = itertools.cycle(config.API_KEYS)
@@ -46,7 +47,10 @@ async def get_all(smmoid):
                 content = ret.content
                 x = await content.read()
                 info = json.loads(x)
-                await db.store_data(smmoid, info)
+                try:
+                    await db.store_data(smmoid, info)
+                except exc.IntegrityError:
+                    pass
 
                 return info
 
@@ -324,6 +328,7 @@ async def diamond_market():
                 return None
 
 async def main():
+    print(await get_all(385801))
     print(await get_all(385801))
         
 if __name__ == "__main__":
