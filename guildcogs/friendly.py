@@ -1,30 +1,21 @@
-import discord
 from discord.embeds import Embed
 from discord.ext import commands, tasks
 from discord.ext.commands.core import guild_only
-import api
-import string
-import random
-from util import checks, log
-import database as db
+from discord import app_commands
+import discord, api, string, random, csv, os, logging,traceback, database as db
+from util import checks, log, app_checks
+from util.cooldowns import custom_is_me, BucketType as AppBucketType
 from discord.ext.commands.cooldowns import BucketType
-import logging
 from util.log import flylog, log, flylog2, flylog3
-import traceback
 from datetime import datetime, timezone
 from dateutil import parser
-from dpymenus import Page, ButtonMenu
-import csv
-import os
+from config import friendly_enable_role_removal
 
 
-logger = logging.getLogger('__name__')
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 # fly guilds
 fly = (408, 455, 541, 482)
@@ -81,7 +72,7 @@ dyl = 332314562575597579
 
 
 class Friendly(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.flycheck.start()
 
@@ -90,72 +81,66 @@ class Friendly(commands.Cog):
     async def friendly(self, ctx):
         if ctx.invoked_subcommand is None:
             pass
+        
+    @app_checks.server_configured()
+    @app_commands.command()
+    async def verification_info(self, interaction: discord.Interaction):
+        await interaction.response.send_message(
+            embed=Embed(title="Verification Process",
+            description=f"""1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page
+                            2) Run `/verify SMMOID`
+                            3) Add the verification key to your motto, then run `/verify SMMOID` again"""))
 
-    @checks.server_configured()
-    @commands.command(description="Connects your Discord account with your SMMO account", usage="[SMMO-ID]")
-    async def verify(self, ctx, *args):
-        # needs 1 arg, smmo id
-        if len(args) != 1:
-            await ctx.send(embed=Embed(title="Verification Process",
-                                       description="1) Please find your SMMO ID by navigating to your profile on web app and getting the 4-6 digits in the url or if on mobile scrolling to the bottom of your stats page\n2) Run `&verify SMMOID`\n3) Add the verification key to your motto, then run `&verify SMMOID` again"))
-            return
-
-        smmoid = args[0]
-
-        try:
-            smmoid = int(smmoid)
-        except ValueError:
-            await ctx.send("Argument must be a number")
-            return
-
+    @app_checks.server_configured()
+    @app_commands.command(description="Connects your Discord account with your SMMO account")
+    async def verify(self, interaction: discord.Interaction, smmoid: int):
+       
         # check if verified
         if(await db.is_verified(smmoid)):
-            await ctx.reply("Hey you've already linked your account! Are you trying to get the Friendly role? If so, you need to type `&join` to get the role! \n\nOh...you weren't trying to do that? Well... this is awkward. Goodbye.")
+            await interaction.response.send_message("Hey you've already linked your account! Are you trying to get the Friendly role? If so, you need to type `/join` to get the role! \n\nOh...you weren't trying to do that? Well... this is awkward. Goodbye.")
             return
 
-        if(await db.islinked(ctx.author.id) is True):
-            await ctx.send(embed=Embed(title="Already Linked", description=f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord."))
+        if(await db.islinked(interaction.user.id) is True):
+            await interaction.response.send_message(embed=Embed(title="Already Linked", description=f"Your account is already linked to an SMMO account. If you need to remove this, contact <@{dyl}> on Discord."))
             return
 
         # check if has verification key in db
-        key = await db.verif_key(smmoid, ctx.author.id)
+        key = await db.verif_key(smmoid, interaction.user.id)
         if(key is not None):
 
             profile = await api.get_all(smmoid)
             try:
                 motto = profile['motto']
             except KeyError:
-                await ctx.send(f"A motto cannot be found for this account. This usually means you are trying to link to a deleted account")
+                await interaction.response.send_message(f"A motto cannot be found for this account. This usually means you are trying to link to a deleted account. Ask someone for help to find your ID")
                 return
 
             if motto is None:
-                await ctx.send(f'Something went wrong. Please contact <@{dyl}> on Discord for help')
+                await interaction.response.send_message(f'Something went wrong. Please contact <@{dyl}> on Discord for help')
                 return
 
             if(key in motto):
                 await db.update_verified(smmoid, True)
-                await ctx.send("You are now verified. You can remove the verification key from your motto.")
-                data = await db.server_config(ctx.guild.id)
+                await interaction.response.send_message("You are now verified. You can remove the verification key from your motto.")
+                data = await db.server_config(interaction.guild.id)
 
                 if data.guild_role is not None:
-                    await ctx.send(f"If you're in the guild, please run `{ctx.prefix}join` to be granted access to guild channels.")
-
+                    await interaction.followup.send(f"If you're in the guild, please run `/join` to be granted access to guild channels.")
                 return
 
-            await ctx.reply(f"Verification Failed. You are trying to connect your account to **{profile['name']}**. Your verification key is: `{key}`")
-            await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+            await interaction.response.send_message(f"""Verification Failed. You are trying to connect your account to **{profile['name']}**. Your verification key is: `{key}`
+                            Please add this to your motto and run `/verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>""")
             return
 
         else:
             # key in DB, but someone else tried to add it. Generate new key
             if(await db.key_init(smmoid) is not None):
-                await ctx.send("Someone tried to verify with your ID. Resetting key....")
                 letters = string.ascii_letters
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
-                await db.update_pleb(smmoid, ctx.author.id, key)
-                await ctx.reply(f'Your new verification key is: `{key}`')
-                await ctx.send(f'Please add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                await db.update_pleb(smmoid, interaction.user.id, key)
+                await interaction.response.send_message(f"""Your new verification key is: `{key}`
+                                Please add this to your motto and run `/verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>""")
                 return
 
             # no key in db, generate and add
@@ -164,58 +149,10 @@ class Friendly(commands.Cog):
                 letters = string.ascii_letters
                 key = "SMMO-" + ''.join(random.choice(letters)
                                         for i in range(8))
-                await db.add_new_pleb(smmoid, ctx.author.id, key)
-                await ctx.reply(f'Your verification key is: `{key}` \nPlease add this to your motto and run `{ctx.prefix}verify {smmoid}` again!\n <https://web.simple-mmo.com/changemotto>')
+                await db.add_new_pleb(smmoid, interaction.user.id, key)
+                await interaction.response.send_message(f'Your verification key is: `{key}` \
+                                                        \nPlease add this to your motto and run `/verify {smmoid}` again!\n<https://web.simple-mmo.com/changemotto>')
                 return
-
-    @commands.command(aliases=['sg', 'gold'])
-    @commands.cooldown(1, 30, BucketType.guild)
-    async def sendgold(self, ctx, members: commands.Greedy[discord.Member]):
-        out = ""
-        async with ctx.typing():
-            for member in members:
-                smmoid = await db.get_smmoid(member.id)
-                if smmoid is not None:
-                    if await api.safemode_status(smmoid):
-                        out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}>\n"
-                    else:
-                        out += f"{member.display_name}: <https://web.simple-mmo.com/sendgold/{smmoid}> -- Not in safemode\n"
-                else:
-                    out += f"{member.display_name} is not linked. No gold for them\n"
-
-            await ctx.send(out)
-
-    @commands.command(aliases=['mush'])
-    @checks.is_verified()
-    @commands.cooldown(1, 30, BucketType.member)
-    async def mushroom(self, ctx):
-        smmoid = await db.get_smmoid(ctx.author.id)
-        await ctx.send(f"Send me mushrooms :) <https://web.simple-mmo.com/senditem/{smmoid}/611>")
-
-    @commands.command()
-    @commands.cooldown(1, 30, BucketType.member)
-    async def give(self, ctx, itemid: int, members: commands.Greedy[discord.Member]):
-        out = ""
-        for member in members:
-            smmoid = await db.get_smmoid(member.id)
-            if smmoid is not None:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/senditem/{smmoid}/{itemid}>\n"
-            else:
-                out += f"{member.display_name} is not linked\n"
-        await ctx.send(out)
-
-    @commands.command()
-    @commands.cooldown(1, 30, BucketType.member)
-    async def trade(self, ctx, members: commands.Greedy[discord.Member]):
-        out = ""
-        for member in members:
-            smmoid = await db.get_smmoid(member.id)
-
-            if smmoid is not None:
-                out += f"{member.display_name}: <https://web.simple-mmo.com/trades/view-all?user_id={smmoid}>\n"
-            else:
-                out += f"{member.display_name} is not linked\n"
-        await ctx.send(out)
 
     @commands.command()
     @checks.in_fly_guild()
@@ -304,7 +241,6 @@ class Friendly(commands.Cog):
             roles = member.roles
 
             roleids = [r.id for r in roles]
-            print(roleids)
             output = set(roleids).intersection(weighted_fly_roles)
             events = set(roleids).intersection(event_roles)
             inviteonly = set(roleids).intersection(invite_roles)
@@ -366,65 +302,63 @@ class Friendly(commands.Cog):
                     smmoid = await db.get_smmoid(member.id)
                     x = await api.get_all(smmoid)
 
-                    data = [smmoid, x['name'], x['npc_kills'], x['user_kills'], x['quests_complete'], x['level'], x['tasks_completed'],
+                    data = [smmoid, x['name'], x['npc_kills'], x['user_kills'], x['quests_performed'], x['level'], x['tasks_completed'],
                             x['boss_kills'], x['market_trades'], x['reputation'], x['bounties_completed'], x['dailies_unlocked'], x['chests_opened'], x['steps']]
                     writer.writerow(data)
             file_csv = open('friendly.csv')
             await ctx.send("Here are the guild stats", file=discord.File('friendly.csv'))
             os.remove('friendly.csv')
 
-    @checks.is_verified()
-    @commands.command()
-    @guild_only()
-    @commands.cooldown(1, 60, BucketType.user)
-    @checks.server_configured()
-    async def join(self, ctx):
-        if ctx.author._roles.has(fly_roles[19]):
-
-            await ctx.send("You've already been granted the Friendly role :)")
+    @app_checks.is_verified()
+    @app_commands.command()
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,60), key=AppBucketType.Member)
+    @app_checks.server_configured()
+    async def join(self, interaction:discord.Interaction):
+        await interaction.response.defer()
+        if interaction.user._roles.has(fly_roles[19]):
+            await interaction.followup.send("You've already been granted the Friendly role :)")
             return
 
-        smmoid = await db.get_smmoid(ctx.author.id)
+        smmoid = await db.get_smmoid(interaction.user.id)
 
         # get guild from profile (get_all())
         profile = await api.get_all(smmoid)
         try:
             guildid = profile["guild"]["id"]
         except KeyError as e:
-            await ctx.send("You are not in a guild")
+            await interaction.followup.send("You are not in a guild")
             return
 
         # if user is in a fly guild....
-        if guildid in fly or ctx.author.id == dyl:
+        if guildid in fly or interaction.user.id == dyl:
 
             roles_given = ""
             try:
                 ingamename = profile["name"]
             except Exception as e:
-                await ctx.send(e)
+                logger.error(e)
 
             # add fly role
-            await ctx.author.add_roles(ctx.guild.get_role(fly_roles[19]))
-            await ctx.author.add_roles(ctx.guild.get_role(traveler))
-            await ctx.author.remove_roles(ctx.guild.get_role(acquaintance))
-            await ctx.send(f"Welcome to Friendly :)\nYou can run `{ctx.prefix}fly eligibility` (`{ctx.prefix}f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
+            await interaction.user.add_roles(interaction.guild.get_role(fly_roles[19]))
+            await interaction.user.add_roles(interaction.guild.get_role(traveler))
+            await interaction.user.remove_roles(interaction.guild.get_role(acquaintance))
+            await interaction.followup.send(f"Welcome to Friendly :)\nYou can run `&fly eligibility` (`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
             roles_given += f"<@&{fly_roles[19]}>"
             # if user is in NSF
             if guildid == 541:
-                nsf_role = ctx.guild.get_role(783930500732551219)
-                await ctx.author.add_roles(nsf_role)
+                nsf_role = interaction.guild.get_role(783930500732551219)
+                await interaction.user.add_roles(nsf_role)
                 roles_given += f" ,<@&783930500732551219>"
 
-            await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {ctx.author.mention}\n{roles_given}", ctx.author.id)
+            await flylog(self.bot, f"{ingamename} has joined Fly", f"**Roles given to** {interaction.user.mention}\n{roles_given}", interaction.user.id)
             await self.bot.get_channel(934284308112375808).send(embed=Embed(title="Beginning of year stats", description=f'{profile}'))
             channel = self.bot.get_channel(728355657283141735)
-            if ctx.author.id != dyl:
-                await channel.send(f"Welcome {ctx.author.mention} to the Friendliest guild in SimpleMMO!")
-
-            await ctx.send(f"<@581061608357363712>\n ;adminlink {ctx.author.id} {smmoid}")
+            if interaction.user.id != dyl:
+                await channel.send(f"Welcome {interaction.user.mention} to the Friendliest guild in SimpleMMO!")
+            await interaction.followup.send(f"<@581061608357363712> <@307328265129820160>\n ;adminlink {interaction.user.id} {smmoid}")
 
         else:
-            await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
+            await interaction.response.send_message("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
     @checks.in_fly()
@@ -1235,17 +1169,14 @@ class Friendly(commands.Cog):
                         # Has Friendly role, but not in Friendly.
                         else:
                             listUsers.append(f"{member.mention}")
-                            print(f"{member.display_name}")
 
                             not_in_fly += 1
-                            print(not_in_fly)
                             await member.remove_roles(*all_fly_roles, reason="User left fly")
                             await member.add_roles(ctx.guild.get_role(acquaintance))
 
                     else:
                         # unlinked. remove roles
                         not_linked += 1
-                        print(f"{member.display_name}")
 
                         listUsers.append(f"{member.mention}")
                         await member.remove_roles(*all_fly_roles, reason="User left fly")
@@ -1483,15 +1414,101 @@ class Friendly(commands.Cog):
     @checks.is_fly_admin()
     @commands.cooldown(1, 30, BucketType.user)
     async def remove_all_roles(self, ctx, member: discord.Member):
+        
+        all_fly_roles = [
+            # Main Fly Role
+            ctx.guild.get_role(710315282920636506),
+            # NSF Role
+            ctx.guild.get_role(722110578516164670), ctx.guild.get_role(
+                783930500732551219),
+            # Thicc (Levels)
+            ctx.guild.get_role(727719624434778124), ctx.guild.get_role(
+                727722577908334662), ctx.guild.get_role(727722769785028672),
+            # Stepper
+            ctx.guild.get_role(710290715787264041), ctx.guild.get_role(720049949865279559), ctx.guild.get_role(
+                727947354929365003), ctx.guild.get_role(829700204357877812),
+            # Gladiator (NPC)
+            ctx.guild.get_role(724649998985461841), ctx.guild.get_role(
+                724650153218277457), ctx.guild.get_role(752699779888316417),
+            # Monster (PVP)
+            ctx.guild.get_role(710293875289489458), ctx.guild.get_role(
+                720052795679703138), ctx.guild.get_role(752703370510336080),
+            # Quester
+            ctx.guild.get_role(752700240213311580), ctx.guild.get_role(
+                752700554672865290), ctx.guild.get_role(752700633920045139),
+            # Forager
+            ctx.guild.get_role(767163012132896808), ctx.guild.get_role(
+                829700288976781312), ctx.guild.get_role(829700338893979718),
+            # Tasker
+            ctx.guild.get_role(752706107985625139), ctx.guild.get_role(
+                752706496315261068), ctx.guild.get_role(763043799869030400),
+            # Slayer
+            ctx.guild.get_role(752702198303031376), ctx.guild.get_role(
+                752702447662923777),
+            # Decorated
+            ctx.guild.get_role(731018776648089670), ctx.guild.get_role(
+                731019364068753449),
+            # Trader
+            ctx.guild.get_role(710277160857763860), ctx.guild.get_role(
+                829692366092238858), ctx.guild.get_role(720048172399067200),
+            # Celebrity
+            ctx.guild.get_role(710307235124871189), ctx.guild.get_role(
+                720062633281192008), ctx.guild.get_role(752701722719289398),
+            # Veteran
+            ctx.guild.get_role(752705054351556658),
+            # Suggester
+            ctx.guild.get_role(720047404996624487),
+            # Storyteller
+            ctx.guild.get_role(774361923218309130),
+            # Looter
+            ctx.guild.get_role(720049700782342215),
+            # Collector
+            ctx.guild.get_role(710290631855177739), ctx.guild.get_role(
+                720050166396354671), ctx.guild.get_role(752699424735494175),
+            # Tycoon
+            ctx.guild.get_role(723955238385746030), ctx.guild.get_role(
+                723955584038076486),
+            # Thief
+            ctx.guild.get_role(734573085637869651), ctx.guild.get_role(
+                734573239249928222),
+            # Sniper
+            ctx.guild.get_role(713281314882846730), ctx.guild.get_role(
+                720053096855896084),
+            # Diamond
+            ctx.guild.get_role(717579223174348900), ctx.guild.get_role(
+                720061797838618660),
+            # Hero
+            ctx.guild.get_role(710317545340797068), ctx.guild.get_role(
+                720049289187033188),
+            # Meme'd
+            ctx.guild.get_role(710325364756447306), ctx.guild.get_role(
+                720053250669281301),
+            # Hunter
+            ctx.guild.get_role(720052696757043294), ctx.guild.get_role(
+                774354836614545419),
+            # Enforcer
+            ctx.guild.get_role(719173436856991804), ctx.guild.get_role(
+                720052932971593800),
+            # Contributor
+            ctx.guild.get_role(868508713525334066), ctx.guild.get_role(
+                720683761959960627), ctx.guild.get_role(720684106551132263),
+            # Secret CF/BF
+            ctx.guild.get_role(756119028543651951), ctx.guild.get_role(
+                894229709192314920),
+            # CF/BF/BFF (non-secret)
+            ctx.guild.get_role(719181452855738400), ctx.guild.get_role(
+                720041551069446225), ctx.guild.get_role(723506672944807946),
+            # charity
+            ctx.guild.get_role(713069407261425724),
+            # ping roles
+            ctx.guild.get_role(840696114537431080), ctx.guild.get_role(
+                897118429629251584), ctx.guild.get_role(840694858259890196)
+        ]
         async with ctx.typing():
             if member is not None:
-                for roleid in fly_roles[:18]:
-                    role = (ctx.guild.get_role(roleid))
-                    await member.remove_roles(role, reason="Admin role removal")
-                for roleid in fly_roles[21:]:
-                    role = (ctx.guild.get_role(roleid))
-                    await member.remove_roles(role, reason="Admin role removal")
-
+                sub_roles = [role for role in all_fly_roles if role.id in [x.id for x in member.roles]]
+                await member.remove_roles(*sub_roles, reason="Admin role removal")
+                await member.add_roles(ctx.guild.get_role(acquaintance))
             await ctx.send(f"Roles have been removed from {member.display_name}")
 
     @friendly.command(aliases=["traveler"])
@@ -1552,11 +1569,63 @@ class Friendly(commands.Cog):
             await ctx.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
+    @app_commands.command(description="Checks to see who has the guild role, but is not in the guild or has not linked")
+    @app_checks.is_admin()
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=AppBucketType.Guild)
+    async def softcheck(self, interaction: discord.Interaction, guildrole: discord.Role = None):
+        await interaction.response.defer(thinking=True)
+        server = await db.ServerInfo(interaction.guild.id)
+        guilds = server.guilds
+        allmembers = []
+        for x in guilds:
+            allmembers.extend([x['user_id'] for x in (await api.guild_members(x, server.api_token))])
+
+        guild = self.bot.get_guild(server.serverid)
+        if guild is None:
+            return
+
+        if guildrole is None:
+            guild_role = guild.get_role(server.guild_role)
+        else:
+            guild_role = guildrole
+
+        if guild_role is None:
+            embed = discord.Embed(title="Guild Member Check Failed",
+                                    description="It appears that my config is wrong and I cannot find the guild role")
+            await interaction.followup.send(embed=embed)
+            return
+
+        removed = []
+        for member in guild_role.members:
+            if await db.islinked(member.id):
+                smmoid = await db.get_smmoid(member.id)
+                if smmoid not in allmembers:
+                    removed.append(f"{member.mention}")
+            else:
+                removed.append(f'{member.mention}')
+
+        if len(removed) > 0:
+            embed = Embed(
+                title="Users not in guild"
+            )
+            splitUsers = [removed[i:i+33]
+                            for i in range(0, len(removed), 33)]
+
+            for split in splitUsers:
+                embed.add_field(name="Users", value=' '.join(split))
+            await interaction.followup.send(embed=embed)
+
+        else:
+            await interaction.followup.send("Everyone is linked and in the guild")
+            
+            
     @tasks.loop(hours=3, reconnect=True)
     async def flycheck(self):
         await log(self.bot, "Fly Check Started", "Friendly guild members are being checked")
         await flylog2(self.bot, "Fly Check Started", "Friendly guild members are being checked")
         guild = self.bot.get_guild(710258284661178418)
+        if guild is None:
+            return
         all_fly_roles = [
             # Main Fly Role
             guild.get_role(710315282920636506),
@@ -1648,6 +1717,8 @@ class Friendly(commands.Cog):
         ]
 
         fly_role = guild.get_role(710315282920636506)
+        if fly_role is None:
+            return
         members = fly_role.members
         not_in_fly = 0
         not_linked = 0
@@ -1662,6 +1733,16 @@ class Friendly(commands.Cog):
         fly2 = await api.guild_members(fly2)
         fly3 = await api.guild_members(fly3)
         fly4 = await api.guild_members(fly4)
+        
+        # debugging
+        logger.debug(fly1)
+        logger.debug(fly2)
+        logger.debug(fly3)
+        logger.debug(fly4)
+        if (fly1 is [] or fly2 is [] or fly3 is [] or fly4 is []):
+            await flylog2(self.bot, "Fly Check Error", "API Error: Guild is None")
+            logger.error("API ERROR")
+            return
 
         fly1 = [x["user_id"] for x in fly1]
         fly2 = [x["user_id"] for x in fly2]
@@ -1669,9 +1750,15 @@ class Friendly(commands.Cog):
         fly4 = [x["user_id"] for x in fly4]
 
         allmembers = fly1 + fly2 + fly3 + fly4
+        logger.debug(allmembers)
+        if members is []:
+            logger.error("Fly check failed because of API")
+            return
         listUsers = []
 
         for member in members:
+            if member.id == 332314562575597579:
+                pass
             total += 1
             if await db.islinked(member.id):
                 smmoid = await db.get_smmoid(member.id)
@@ -1691,8 +1778,9 @@ class Friendly(commands.Cog):
                     for role in member.roles:
                         memberroles += f"{role.mention}\n"
                     await flylog3(self.bot, Embed(title=f"{member.display_name}'s Roles", description=memberroles))
-                    await member.remove_roles(*all_fly_roles, reason="User left fly")
-                    await member.add_roles(guild.get_role(acquaintance))
+                    if friendly_enable_role_removal:
+                        await member.remove_roles(*all_fly_roles, reason="User left fly")
+                        await member.add_roles(guild.get_role(acquaintance))
 
             else:
                 # unlinked. remove roles
@@ -1703,8 +1791,9 @@ class Friendly(commands.Cog):
                 await flylog3(self.bot, Embed(title=f"{member.display_name}'s Roles", description=memberroles))
 
                 listUsers.append(f"{member.mention}")
-                await member.remove_roles(*all_fly_roles, reason="User left fly")
-                await member.add_roles(guild.get_role(acquaintance))
+                if friendly_enable_role_removal:
+                    await member.remove_roles(*all_fly_roles, reason="User left fly")
+                    await member.add_roles(guild.get_role(acquaintance))
 
         await flylog2(self.bot, "Friendly Check", f"{len(members)} Friendly members checked.\n{not_in_fly} member(s) not in fly\n{not_linked} member(s) not linked to bot :(")
         splitUsers = [listUsers[i:i+33]
@@ -1723,7 +1812,7 @@ class Friendly(commands.Cog):
         await self.bot.wait_until_ready()
 
 
-def setup(bot):
-    bot.add_cog(Friendly(bot))
+async def setup(bot):
+    await bot.add_cog(Friendly(bot))
 
-    print("Friendly Cog Loaded")
+    logger.info("Friendly Cog Loaded")

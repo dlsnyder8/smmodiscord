@@ -24,7 +24,7 @@ def has_joined():
         else:
             await ctx.send(embed=Embed(
                 title="You need to join first",
-                description=f"Before you use this command, you need to run `{ctx.prefix}join`"
+                description=f"Before you use this command, you need to run `/join`"
             ))
             return False
 
@@ -37,7 +37,6 @@ def MI6():
             return True
         else:
             return False
-
     return commands.check(predicate)
 
 
@@ -63,7 +62,7 @@ def in_fly_guild():
         elif ctx.author._roles.has(710315282920636506):
             return True
         else:
-            await ctx.send(f"You must have the Friendly role to run this command\n Try running `{ctx.prefix}join` if you are in a Friendly Guild")
+            await ctx.send(f"You must have the Friendly role to run this command\n Try running `/join` if you are in a Friendly Guild")
 
     return commands.check(predicate)
 
@@ -129,7 +128,7 @@ def premium_server():
         if await db.premium_server(ctx.guild.id):
             return True
         else:
-            await ctx.send(f"This is a premium only command. Interested in learning more? -> `{ctx.prefix}premium`")
+            await ctx.send(f"This is a premium only command. Interested in learning more? -> `/premium`")
             return False
     return commands.check(predicate)
 
@@ -141,8 +140,8 @@ def is_owner():
         else:
             message = await ctx.send(
                 embed=discord.Embed(
-                    title="Not an Admin",
-                    description="You must be an administrator to run this command",
+                    title="Not dyl",
+                    description="You must be dyl to run this command",
                     color=0xff0000
                 )
             )
@@ -159,7 +158,7 @@ def is_verified():
         if not await db.is_verified(smmoid):
             embed = discord.Embed(
                 title="Not Verified",
-                description=f"You have not been verified. Run `{ctx.prefix}verify <smmoid>` to start the process",
+                description=f"You have not been verified. Run `/verify <smmoid>` to start the process",
                 color=0x00ff00)
 
             await ctx.send(

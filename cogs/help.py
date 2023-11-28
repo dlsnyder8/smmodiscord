@@ -5,7 +5,8 @@ from discord.ext import commands
 from discord.ext.commands.core import command
 import logging
 
-logger = logging.getLogger('discord')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class MyHelp(commands.HelpCommand):
@@ -67,6 +68,7 @@ class Help(commands.Cog):
         self.bot.help_command = self._original_help_command
 
 
-def setup(bot):
-    bot.add_cog(Help(bot))
-    print("Help Cog Loaded")
+async def setup(bot):
+    return
+    await bot.add_cog(Help(bot))
+    logger.info("Help Cog Loaded")

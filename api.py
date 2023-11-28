@@ -5,6 +5,7 @@ import database as db
 import itertools
 import aiohttp
 import asyncio
+from sqlalchemy import exc
 
 
 tokens = itertools.cycle(config.API_KEYS)
@@ -46,6 +47,10 @@ async def get_all(smmoid):
                 content = ret.content
                 x = await content.read()
                 info = json.loads(x)
+                try:
+                    await db.store_data(smmoid, info)
+                except exc.IntegrityError:
+                    pass
 
                 return info
 
@@ -254,7 +259,8 @@ async def guild_members(guildid, token=None):
                 return await guild_members(guildid)
 
             else:
-                print("Guild Members failed")
+                print("Guild Members API failed")
+                print(ret)
                 return []
 
 
@@ -321,8 +327,12 @@ async def diamond_market():
                 print("Diamond Market Request Failed\n")
                 return None
 
-
+async def main():
+    print(await get_all(385801))
+    print(await get_all(385801))
+        
 if __name__ == "__main__":
+    asyncio.run(main())
     # profile = get_all(385801)
     # print(profile)
     # #print(guild_members(828)[0])
@@ -350,3 +360,5 @@ if __name__ == "__main__":
     # status = await pleb_status(385801)
     # await get_all(385801)
     pass
+
+

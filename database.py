@@ -31,6 +31,7 @@ Events = Base.classes.events
 Event_info = Base.classes.event_info
 Warinfo = Base.classes.warinfo
 Smackback = Base.classes.smackback
+Profile_Data = Base.classes.profile_data
 engine.dispose()
 
 if config.main_acct:
@@ -47,9 +48,9 @@ session = sessionmaker(
 async def execute(command: str):
     async with session() as con:
         try:
-            ret = await con.execute(command)
+            data = await con.execute(command)
             await con.commit()
-            return ret
+            return [r for r in data.fetchall()]
 
         except Exception as e:
             await con.rollback()
@@ -630,7 +631,8 @@ async def all_servers():
 async def is_banned(discid):
     async with session() as con:
         try:
-            return (await con.execute(select(Plebs.guild_ban).filter_by(discid=discid))).first()[0]
+            ret = (await con.execute(select(Plebs.guild_ban).filter_by(discid=discid))).first()[0]
+            return False if ret is None else ret
         finally:
             await con.close()
 
@@ -1262,6 +1264,17 @@ async def warinfo_ping_update(discordid):
 async def rollback():
     async with session() as con:
         await con.rollback()
+        
+async def store_data(smmoid, data):
+    async with session() as con:
+        try:
+            await con.execute(insert(Profile_Data).values(smmoid=smmoid, data=data, timestamp = datetime.now(timezone.utc)))
+            await con.commit()
+        except Exception as e:
+            await con.rollback()
+            raise e
+        finally:
+            await con.close()
 
 # async def warinfo_test():
 #     async with session() as con:
@@ -1298,7 +1311,7 @@ async def rollback():
 
 async def main():
     # async with engine.begin() as conn:
-    print(sum(await all_arcade_info()))
+    print(await is_banned(302100896249282571))
     # await server_config(731379317182824478)
     # await add_diamond_channel(538144211866746883,538150639872638986)
     # await add_server(1234,"testtest server")
@@ -1306,6 +1319,6 @@ async def main():
     # print(server.serverid)
 
 if __name__ == "__main__":
-    pass
+    
 
     asyncio.run(main())

@@ -7,13 +7,8 @@ import logging
 from datetime import datetime, timezone, timedelta
 import config
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 
 class Wars(commands.Cog):
@@ -34,7 +29,7 @@ class Wars(commands.Cog):
             await ctx.send(embed=Embed(title="No Active Wars for Friendly", description="There are no active wars. They may be on hold or may have all ended."))
             return
 
-        print(wars)
+    
         warstring = ""
         for war in wars[:35]:
             if war['guild_1']['id'] == 408:
@@ -489,6 +484,9 @@ class Wars(commands.Cog):
         try:
             await log.log(self.bot, "Gold Ping", "Checking for friendly members with gold out....")
             channel = self.bot.get_channel(846657320184053760)
+            if channel is None:
+                logging.error('Unable to find Friendly gold channel')
+                return
             members = await db.gold_ping_users()
             for member in members:
 
@@ -504,6 +502,9 @@ class Wars(commands.Cog):
                     continue
 
                 info = await api.get_all(smmoid)
+                if info is None:
+                    logging.error("Api Call get_all has failed")
+                    continue
 
                 # Skip user if not in Friendly guild
                 try:
@@ -515,18 +516,17 @@ class Wars(commands.Cog):
                 if info['safeMode'] == 0 and info['gold'] >= goldamount and info['hp']/info['max_hp'] > 0.5:
 
                     embed = Embed(
-                        title="Actions", description=f":bank: [Quick, bank your gold!](https://web.simple-mmo.com/bank/deposit) \n \u200b \n:shield: [Help! Stab to protect their gold!](https://web.simple-mmo.com/user/attack/{smmoid})")
+                        title="Actions", description=f":bank: [Quick, bank your gold!](https://web.simple-mmo.com/bank) \n \u200b \n:shield: [Help! Stab to protect their gold!](https://web.simple-mmo.com/user/attack/{smmoid})")
                     await channel.send(f"<@{discordid}> gold ping! {info['gold']:,} gold out!", embed=embed)
                     await db.warinfo_ping_update(discordid)
         except Exception as e:
-            raise e
+            logging.error(e)
 
     @gold_ping.before_loop
     async def before_gold_ping(self):
         await self.bot.wait_until_ready()
 
 
-def setup(bot):
-    if config.main_acct:
-        bot.add_cog(Wars(bot))
-        print("Wars Cog Loaded")
+async def setup(bot):
+    await bot.add_cog(Wars(bot))
+    logger.info("Wars Cog Loaded")

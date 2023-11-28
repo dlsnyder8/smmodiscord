@@ -6,17 +6,10 @@ import database as db
 from util import checks, log
 import logging
 from datetime import datetime, timezone, timedelta
-from dateutil import parser
-import pytz
 
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
 
 class Diamond(commands.Cog):
@@ -27,7 +20,6 @@ class Diamond(commands.Cog):
     @commands.group(aliases=['d'], hidden=True)
     async def diamond(self, ctx):
         if ctx.invoked_subcommand is None:
-
             pass
 
     @diamond.command()
@@ -57,19 +49,22 @@ class Diamond(commands.Cog):
     async def config(self, ctx):
 
         config = await db.server_config(ctx.guild.id)
-        print(config)
-        ID, ping_bool, role, channel, timestamp = config[0]
+        
+        ID, ping_bool, role, channel, _ = config[0]
         embed = Embed(title="Server Config",
                       description=f"ID: {ID}\nDiamond Ping: {ping_bool}\nPinged Role: {ctx.guild.get_role(role)}\nChannel: {ctx.guild.get_channel(channel)}")
         await ctx.send(embed=embed)
 
     @tasks.loop(minutes=1, reconnect=True)
     async def diamond_check(self):
-        # print('starting diamond check')
-        cheap_diamonds = False
-        more_than_200 = False
         string = ""
         listings = await api.diamond_market()
+        if listings is None:
+            logging.error("Diamond Market API failed")
+            return
+        elif listings == []:
+            logging.error("Diamond Market returned empty string")
+            return
         allservers = await db.all_servers()
         # listings = [{"price_per_diamond": 1, "diamonds_remaining": 5}]
 
@@ -78,19 +73,22 @@ class Diamond(commands.Cog):
             x for x in allservers if x.premium and x.diamond_ping and x.diamond_role is not None and x.diamond_channel is not None]
 
         for server in filtered:
+            guild = self.bot.get_guild(server.serverid)
+            if guild is None:
+                continue
             diamond = [x for x in listings if x['price_per_diamond']
-                       < server.diamond_amount]
+                       <= server.diamond_amount]
+            
 
-            if diamond is not []:
+            if diamond != []:
+                logger.info(f'Would have pinged in server {server.full_name}')
                 embed = Embed(title="Cheap Diamonds!!!")
-                string = ""
+                string = "[Diamond Market](https://web.simple-mmo.com/diamond-market)\n"
                 for list in diamond:
                     string += f"There are {list['diamonds_remaining']} diamonds left at {list['price_per_diamond']:,} each.\n"
 
                 embed.description = string
-                guild = self.bot.get_guild(server.serverid)
-                if guild is None:
-                    continue
+                
                 chan = self.bot.get_channel(server.diamond_channel)
                 role = guild.get_role(server.diamond_role)
 
@@ -103,17 +101,16 @@ class Diamond(commands.Cog):
                     await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
                     continue
                 plus30min = server.last_pinged + timedelta(minutes=29)
-                plus30min = pytz.utc.localize(plus30min)
+                # plus30min = pytz.utc.localize(plus30min)
 
                 if plus30min < datetime.now(timezone.utc):
                     await chan.send(f'{role.mention}', embed=embed)
                     await db.update_timestamp(server.serverid, datetime.now(timezone.utc))
-
     @diamond_check.before_loop
-    async def before_diamodn_check(self):
+    async def before_diamond_check(self):
         await self.bot.wait_until_ready()
 
 
-def setup(bot):
-    bot.add_cog(Diamond(bot))
-    print("Diamond Cog Loaded")
+async def setup(bot):
+    await bot.add_cog(Diamond(bot))
+    logger.info("Diamond Cog Loaded")
