@@ -1275,6 +1275,18 @@ async def store_data(smmoid, data):
             raise e
         finally:
             await con.close()
+            
+async def get_data(smmoid):
+    async with session() as con:
+        try:
+            data = await con.execute(select(Profile_Data).filter_by(smmoid=smmoid).order_by(Profile_Data.timestamp.desc()).limit(1))
+            result = data.first()
+            return (result[0].data, result[0].timestamp) if result else (None, datetime.now(timezone.utc))
+        except Exception as e:
+            await con.rollback()
+            raise e
+        finally:
+            await con.close()
 
 # async def warinfo_test():
 #     async with session() as con:
