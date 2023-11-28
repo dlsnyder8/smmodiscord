@@ -1,5 +1,5 @@
 # SimpleMMO Helper
-A Discord bot designed to be the bridge between your [SimpleMMO](https://web.simple-mmo.com) and Discord.
+A Discord bot designed to be the bridge between [SimpleMMO](https://web.simple-mmo.com) and Discord.
 
 [Invite Me](https://discord.com/api/oauth2/authorize?client_id=787258388752236565&permissions=8&scope=bot)
 
