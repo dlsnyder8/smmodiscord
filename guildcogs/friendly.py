@@ -172,7 +172,7 @@ class Friendly(commands.Cog):
         profile_data, timestamp = await db.get_data(smmoid)
         if profile_data is None:
             profile_data = await api.get_all(smmoid)
-        elif (datetime.now() - timestamp).total_seconds() > 3600:
+        elif (datetime.utcnow() - timestamp).total_seconds() > 3600:
             profile_data = await api.get_all(smmoid)
             timestamp = datetime.utcnow()
 
