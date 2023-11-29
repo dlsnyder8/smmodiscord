@@ -172,9 +172,9 @@ class Friendly(commands.Cog):
         profile_data, timestamp = await db.get_data(smmoid)
         if profile_data is None:
             profile_data = await api.get_all(smmoid)
-        elif (datetime.utcnow() - timestamp).total_seconds() > 3600:
+        elif (datetime.now(timezone.utc) - timestamp).total_seconds() > 3600:
             profile_data = await api.get_all(smmoid)
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
 
         # Sample Profile_Data
         #  {"hp": 310255, "id": 385801, "def": 5, "dex": 7350, "exp": 96283469640, "str": 115800, "gold": 4425055851, "name": "retired dyl", "guild": {"id": 482, "name": "Still Friendly"}, "level": 62042, "motto": "Retired moderator. If you ask me for moderator help I am guaranteed to be unhelpful", "steps": 39775, "avatar": "/img/sprites/events/halloween-21/chocolate-frog-avatar.png", "banned": 0, "max_hp": 310255, "safeMode": 1, "bonus_def": 8595, "bonus_dex": 0, "bonus_str": 4125, "npc_kills": 21412, "background": 122, "boss_kills": 223, "membership": 1, "reputation": 193, "user_kills": 33100, "chests_opened": 143648, "creation_date": "2020-07-31T19:11:47.000000Z", "last_activity": 1700455799, "market_trades": 18806, "profile_number": "8008", "quests_complete": 114, "tasks_completed": 343, "current_location": {"id": 1, "name": "Simpletopia"}, "dailies_unlocked": 800, "quests_performed": 1895053, "bounties_completed": 2}
