@@ -160,6 +160,53 @@ class Friendly(commands.Cog):
         embed = Embed(title="So you want a colored role?", description=f"There are 4 ways to not be a stinky color:\n- Join the guild and have access to 80+ roles\n- Boost the server\n- Post artwork in <#734892163502178434> to get the <@&733433793871872051> role\n- Win an event")
         await ctx.send(embed=embed)
 
+
+    @app_checks.server_configured()
+    @app_checks.is_verified()
+    @app_commands.command(description="Show your profile")
+    async def profile(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        smmoid = await db.get_smmoid(interaction.user.id)
+        # get data from profile_data in db. If not exists, call API
+        # If profile data is None, call api
+        profile_data, timestamp = await db.get_data(smmoid)
+        if profile_data is None:
+            profile_data = await api.get_all(smmoid)
+
+        # Sample Profile_Data
+        #  {"hp": 310255, "id": 385801, "def": 5, "dex": 7350, "exp": 96283469640, "str": 115800, "gold": 4425055851, "name": "retired dyl", "guild": {"id": 482, "name": "Still Friendly"}, "level": 62042, "motto": "Retired moderator. If you ask me for moderator help I am guaranteed to be unhelpful", "steps": 39775, "avatar": "/img/sprites/events/halloween-21/chocolate-frog-avatar.png", "banned": 0, "max_hp": 310255, "safeMode": 1, "bonus_def": 8595, "bonus_dex": 0, "bonus_str": 4125, "npc_kills": 21412, "background": 122, "boss_kills": 223, "membership": 1, "reputation": 193, "user_kills": 33100, "chests_opened": 143648, "creation_date": "2020-07-31T19:11:47.000000Z", "last_activity": 1700455799, "market_trades": 18806, "profile_number": "8008", "quests_complete": 114, "tasks_completed": 343, "current_location": {"id": 1, "name": "Simpletopia"}, "dailies_unlocked": 800, "quests_performed": 1895053, "bounties_completed": 2}
+        # Build embed from profile data
+        
+        # Add timestamp to footer
+        embed = Embed(title=f"{profile_data['name']}'s Profile", timestamp=timestamp)
+        embed.set_footer(text=f"Data Gathered at")
+        embed.add_field(name="Level", value=profile_data['level'], inline=True)
+        embed.add_field(name="Guild", value=profile_data['guild']['name'], inline=True)
+        embed.add_field(name="Steps", value=profile_data['steps'], inline=True)
+        embed.add_field(name="Gold", value=profile_data['gold'], inline=True)
+        embed.add_field(name="Reputation", value=profile_data['reputation'], inline=True)
+        embed.add_field(name="NPC Kills", value=profile_data['npc_kills'], inline=True)
+        embed.add_field(name="User Kills", value=profile_data['user_kills'], inline=True)
+        embed.add_field(name="Boss Kills", value=profile_data['boss_kills'], inline=True)
+        embed.add_field(name="Chests Opened", value=profile_data['chests_opened'], inline=True)
+        embed.add_field(name="Quests Completed", value=profile_data['quests_complete'], inline=True)
+        embed.add_field(name="Tasks Completed", value=profile_data['tasks_completed'], inline=True)
+        embed.add_field(name="Bounties Completed", value=profile_data['bounties_completed'], inline=True)
+        embed.add_field(name="Market Trades", value=profile_data['market_trades'], inline=True)
+        embed.add_field(name="Quests Performed", value=profile_data['quests_performed'], inline=True)
+        embed.add_field(name="Dailies Unlocked", value=profile_data['dailies_unlocked'], inline=True)
+        
+        creation_date = datetime.strptime(profile_data['creation_date'], "%Y-%m-%dT%H:%M:%S.%fZ")
+        formatted_creation_date = creation_date.strftime("%B %d, %Y")
+        embed.add_field(name="Creation Date", value=formatted_creation_date, inline=True)
+
+        last_activity_unix = profile_data['last_activity']
+        last_activity_datetime = datetime.fromtimestamp(last_activity_unix)
+
+        embed.add_field(name="Last Activity (UTC)", value=last_activity_datetime, inline=True)
+        
+        await interaction.followup.send(embed=embed)
+        
     @checks.in_fly()
     @friendly.command(aliases=['fc', 'friendcheck'])
     @checks.no_bot_channel()
