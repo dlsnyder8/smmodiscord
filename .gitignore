@@ -10,3 +10,4 @@ guildcogs/__pycache__/*
 
 discord.log
 friendly.csv
+docker/docker-compose.*.yml
