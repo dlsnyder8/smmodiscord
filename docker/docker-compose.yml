@@ -1,0 +1,10 @@
+
+version: '3'
+services:
+  bot:
+    container_name: ${name}
+    build:
+      context: ..
+      dockerfile: docker/bot/Dockerfile
+    restart: unless-stopped
+    
