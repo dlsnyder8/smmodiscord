@@ -408,7 +408,7 @@ class Friendly(commands.Cog):
             await interaction.followup.send(f"<@581061608357363712> <@307328265129820160>\n ;adminlink {interaction.user.id} {smmoid}")
 
         else:
-            await interaction.response.send_message("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
+            await interaction.followup.send("You are not in Fly. Try contacting a Big Friend if you believe this is a mistake")
             return
 
     @checks.in_fly()
