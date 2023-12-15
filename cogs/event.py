@@ -259,7 +259,7 @@ class Event(commands.GroupCog, name="event"):
         random_filename = str(uuid.uuid4())
         with open(f'{random_filename}.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['smmoid', 'discordid', 'starting_stat', 'current_stat', 'last_updated'])
+            writer.writerow(['id', 'discordid', 'starting_stat', 'current_stat', 'last_updated'])
             for member in participants:
                 data = [member.id, member.discordid, member.starting_stat, member.current_stat, member.last_updated ]
                 writer.writerow(data)
