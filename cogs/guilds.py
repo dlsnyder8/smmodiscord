@@ -294,15 +294,27 @@ class Guilds(commands.Cog):
                 if await db.islinked(member.id):
                     smmoid = await db.get_smmoid(member.id)
                     if smmoid not in allmembers:
-                        removed.append(f"{member.mention}")
-                        await member.remove_roles(guild_role, reason="User has left the guild")
+                        try:
+                            await member.remove_roles(guild_role, reason="User has left the guild")
+                            removed.append(f"{member.mention}")
+                        except discord.Forbidden:
+                            removed.append(f"{member.mention} (I do not have permission to remove the guild role")
                         if non_guild_role is not None:
-                            await member.add_roles(non_guild_role)
+                            try:
+                                await member.add_roles(non_guild_role)
+                            except discord.Forbidden:
+                                pass
                 else:
-                    await member.remove_roles(guild_role, reason="User has not linked")
-                    removed.append(f'{member.mention}')
+                    try:
+                        await member.remove_roles(guild_role, reason="User has not linked")
+                        removed.append(f'{member.mention}')
+                    except discord.Forbidden:
+                        removed.append(f"{member.mention} (I do not have permission to remove the guild role")
                     if non_guild_role is not None:
-                        await member.add_roles(non_guild_role)
+                        try:
+                            await member.add_roles(non_guild_role)
+                        except discord.Forbidden:
+                            pass
             if len(removed) > 0:
                 embed = Embed(
                     title="Users with the guild role removed"
