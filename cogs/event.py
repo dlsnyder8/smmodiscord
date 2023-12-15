@@ -1,7 +1,7 @@
 import discord
 from discord import Embed, app_commands
 from discord.ext import commands, tasks
-import logging
+import logging, csv, os, uuid
 import api
 import database as db
 from util import checks, log, app_checks
@@ -234,6 +234,36 @@ class Event(commands.GroupCog, name="event"):
                       description=f"**Starting amount:** {progress[0]}\n**Last Updated Amount:** {progress[1]}\n**Difference:** {progress[2]}")
         embed = embed.set_footer(text=f"Last Updated: {progress[3]} UTC")
         await interaction.response.send_message(embed=embed)
+        
+        
+    @checks.is_owner()
+    @app_commands.command(aliases=["export"])
+    async def export(self, interaction:discord.Interaction, eventid:int):
+        await interaction.response.defer(thinking=True)
+        
+        valid = await db.valid_event(eventid, interaction.guild_id)
+        if valid is False:
+            await interaction.followup.send("Invalid event ID")
+            return
+        
+        participants = await db.get_participants(eventid)
+        if len(participants) == 0 or participants is None:
+            await interaction.followup.send("That doesn't appear to be a valid event id")
+            return
+
+        participants.sort(
+            reverse=True, key=lambda x: x.current_stat-x.starting_stat)
+        
+        # create random file name
+        random_filename = str(uuid.uuid4())
+        with open(f'{random_filename}.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['smmoid', 'discordid', 'starting_stat', 'current_stat', 'last_updated'])
+            for member in participants:
+                data = [member.id, member.discordid, member.starting_stat, member.current_stat, member.last_updated ]
+                writer.writerow(data)
+        await interaction.followup.send("Here are the guild stats", file=discord.File(f'{random_filename}.csv'))
+        os.remove(f'{random_filename}.csv')
 
     @app_commands.command()
     @app_checks.is_admin()
