@@ -33,7 +33,7 @@ class Event(commands.GroupCog, name="event"):
         app_commands.Choice(name='NPC Slaughter Event',value='npc'),
         app_commands.Choice(name='Leveling Event',value='level')
     ])
-    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,120),key=BucketType.Guild)
     async def create(self, interaction: discord.Interaction, name: str, event_type: app_commands.Choice[str]):
         # if eventtype not in self.event_types:
         #     await ctx.send(embed=Embed(title="Invalid event type", description="Events must be one of the following:\n`step`,`level`,`npc`,`pvp`"))
@@ -50,7 +50,7 @@ class Event(commands.GroupCog, name="event"):
 
     @app_commands.command()
     @app_checks.is_admin()
-    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,120),key=BucketType.Guild)
     async def start(self, interaction: discord.Interaction, eventid:int):
         await interaction.response.send_message("Gathering starting stats. This may take a minute, please wait for confirmation.")
         stat_convert = {"pvp": "user_kills", "step": "steps",
@@ -94,7 +94,7 @@ class Event(commands.GroupCog, name="event"):
 
     @app_commands.command()
     @app_checks.is_admin()
-    @app_commands.checks.dynamic_cooldown(custom_is_me(1,600),key=BucketType.Guild)
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,120),key=BucketType.Guild)
     async def end(self, interaction: discord.Interaction, eventid: int):
         await interaction.response.send_message("Gathering final stats. Please be patient.")
         try:
@@ -236,8 +236,9 @@ class Event(commands.GroupCog, name="event"):
         await interaction.response.send_message(embed=embed)
         
         
-    @checks.is_owner()
-    @app_commands.command(aliases=["export"])
+    @app_checks.is_admin()
+    @app_commands.command(name="export")
+    @app_commands.checks.dynamic_cooldown(custom_is_me(1,120),key=BucketType.Guild)
     async def export(self, interaction:discord.Interaction, eventid:int):
         await interaction.response.defer(thinking=True)
         
