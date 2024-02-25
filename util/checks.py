@@ -5,7 +5,7 @@ import api
 import database as db
 
 
-dyl = 332314562575597579
+dyls = (332314562575597579, 1203537569837613076)
 
 
 def in_main():
@@ -33,7 +33,7 @@ def has_joined():
 
 def MI6():
     async def predicate(ctx):
-        if ctx.author.id == dyl or ctx.author._roles.has(749919277213155379):
+        if ctx.author.id in dyls or ctx.author._roles.has(749919277213155379):
             return True
         else:
             return False
@@ -42,7 +42,7 @@ def MI6():
 
 def is_admin():
     async def predicate(ctx):
-        if ctx.author.id == dyl:
+        if ctx.author.id in dyls:
             return True
         if ctx.message.author.guild_permissions.administrator:
             return True
@@ -57,7 +57,7 @@ def is_admin():
 
 def in_fly_guild():
     async def predicate(ctx):
-        if ctx.author.id == dyl:
+        if ctx.author.id in dyls:
             return True
         elif ctx.author._roles.has(710315282920636506):
             return True
@@ -90,7 +90,7 @@ def warinfo_linked():
 
 def in_fly():
     async def predicate(ctx):
-        if ctx.author.id == dyl:
+        if ctx.author.id in dyls:
             return True
         elif ctx.guild.id == 710258284661178418:
             return True
@@ -103,7 +103,7 @@ def in_fly():
 
 def is_fly_admin():
     async def predicate(ctx):
-        if ctx.author.id == dyl:
+        if ctx.author.id in dyls:
             return True
         elif ctx.author._roles.has(719789422178205769):
             return True
@@ -135,7 +135,7 @@ def premium_server():
 
 def is_owner():
     async def predicate(ctx):
-        if(ctx.author.id == dyl):
+        if(ctx.author.id in dyls):
             return True
         else:
             message = await ctx.send(
