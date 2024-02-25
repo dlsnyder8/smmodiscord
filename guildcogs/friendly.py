@@ -303,7 +303,7 @@ class Friendly(commands.Cog):
             output = set(roleids).intersection(weighted_fly_roles)
             events = set(roleids).intersection(event_roles)
             inviteonly = set(roleids).intersection(invite_roles)
-            bff_only_count = set(roleids).intersection(bff_only_roles)
+            
             
             total = 0
             invite = False
@@ -317,6 +317,7 @@ class Friendly(commands.Cog):
             # Check for chatter role
             if member._roles.has(908072543708135455):
                 chatter = True
+            bff_only_count = len(set(roleids).intersection(bff_only_roles)) + total
 
             embed = Embed(title="Friendship Eligibility")
 
@@ -336,7 +337,7 @@ class Friendly(commands.Cog):
                     embed.description = f"You are eligible for Close Friend with {total} roles :)\nPlease run this command again in <#719944258156494998> to apply for the role"
 
             # Best Friend
-            elif (total + len(bff_only_count)) < 55:
+            elif (bff_only_count) < 55:
                 if not chatter:
                     embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Best Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 else:
@@ -346,13 +347,13 @@ class Friendly(commands.Cog):
             # Best Friend Forever
             else:
                 if invite and chatter:
-                    embed.description = f"A master role gatherer has joined the ranks of BFF. Congrats on {total} roles!\nPlease run this command again in <#719944258156494998> to apply for the role"
+                    embed.description = f"A master role gatherer has joined the ranks of BFF. Congrats on {bff_only_count} roles!\nPlease run this command again in <#719944258156494998> to apply for the role"
                 elif not invite and not chatter:
-                    embed. description = f"You have enough roles to be eligible for BFF with {total} roles, however you need to get an invite only role still and you need to reach level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
+                    embed. description = f"You have enough roles to be eligible for BFF with {bff_only_count} roles, however you need to get an invite only role still and you need to reach level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 elif not chatter:
-                    embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
+                    embed.description = f"You have {bff_only_count} roles, but you still need to hit level 15 on MEE6 to be eligible for BFF. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 elif not invite:
-                    embed. description = f"You have enough roles to be eligible for BFF with {total} roles, however you need to get an invite only role still."
+                    embed. description = f"You have enough roles to be eligible for BFF with {bff_only_count} roles, however you need to get an invite only role still."
 
             await ctx.send(embed=embed)
 
@@ -1291,7 +1292,8 @@ class Friendly(commands.Cog):
     async def bring_dyl(self, ctx):
         await ctx.author.add_roles(ctx.guild.get_role(710315282920636506))
 
-    @friendly.command(aliases=['check_roles', 'cr', 'checkroles'], enabled=False)
+    @friendly.command(aliases=['check_roles', 'cr', 'checkroles'])
+    @checks.is_owner()
     @checks.no_bot_channel()
     @checks.in_fly()
     @checks.in_fly_guild()
