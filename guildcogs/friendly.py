@@ -562,11 +562,11 @@ class Friendly(commands.Cog):
         # Thicc (Levels)
         level = profile["level"]
         if level >= 100000:
-            string += f"**Thicc+++:** <@&{fly_roles[3]}>\n"
+            string += f"**Thicc:** <@&{fly_roles[3]}>\n"
         elif level >= 25000:
-            string += f"**Thicc++:** <@&{fly_roles[2]}>\n"
+            string += f"**Thicc:** <@&{fly_roles[2]}>\n"
         elif level >= 10000:
-            string += f"**Thicc+:** <@&{fly_roles[1]}>\n"
+            string += f"**Thicc:** <@&{fly_roles[1]}>\n"
         elif level >= 1000:
             string += f"**Thicc:** <@&{fly_roles[0]}>\n"
         else:
