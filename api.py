@@ -329,7 +329,7 @@ async def diamond_market():
 
 async def main():
     print(await get_all(385801))
-    print(await get_all(385801))
+    print((await guild_members(408))[0])
         
 if __name__ == "__main__":
     asyncio.run(main())
@@ -355,7 +355,7 @@ if __name__ == "__main__":
 
     # equipment(385801)
     # print(diamond_market()[0])
-    # print(guild_members(408)[0])
+    
     # print(guild_info(408))
     # status = await pleb_status(385801)
     # await get_all(385801)

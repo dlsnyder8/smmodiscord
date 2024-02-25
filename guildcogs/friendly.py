@@ -37,7 +37,7 @@ fly = (408, 455, 541, 482)
 """
 fly_roles = [
     # Thicc (Levels)
-    727719624434778124, 727722577908334662, 727722769785028672,
+    727719624434778124, 727722577908334662, 727722769785028672, 1203519994512547850,
     # Stepper
     710290715787264041, 720049949865279559, 727947354929365003, 829700204357877812,
     # Gladiator (NPC)
@@ -220,7 +220,7 @@ class Friendly(commands.Cog):
 
         weighted_fly_roles = {
             # Thicc (Levels)
-            727719624434778124: 1, 727722577908334662: 2, 727722769785028672: 3,
+            727719624434778124: 1, 727722577908334662: 2, 727722769785028672: 3, 1203519994512547850: 4,
             # Stepper
             710290715787264041: 1, 720049949865279559: 2, 727947354929365003: 3, 829700204357877812: 4,
             # Gladiator (NPC)
@@ -246,7 +246,7 @@ class Friendly(commands.Cog):
             # Suggester
             720047404996624487: 1,
             # Storyteller
-            774361923218309130: 1,
+            774361923218309130: 1, 1203520265099935774: 2,
             # Looter
             720049700782342215: 1,
             # Collector
@@ -274,17 +274,26 @@ class Friendly(commands.Cog):
             # Booster
             716498456453316672: 1,
             # BF/CF/BFF
-            756119028543651951: 1, 894229709192314920: 2, 723506672944807946: 3,
+            1203520507367137291:0, 756119028543651951: 1, 894229709192314920: 2, 723506672944807946: 3,
             # Charity Club
-            713069407261425724: 1
+            713069407261425724: 1,
+            # Completionist (NPC Collection)
+            1203519575757557770: 1, 1203519703537164360: 2,
+            # Hugger
+            1203518201967804456: 1, 1203518516548993085: 2, 1203518678768029706: 3,
+            # Experienced (Gexp)
+            1203519765407080448: 1, 1203519806993727538: 2, 1203519844545462272: 3,
         }
 
         event_roles = {
-            731438976572850239: 1, 729562423912038462: 1, 784451589922226176: 1, 749945230907670560: 1, 961692275895840848: 1
+            731438976572850239: 1, 729562423912038462: 1, 784451589922226176: 1, 749945230907670560: 1, 961692275895840848: 1,
+            1108063393690161222: 1, 1108061996080971846: 1, 1108063032136970241: 1, 1072105694460907590: 1 
         }
 
-        invite_roles = {710325364756447306: 1, 720053250669281301: 2, 748786772833730580: 2, 720048172399067200: 3,
+        invite_roles = {720053250669281301: 2, 748786772833730580: 2, 720048172399067200: 3,
                         774354836614545419: 2, 720052932971593800: 2, 720683761959960627: 2, 720684106551132263: 3}
+        
+        bff_only_roles = {769831412625834004 :1, 719789422178205769: 1}
 
         async with ctx.typing():
 
@@ -294,6 +303,8 @@ class Friendly(commands.Cog):
             output = set(roleids).intersection(weighted_fly_roles)
             events = set(roleids).intersection(event_roles)
             inviteonly = set(roleids).intersection(invite_roles)
+            bff_only_count = set(roleids).intersection(bff_only_roles)
+            
             total = 0
             invite = False
             chatter = False
@@ -309,20 +320,30 @@ class Friendly(commands.Cog):
 
             embed = Embed(title="Friendship Eligibility")
 
-            if total < 15:
+            # No Friend
+            if total < 10:
                 embed.description = f"Try getting some more roles! You only have {total} roles."
+                
+            # Good Friend
+            elif total < 20:
+                embed.description = f"Good job! You have {total} roles and are eligible for Good Friend. Please run this command again in <#719944258156494998> to apply for the role"
 
-            elif total < 30:
+            # Close Friend
+            elif total < 35:
                 if not chatter:
                     embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Close Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 else:
                     embed.description = f"You are eligible for Close Friend with {total} roles :)\nPlease run this command again in <#719944258156494998> to apply for the role"
 
-            elif total < 45:
+            # Best Friend
+            elif (total + bff_only_count) < 55:
                 if not chatter:
                     embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Best Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 else:
                     embed.description = f"You are eligible for Best Friend!! Nice job getting {total} roles.\nPlease run this command again in <#719944258156494998> to apply for the role"
+                    
+                    
+            # Best Friend Forever
             else:
                 if invite and chatter:
                     embed.description = f"A master role gatherer has joined the ranks of BFF. Congrats on {total} roles!\nPlease run this command again in <#719944258156494998> to apply for the role"
@@ -425,117 +446,117 @@ class Friendly(commands.Cog):
 
         # Thicc (Levels)
         level = profile["level"]
-        if level >= 1000 and level < 5000:
-            string += f"**Thicc:** <@&{fly_roles[0]}>\n"
-        elif level >= 5000 and level < 10000:
-            string += f"**Thicc:** <@&{fly_roles[1]}>\n"
+        if level >= 100000:
+            string += f"**Thicc+++:** <@&{fly_roles[3]}>\n"
+        elif level >= 25000:
+            string += f"**Thicc++:** <@&{fly_roles[2]}>\n"
         elif level >= 10000:
-            string += f"**Thicc:** <@&{fly_roles[2]}>\n"
+            string += f"**Thicc+:** <@&{fly_roles[1]}>\n"
+        elif level >= 1000:
+            string += f"**Thicc:** <@&{fly_roles[0]}>\n"
         else:
             string += f"**Thicc:** Not Eligible\n"
 
         # Stepper
         steps = profile["steps"]
         if steps >= 7500 and steps < 50000:
-            string += f"**Stepper:** <@&{fly_roles[3]}>\n"
-
-        elif steps >= 50000 and steps < 100000:
             string += f"**Stepper:** <@&{fly_roles[4]}>\n"
-        elif steps >= 100000 and steps < 1000000:
+        elif steps >= 50000 and steps < 100000:
             string += f"**Stepper:** <@&{fly_roles[5]}>\n"
-        elif steps >= 1000000:
+        elif steps >= 100000 and steps < 1000000:
             string += f"**Stepper:** <@&{fly_roles[6]}>\n"
+        elif steps >= 1000000:
+            string += f"**Stepper:** <@&{fly_roles[7]}>\n"
         else:
             string += f"**Stepper:** Not Eligible\n"
 
         # Gladiator (NPC)
         npc_kills = profile["npc_kills"]
         if npc_kills >= 1000 and npc_kills < 10000:
-            string += f"**Gladiator:** <@&{fly_roles[7]}>\n"
-        elif npc_kills >= 10000 and npc_kills < 20000:
             string += f"**Gladiator:** <@&{fly_roles[8]}>\n"
-        elif npc_kills >= 20000:
+        elif npc_kills >= 10000 and npc_kills < 20000:
             string += f"**Gladiator:** <@&{fly_roles[9]}>\n"
+        elif npc_kills >= 20000:
+            string += f"**Gladiator:** <@&{fly_roles[10]}>\n"
         else:
             string += f"**Gladiator:** Not Eligible\n"
 
         # Monster (PVP)
         pvp_kills = profile["user_kills"]
         if pvp_kills >= 100 and pvp_kills < 2500:
-            string += f"**Monster:** <@&{fly_roles[10]}>\n"
-        elif pvp_kills >= 2500 and pvp_kills < 10000:
             string += f"**Monster:** <@&{fly_roles[11]}>\n"
-        elif pvp_kills >= 10000:
+        elif pvp_kills >= 2500 and pvp_kills < 10000:
             string += f"**Monster:** <@&{fly_roles[12]}>\n"
+        elif pvp_kills >= 10000:
+            string += f"**Monster:** <@&{fly_roles[13]}>\n"
         else:
             string += f"**Monster:** Not Eligible\n"
 
         # Quester
         quests = profile["quests_performed"]
         if quests >= 2500 and quests < 10000:
-            string += f"**Quester:** <@&{fly_roles[13]}>\n"
-        elif quests >= 10000 and quests < 30000:
             string += f"**Quester:** <@&{fly_roles[14]}>\n"
-        elif quests >= 30000:
+        elif quests >= 10000 and quests < 30000:
             string += f"**Quester:** <@&{fly_roles[15]}>\n"
+        elif quests >= 30000:
+            string += f"**Quester:** <@&{fly_roles[16]}>\n"
         else:
             string += f"**Quester:** Not Eligible\n"
 
         # Forager
         total_skill_level = 0
         for skill in skills:
-
             if skill["skill"] == "crafting":
                 continue
-
             else:
                 total_skill_level = total_skill_level + skill["level"]
 
         if total_skill_level >= 150 and total_skill_level < 300:
-            string += f"**Forager:** <@&{fly_roles[16]}>\n"
-        elif total_skill_level >= 300 and total_skill_level < 500:
             string += f"**Forager:** <@&{fly_roles[17]}>\n"
-        elif total_skill_level >= 500:
+        elif total_skill_level >= 300 and total_skill_level < 500:
             string += f"**Forager:** <@&{fly_roles[18]}>\n"
+        elif total_skill_level >= 500:
+            string += f"**Forager:** <@&{fly_roles[19]}>\n"
         else:
             string += f"**Forager:** Not Eligible\n"
 
         # Tasker
         nr_tasks = profile["tasks_completed"]
         if nr_tasks >= 1000:
-            string += f"**Tasker:** <@&{fly_roles[23]}>\n"
+            string += f"**Tasker:** <@&{fly_roles[24]}>\n"
         elif nr_tasks >= 500:
-            string += f"**Tasker:** <@&{fly_roles[22]}>\n"
+            string += f"**Tasker:** <@&{fly_roles[23]}>\n"
         elif nr_tasks >= 250:
             string += f"**Tasker:** <@&{fly_roles[21]}>\n"
         else:
             string += f"**Tasker:** Not Eligible\n"
 
+        # Slayer
         wb_kills = profile["boss_kills"]
-        if wb_kills >= 100:
-            string += f"**Slayer:** <@&{fly_roles[25]}>\n"
+        if wb_kills >= 200:
+            string += f"**Slayer:** <@&{fly_roles[26]}>\n"
         elif wb_kills >= 50:
-            string += f"**Slayer:** <@&{fly_roles[24]}>\n"
+            string += f"**Slayer:** <@&{fly_roles[25]}>\n"
         else:
             string += f"**Slayer:** Not Eligible\n"
 
          # Trader
         trades = profile["market_trades"]
         if trades >= 10000:
-            string += f"**Trader:** <@&{fly_roles[27]}>\n"
+            string += f"**Trader:** <@&{fly_roles[28]}>\n"
         elif trades >= 1000:
-            string += f"**Trader:** <@&{fly_roles[26]}>\n"
+            string += f"**Trader:** <@&{fly_roles[27]}>\n"
         else:
             string += f"**Trader:** Not Eligible\n"
 
         # Celebrity
         rep = profile["reputation"]
         if rep >= 500:
-            string += f"**Celebrity:** <@&{fly_roles[31]}>\n"
+            string += f"**Celebrity:** <@&{fly_roles[32]}>\n"
         elif rep >= 200:
-            string += f"**Celebrity:** <@&{fly_roles[30]}>\n"
+            string += f"**Celebrity:** <@&{fly_roles[31]}>\n"
         elif rep >= 30:
-            string += f"**Celebrity:** <@&{fly_roles[29]}>\n"
+            string += f"**Celebrity:** <@&{fly_roles[30]}>\n"
         else:
             string += f"**Celebrity:** Not Eligible\n"
 
@@ -546,7 +567,7 @@ class Friendly(commands.Cog):
         difference = now - creation
 
         if difference.days >= 365:
-            string += f"**Veteran:** <@&{fly_roles[32]}>\n"
+            string += f"**Veteran:** <@&{fly_roles[33]}>\n"
         else:
             string += f"**Veteran:** Not Eligible\n"
 
