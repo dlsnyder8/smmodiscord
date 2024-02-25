@@ -68,7 +68,7 @@ fly_roles = [
 acquaintance = 710307524632641597
 traveler = 710318244401119304
 
-dyl = 332314562575597579
+dyl = 1203537569837613076
 
 
 class Friendly(commands.Cog):
