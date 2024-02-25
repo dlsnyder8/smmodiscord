@@ -26,10 +26,4 @@ Use any of these utility commands:
 - `/trade_list` - Generates a trade link for a list of users (from a giveaway)
 - `/topic` - Sends a random topic question to the channel this is used in
 
-## Premium
-More info [here](https://www.patreon.com/SMMOdyl)
-- Automatic Diamond pings when prices fall below a certain level
-- White label version
-- Custom Commands upon request
-- Coming Soon:
-  - Guild stat tracking
+
