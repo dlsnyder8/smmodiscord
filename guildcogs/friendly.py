@@ -336,7 +336,7 @@ class Friendly(commands.Cog):
                     embed.description = f"You are eligible for Close Friend with {total} roles :)\nPlease run this command again in <#719944258156494998> to apply for the role"
 
             # Best Friend
-            elif (total + bff_only_count) < 55:
+            elif (total + len(bff_only_count)) < 55:
                 if not chatter:
                     embed.description = f"You have {total} roles, but you still need to hit level 15 on MEE6 to be eligible for Best Friend. You can check your current rank by doing `!rank` in <#710718330516013147>"
                 else:
