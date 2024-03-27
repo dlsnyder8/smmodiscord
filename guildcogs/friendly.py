@@ -441,6 +441,15 @@ class Friendly(commands.Cog):
         smmoid = await db.get_smmoid(ctx.author.id)
         profile = await api.get_all(smmoid)
         skills = await api.get_skills(smmoid)
+        if (profile is None or skills is None):
+            embed2 = discord.Embed(
+                title="API Issue",
+                description="I am unable to retrieve your profile stats. Please try again later."
+            )
+            await ctx.send(embed=embed2)
+            return
+        
+            
 
         embed = Embed(title=f"Role eligibility for {ctx.author.display_name}")
         string = ""
