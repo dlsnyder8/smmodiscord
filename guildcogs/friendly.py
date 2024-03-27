@@ -411,7 +411,7 @@ class Friendly(commands.Cog):
                 logger.error(e)
 
             # add fly role
-            await interaction.user.add_roles(interaction.guild.get_role(fly_roles[19]))
+            await interaction.user.add_roles(interaction.guild.get_role(fly_roles[20]))
             await interaction.user.add_roles(interaction.guild.get_role(traveler))
             await interaction.user.remove_roles(interaction.guild.get_role(acquaintance))
             await interaction.followup.send(f"Welcome to Friendly :)\nYou can run `&fly eligibility` (`&f e` for short) to check your eligibility for specific roles (more info in <#710305444194680893>)")
